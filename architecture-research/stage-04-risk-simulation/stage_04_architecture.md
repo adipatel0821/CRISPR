@@ -1,6 +1,8 @@
 # Stage 04 — Financial Uncertainty & Risk Simulation
 
-**Agent:** Stage Architecture Agent 4 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 3 and 5) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.0
+> **Version 1.1 (post-audit, 2026-10-24).** Revised per `reviews/stage_04_review.md` (verdict REVISE). **The v1.0 default shock ("CFPB median: 3 weeks of income, more than once a year") is retracted.** It is not supported by the CFPB sources reviewed. Defaults are now illustrative, user-relative and labeled; CFPB research appears only as context (CH-21). Also: the recursion starts from savings after purchase (CH-04); savings is floored at 0 with an unfunded gap (CH-22); every scenario runs without and with the offer (CH-23); baseline equality is checked month by month (CH-24); break-even edge cases and M = 3/6 are defined (CH-25); low-month scenario for variable income (CH-16).
+
+**Agent:** Stage Architecture Agent 4 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 3 and 5) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.1 (authoritative schemas)
 **Research date:** 2026-10-24.
 
 ---
@@ -12,7 +14,7 @@ Let the user see how the loan behaves if their circumstances change — income d
 ## 2. Problem decomposition
 
 1. Define a monthly cash-flow state machine (income, expenses, debt payments, new payment, ownership costs, savings balance).
-2. Define a scenario catalog with CFPB-grounded defaults and user-adjustable parameters.
+2. Define a catalog of illustrative, user-relative scenarios (labeled as such; v1.1) with user-adjustable parameters in enhanced scope.
 3. Run deterministic scenarios on the Stage 3 cash-flow function.
 4. Run one-at-a-time sensitivity (tornado) on the main drivers.
 5. Compute resilience measures that need no universal score (break-even income drop, runway).
@@ -21,12 +23,13 @@ Let the user see how the loan behaves if their circumstances change — income d
 
 ## 3. Functional requirements
 
-- FR1 12-month horizon by default (configurable 1–60), monthly steps.
-- FR2 Scenario catalog: baseline; income dip (3 weeks, 1–2× per year); unexpected expense (3 weeks of income); income reduction (−25% for 3 months); job loss (0 income, N months); ownership cost increase (+20% insurance); custom (user-defined).
-- FR3 Outputs per scenario: monthly paths, first shortfall month, months of runway, cumulative shortfall, recovery month, savings at end.
-- FR4 Resilience: break-even income drop (%) sustainable for `M` months; buffer months after the default shocks.
-- FR5 Every scenario carries `assumption_ids` with text and citation; the UI must render them beside results.
-- FR6 Reproducible: identical inputs ⇒ identical outputs; any stochastic method must expose and fix its seed.
+- FR1 12-month horizon (configurable 1–60), monthly steps.
+- FR2 Catalog v1.1 (all labeled illustrative): `sc_expense_spike` (one-time expense = 1 month of essentials, month 2); `sc_income_cut` (−25%, months 2–4); `sc_low_month` (income = `income.low_month` every month; variable income only); `sc_job_loss` (0 income for 2 months; no benefits assumed); `sc_cost_rise` (+20% incremental vehicle costs). Custom scenarios are enhanced scope.
+- FR3 Each scenario runs `without_offer` (start = savings) and `with_offer` (start = savings after purchase, F13).
+- FR4 Outputs per run: monthly paths, first shortfall month, months of runway, max unfunded gap, recovery month, savings at end (floored at 0).
+- FR5 Resilience: break-even income drop sustainable for 3 and 6 months; deficit-at-baseline and capped cases defined.
+- FR6 Every result carries assumption ids with plain text; no CFPB attribution for parameters.
+- FR7 Reproducible: identical inputs give identical outputs; seeds recorded.
 
 ## 4. Nonfunctional requirements
 
@@ -34,7 +37,7 @@ All scenarios computed in < 100 ms (deterministic); Monte Carlo (if enabled) ≤
 
 ## 5. Data requirements
 
-Stage 3 inputs; `income.variability` (category or min/typical/max); `savings.liquid`; optional `employment.stability` (T2). CFPB defaults from Making Ends Meet (2022): median income dip/expense spike ≈ 3 weeks of income, more than one per year for the typical family; emergency savings buckets. These are **population medians used as default shock sizes**, not predictions for this user.
+Stage 3 inputs and outputs (`month_net(t)`, F13, F14, debt end months); `income.variability` and `income.low_month`; `savings.liquid`. **Population context (not parameters):** CFPB Making Ends Meet (2022) groups consumers by emergency savings in months of income; CFPB research (Fulford & Low) finds significant expense shocks are more common than significant income drops, with unexpected expenses averaging about 15% of income when they occur. These appear only as a context sentence, never as the user's scenario sizes.
 
 ## 6. Research findings
 
@@ -43,6 +46,7 @@ Stage 3 inputs; `income.variability` (category or min/typical/max); `savings.liq
 - **Monte Carlo** requires a distribution per uncertain input. With one user's three numbers (min/typical/max) the only defensible choice is a triangular (or PERT) distribution, which is itself an assumption; outputs are then "assumption-driven ranges," not probabilities of real-world events. Justified only as an *enhancement* with explicit labeling.
 - **Scenario trees with probabilities** require branch probabilities we cannot estimate honestly — rejected.
 - **Predictive models of delinquency** (e.g., using CFPB's reported cohort delinquency rates) would be population statistics misapplied to an individual; CFPB's subprime report shows default risk alone does not even explain rate differences across lenders. We do **not** build or imply a distress predictor.
+- **Audit finding (2026-10-24):** the v1.0 statement that CFPB reports a median shock of about 3 weeks of income, more than once a year, could not be substantiated in the CFPB sources reviewed and is retracted (S4-ISSUE-001).
 - **Repossession consequences** (CFPB Jan 2025 report via project file): 94% of repossessed-and-sold vehicles leave a deficiency balance averaging $11,340 — used for *consequence explanation* text (Stage 6), not simulation.
 
 ## 7. Alternatives investigated
@@ -71,33 +75,34 @@ Stage 3 inputs; `income.variability` (category or min/typical/max); `savings.liq
 
 ## 9. Recommended architecture
 
-`scenarios/` package: `catalog.py` (scenario definitions from `config/scenarios.yaml`), `runner.py` (monthly loop using Stage 3's cash-flow function), `sensitivity.py` (OAT tornado), `resilience.py` (bisection for break-even drop), `montecarlo.py` (enhanced, seedable, NumPy optional). All functions pure; results typed per contracts §3.8.
+`scenarios/` package: `catalog.py` (from `scenarios.yaml`; every entry labeled illustrative), `runner.py` (paired runs over `engine.month_net(t)`), `sensitivity.py` (OAT ±10%, labeled), `resilience.py` (bisection for M = 3 and 6), `montecarlo.py` (**deferred**). All pure functions; results per contracts v1.1 §3.8.
 
 ## 10. Detailed processing workflow
 
-1. Build the monthly baseline vector from Stage 3 (`income`, `essential`, `flexible`, `debt_payments`, `new_payment`, `ownership_costs`); apply amortization payment schedule for `new_payment` (constant for fixed-rate).
-2. For each scenario: apply its transformation to the vector (e.g., month 3 and 9 income × (1 − 3/4.33)); run the savings balance recursion `S_t = S_{t−1} + income_t − outflows_t`; record first `S_t < 0`, cumulative shortfall `Σ max(0, −net_t)`, recovery month (first `t` after shortfall where `S_t ≥ 0`), runway `= #months before first shortfall`.
-3. Sensitivity: for each driver `d ∈ {income, essential, flexible, ownership_costs, savings, payment}` evaluate headline metrics at `d × (1 ± δ)`, `δ = 10%` (config); rank by absolute change.
-4. Break-even: bisection over `p ∈ [0,1]` on "income × (1 − p) for `M` months (config 3) keeps `min_t S_t ≥ 0`"; 30 iterations.
-5. Assemble `ScenarioResult[]` + `ResilienceSummary`; attach `assumptions[]`.
+1. Start balances: `without_offer` = `savings.liquid`; `with_offer` = F13 savings after purchase.
+2. For each scenario and run, for t = 1..H: `net_t = engine.month_net(t, run, transforms)`; `raw = S_{t−1} + net_t`; `S_t = max(0, raw)`; the unfunded gap grows by `max(0, −raw)` and is repaid from later surpluses.
+3. Record first shortfall month, months of runway, max unfunded gap, recovery month (first month after a shortfall when the gap returns to 0).
+4. OAT: ±10% on income, essentials, flexible (if provided), incremental vehicle costs, savings and payment; rank by change in `months_of_runway` and `monthly_left_after`.
+5. Break-even: bisection on the drop fraction p ∈ [0, 1] for M = 3 and M = 6 such that the minimum savings over the horizon stays ≥ 0 with no unfunded gap. Baseline deficit → 0 and `deficit_at_baseline`; full coverage at p = 1 → `capped`.
+6. Assemble `ScenarioResult[]` (both runs) and `ResilienceSummary`.
 
 ## 11. Algorithms and reasoning strategies
 
-**Income representation.** Monthly take-home as the stated value (status `stated`); if the user gave a range or min/typical/max, the deterministic scenarios use the *typical* value and add a scenario "income at your low month every month" (uses `min`), which is more honest than a distribution. The enhanced Monte Carlo samples from `Triangular(min, typical, max)` with `numpy.random.default_rng(seed)`.
+**Income.** The baseline uses the typical take-home. For variable earners, `sc_low_month` uses `income.low_month` every month, a deterministic bound rather than a distribution.
 
-**Unexpected expenses.** One-time outflow of size `shock_weeks/4.33 × take_home` (default 3 weeks, CFPB median) at a configurable month; also offered as "an expense of $X in month M" custom entry.
+**Unexpected expenses.** `sc_expense_spike` = one month of essential expenses in month 2. That's a user-relative illustrative size, not a population statistic. Week-based conversions, where used, are `monthly × 12/52`.
 
-**Recurring obligations.** Existing debts continue at their stated payments; debts with `remaining_months` drop out when they end (improves realism, deterministic).
+**Recurring obligations.** Debts continue until `remaining_months`, then drop out (through `month_net`). The new payment applies only to the `with_offer` run.
 
-**Rate shocks.** Not applicable to fixed-rate MVP loans; variable-rate products are blocked upstream.
+**Savings floor and gap.** Balances never go negative. A shortfall beyond savings accumulates as `unfunded_gap` with no interest assumed (`a_gap_no_interest`, stated in the UI). This avoids implying an interest-free credit line while still sizing the problem.
 
-**Assumption vs observation.** Every number in a `ScenarioResult` has a status: user facts carry `stated/verified/estimated`; shock parameters carry `assumed` with an `assumption_id` whose text includes the CFPB citation; derived paths carry the weakest status.
+**Assumptions vs observations.** User facts keep their statuses; scenario parameters are `assumed` with the assumption id `a_illustrative_scenarios` ("Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.").
 
-**Uncertainty measures displayed (MVP).** Runway (months) per scenario; break-even income drop (%); buffer months after shocks; sensitivity ranking. **Not displayed:** probability of shortfall (requires a distribution we do not have) — unless the enhanced Monte Carlo is enabled, in which case the label is "share of simulated paths under the assumed income range," with the assumed range shown.
+**Displayed uncertainty measures (MVP).** Runway (without vs with), max unfunded gap, break-even drop (3 and 6 months), OAT ranking. No probabilities.
 
 ## 12. Data models and schemas
 
-Contracts §3.8 (`ScenarioRequest`, `ScenarioResult`) and `ResilienceSummary`; `Assumption {assumption_id, text, source_kind: assumption, citation, params}` stored with the report; `SensitivityItem {driver, delta, metric, change}`.
+Contracts v1.1 §3.8: `ScenarioRequest` (with `runs`), `ScenarioResult` (with `run`, `start_balance`, `unfunded_gap` path, `max_unfunded_gap`, `deficit_at_baseline`), `ResilienceSummary` (`break_even_m3`, `break_even_m6`, `capped`), `Assumption`, `SensitivityItem`.
 
 ## 13. Inputs and outputs
 
@@ -109,13 +114,13 @@ Bundled in `POST /sessions/{id}/analysis` (default catalog) and re-runnable with
 
 ## 15. Integration dependencies
 
-- **Stage 3**: single source of the monthly cash-flow function and payment (Agent 3↔4 review: the scenario runner must call `engine.cashflow.month_net(...)` rather than re-implementing it; baseline scenario must equal Stage 3's `monthly_residual_after` × 12 exactly — this is an acceptance test).
-- **Stage 5**: alternatives are evaluated under the **same** scenario catalog and assumptions (Agent 4↔5 review: shared `assumption_ids`; the `delay_months` lever uses the same monthly surplus to grow savings).
-- **Stage 6**: renders assumptions beside results; must not present runway as a prediction.
+- **Stage 3:** `engine.month_net(t)` is the only arithmetic. Acceptance test A-09r checks the baseline `net[t]` equals the engine for every month, including debts that end mid-horizon. (The v1.0 test "residual × 12" was wrong and is retired.)
+- **Stage 5:** alternatives use the identical catalog and assumption ids; each alternative's `with_offer` run starts from its own F13.
+- **Stage 6:** paired cards, the assumptions panel and the context sentence; never "you will run short".
 
 ## 16. Error and failure handling
 
-Missing `savings.liquid` ⇒ scenarios run with savings `missing` → shortfall metrics `missing`, runway computed as "months with positive net" only; invalid custom scenario params ⇒ `VALIDATION_ERROR`; non-converging bisection (pathological) ⇒ `break_even` `missing` with warning.
+Missing savings → `reserve_impact` and `stress_test` are unavailable (readiness), not computed with 0. Missing `income.low_month` for variable income → `sc_low_month` is unavailable with its reason. Invalid custom parameters (enhanced) → `VALIDATION_ERROR`. Non-convergence → break-even missing plus a warning.
 
 ## 17. Security and privacy
 
@@ -123,11 +128,7 @@ No new data collection; `employment.stability` (T2) is optional and only adjusts
 
 ## 18. Testing and evaluation
 
-- Baseline scenario equals Stage 3 residual (exact).
-- Hand-computed 12-month paths for 3 fixtures (spreadsheet cross-check by a second developer).
-- Monotonicity: larger savings ⇒ runway non-decreasing; larger shock ⇒ cumulative shortfall non-decreasing.
-- Reproducibility: golden JSON files; Monte Carlo (if enabled) with fixed seed byte-equal across runs.
-- Label audit: every `ScenarioResult` has ≥ 1 assumption with citation (test fails otherwise).
+A-09r month-by-month baseline equality (incl. a debt ending in month 4); A-10r label audit (every assumption text contains "Illustrative"; no "CFPB median" string in config); A-33 floor and gap; A-34 without-offer runway ≥ with-offer runway; A-35 break-even edges; hand-computed 12-month paths for 3 fixtures cross-checked in a spreadsheet; golden files.
 
 ## 19. Performance and cost estimates
 
@@ -135,21 +136,22 @@ Deterministic catalog (6 scenarios × 12 months) ≈ 1–5 ms; sensitivity (6 dr
 
 ## 20. MVP, enhanced, and production scope
 
-- **MVP:** catalog scenarios, custom scenario, OAT sensitivity, break-even drop, runway, assumptions objects.
-- **Enhanced:** Monte Carlo on triangular income (labeled), interactive sliders (shock size/month), debts ending mid-horizon.
-- **Production:** calibration of default shocks from user-consented history (bank data via aggregator), expense-category volatility, correlated shocks (job loss ⇒ insurance change), longer horizons with inflation assumptions.
+- **MVP:** catalog v1.1 (no custom), paired runs, floor and gap, break-even M = 3/6, OAT.
+- **Enhanced:** custom scenario and sliders.
+- **Deferred:** Monte Carlo (adds no information beyond deterministic bounds for one user's min/typical/max and invites probability misreading).
+- **Production:** consented transaction history for calibration; population-calibrated distributions with explicit labels.
 
 ## 21. Architectural decision records
 
 **ADR-S4-01 Method** — Deterministic scenarios + OAT + break-even; Monte Carlo deferred/labelled. Evidence: data availability; CFPB tooling precedent. Confidence: high.
-**ADR-S4-02 Defaults** — CFPB median shock (3 weeks of income, >1/year) as default scenario size; labeled assumption. Confidence: medium (figures AI-extracted from the PDF per project file; verify before slides).
+**ADR-S4-02 Defaults (superseded in v1.1)** — v1.0 used a "CFPB median shock" that could not be substantiated. **v1.1:** illustrative, user-relative scenarios labeled as such; CFPB research appears only as a context sentence with verified wording. Confidence: high. (ADR-019.)
+**ADR-S4-05 (v1.1) Floor, gap and paired runs** — savings floored at 0 with an unfunded gap; every scenario runs without and with the offer. Confidence: high.
 **ADR-S4-03 No distress score** — resilience expressed as runway and break-even drop, not a universal score. Confidence: high.
 **ADR-S4-04 Seeds mandatory** — `ScenarioRequest.seed` required; deterministic methods ignore it but record it. Confidence: high.
 
 ## 22. Unresolved questions
 
-- Default `M` (months) for the break-even drop (proposal 3) and whether to show both 3 and 6 (owner: Dev 1, checkpoint 2).
-- Verify the Making Ends Meet medians in the PDF before quoting on slides (owner: Dev 4).
+- Resolved in v1.1: break-even horizon (show 3 and 6; Q-4). Open: exact wording of the CFPB context sentence (UD-04, Dev 4, before the video).
 
 ## 23. Source references
 

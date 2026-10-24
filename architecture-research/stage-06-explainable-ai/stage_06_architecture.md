@@ -1,6 +1,8 @@
 # Stage 06 — Explainable AI & Decision Experience
 
-**Agent:** Stage Architecture Agent 6 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 5 and 1) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.0
+> **Version 1.1 (post-audit, 2026-10-24).** Revised per `reviews/stage_06_review.md` (verdict REVISE; LLM narration DEFERRED). The numeric-membership gate can't catch false relationships between permitted numbers, so the MVP uses **claim-based deterministic explanations**. The deferred LLM narration must cite claim ids and pass relational checks (CH-31). Also: key points first (CH-32), readiness panel (CH-32), chips that separate source from verification (CH-33), paired stress cards (CH-23), two-track intake (CH-14), data-mode banner (CH-08).
+
+**Agent:** Stage Architecture Agent 6 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 5 and 1) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.1 (authoritative schemas)
 **Research date:** 2026-10-24. ◻ = documentation URL known to the author, not re-fetched today.
 
 ---
@@ -15,13 +17,13 @@ Explanation architecture (what text comes from where) → grounding and validati
 
 ## 3. Functional requirements
 
-- FR1 Provenance chip on every displayed number: *You told us* · *From your document (p.N)* · *Calculated* · *Assumption* · *AI wording*.
-- FR2 Template explanations exist for every report section; LLM narrative is optional and validated.
-- FR3 "Why we ask" on every intake question; "What's missing" panel with *Ask the lender* prompts.
-- FR4 Verification table for extracted terms with evidence quotes and conflict states.
-- FR5 Dashboard sections: Now · With this loan · Under stress · Alternatives · Missing info · Report.
-- FR6 Glossary tooltips (CFPB key terms) and "how this was calculated" drawers (formula ids).
-- FR7 Clear non-advice framing throughout.
+- FR1 Provenance and verification chip on every number: *You told us* · *You confirmed* · *From your contract, p.N · matched* · *Calculated* · *Assumption* · *Estimate*. No chip says "verified".
+- FR2 Every explanation sentence is rendered from a typed claim (contracts §3.10). No free-form generated text in the MVP.
+- FR3 Readiness panel: per analysis, available or "needs: X" with a one-tap question.
+- FR4 Verification table with label + value + quote, check states, two-candidate conflicts, offer chooser, payment-mismatch explanation.
+- FR5 Key points (three ranked claims) before the detailed sections: with this loan, under stress (paired), alternatives, missing info and ask-the-lender, assumptions.
+- FR6 Glossary tooltips (CFPB key terms; finance charge vs interest) and "how this was calculated" drawers.
+- FR7 Non-advice framing; data-mode banner.
 
 ## 4. Nonfunctional requirements
 
@@ -51,76 +53,69 @@ First contentful paint of the dashboard < 2 s on a laptop; charts readable at 36
 
 ## 8. Comparative decision matrix
 
-| Criterion (weight) | A | B | **C** | D |
-|---|---|---|---|---|
-| Correctness & reliability (25%) | 5 | 2 | 5 | 3 |
-| Hackathon feasibility (20%) | 5 | 5 | 4 | 2 |
-| Integration simplicity (15%) | 5 | 4 | 4 | 3 |
-| Functional capability (15%) | 2 | 4 | 5 | 4 |
-| Explainability (10%) | 5 | 2 | 5 | 4 |
-| Performance & cost (10%) | 5 | 4 | 4 | 2 |
-| Extensibility (5%) | 3 | 3 | 4 | 4 |
-| **Weighted** | **4.45** | **3.45** | **4.50** | **3.00** |
+| Criterion (weight) | A Template-only | B LLM free-form | C Hybrid + numeric gate (v1.0) | **C′ Claim-based templates (v1.1)** | D RAG |
+|---|---|---|---|---|---|
+| Correctness & reliability (25%) | 5 | 2 | 3 | 5 | 3 |
+| Hackathon feasibility (20%) | 5 | 5 | 4 | 5 | 2 |
+| Integration simplicity (15%) | 5 | 4 | 4 | 5 | 3 |
+| Functional capability (15%) | 2 | 4 | 5 | 3 | 4 |
+| Explainability (10%) | 5 | 2 | 4 | 5 | 4 |
+| Performance & cost (10%) | 5 | 4 | 4 | 5 | 2 |
+| Extensibility (5%) | 3 | 3 | 4 | 4 | 4 |
+| **Weighted** | **4.45** | **3.45** | **3.90** | **4.65** | **3.00** |
 
-*Sensitivity test (required: A and C within 0.05).* Raising feasibility to 30% (others scaled) flips the order to A 4.55 vs C 4.45. Resolution: **C with A as the mandatory first milestone** — templates ship in the vertical slice; narration is added only after the gate exists and tests pass. If time runs out, A is the delivered state with no loss of correctness. Frontend-stack matrix: Next.js+Tailwind+shadcn+Recharts 4.4 vs Vite SPA 4.0 (no routing/SSR conveniences, same libs) vs Streamlit 3.1 (fast but poor control over provenance UI and charts); decision robust.
+*v1.1 rescoring:* C's correctness drops from 5 to 3 because its gate can't detect relational falsehoods (S6-ISSUE-001). C′ (claims + templates) captures the benefit of structure without generation risk, and it is the base onto which deferred claim-referenced narration can later be added. The frontend stack matrix is unchanged.
 
 ## 9. Recommended architecture
 
-- **Explanation engine (backend, Dev 4):** `explain/plan.py` builds an `ExplanationPlan` per section (facts, metrics, flags, assumptions, allowed numbers, citations); `explain/templates.py` renders deterministic text; `explain/narrate.py` calls the LLM with the plan and strict instructions; `explain/validate.py` enforces numeric membership + forbidden phrases + length; `ExplanationSection` carries both texts and `narrative_validated`.
-- **Frontend (Dev 3):** Next.js App Router; routes `/start`, `/intake`, `/offer`, `/dashboard`, `/report`; server components fetch `DecisionReport`; client components for charts and interactive sliders; Zod schemas generated from the backend OpenAPI for type parity.
+- **Claim builder (backend, Dev 4):** `explain/claims.py` turns the `DecisionReport` into typed claims (value, change, comparison, threshold_flag, scenario_outcome, missing) with evidence and assumption ids. `explain/templates.py` renders each claim; `explain/key_points.py` ranks three claims (cost, monthly change, most severe flag or stress outcome).
+- **Deferred narration (spec only):** the LLM receives claims and returns `sentences[{text, claim_ids[]}]`. The validator checks number membership per cited claim, direction words vs `direction`, metric-name synonyms vs `subject_metric`, citation coverage and the deny-list. Any failure falls back to the template. It is enabled only after A-40 passes.
+- **Frontend (Dev 3):** Next.js App Router; routes `/start`, `/intake` (two-track with offer status and readiness panel), `/offer` (verification), `/dashboard` (key points + sections), `/report`. Zod types generated from OpenAPI v1.1. A single number formatter: headlines rounded with "about"; drawers in cents.
 
 ## 10. Detailed processing workflow (user journey)
 
-1. **Start** — choose decision type; privacy notice (what goes to the AI provider; delete anytime); "use this with someone you trust" (CFPB pattern).
-2. **Intake** — adaptive Q&A; each question shows `why_we_ask`, skip/estimate controls, progress as "what we can compute now"; typed widgets by default, free text optional.
-3. **Offer** — upload document or enter terms; **verification table** (value · evidence quote · page · check status · confirm/edit/mark missing); unsupported-product block with explanation.
-4. **Dashboard** — *Now* (income, essentials, debts, residual, reserve months) → *With this loan* (payment, total cost, residual change, LTV, flags with citations) → *Under stress* (scenario cards with runway; break-even drop; assumptions panel) → *Alternatives* (Pareto scatter; trade-off statements; constraint inputs) → *Missing info* (what's unknown, why it matters, ask-the-lender list).
-5. **Report** — printable summary with provenance legend, citations and disclaimers; share nothing by default.
+1. **Start:** privacy notice and data-mode banner; choose "Upload a loan offer" / "Type the terms" / "Explore without an offer".
+2. **Intake:** one question at a time with `why_we_ask`, skip, decline ("I'd rather not say") and estimate. The offer status card runs in parallel; readiness chips per analysis.
+3. **Offer:** verification table; offer chooser if needed; payment-mismatch explanation; unsupported-product block.
+4. **Dashboard:** key points first. Then *With this loan* (payment, finance charge, total paid through the deal with breakdown, monthly left before → after, savings after purchase, flags with citations), *Under stress* (paired cards, break-even 3/6 months, assumptions), *Alternatives* (Pareto scatter, trade-off claims with flags, rate sensitivity, constraints), *Missing info* (ask-the-lender list), *Assumptions*.
+5. **Report:** printable; provenance legend; citations; disclaimers.
 
 ## 11. Algorithms and reasoning strategies
 
-**Explanation plan → narrative → validation**
-```
-plan = {section_id, audience: "first-time borrower", facts:[{label, value, status}], metrics:[...], flags:[...],
-        assumptions:[...], citations:[...], allowed_numbers: [all values formatted in 2–3 ways], forbidden:[...],
-        style: "plain, ≤ 120 words, no advice, state assumptions"}
-narrative = LLM(plan)                     # temperature 0.3, structured output {text}
-ok = numbers(narrative) ⊆ allowed_numbers ∧ no forbidden phrases ∧ len ≤ limit ∧ no new comparatives ("best", "safe")
-section.narrative_text = narrative if ok else None   # UI shows template_text when None
-```
-Number extraction: regex for currency, percentages, months; normalization (`$1,154.80`, `$1,155`, `about $1,150` → allowed if the plan includes the rounded variants it generated). Comparatives/advice phrases are a configurable deny-list; violations are logged with the plan hash for review.
+**Claims → templates.** Each claim type has templates keyed by `subject_metric` and flag id. Wording rules: no "afford", "safe", "should", "best", "better" or "recommend"; scenario claims always say "In this illustrative scenario"; comparison claims include their `assumption_flags` ("if offered at the same rate").
 
-**Provenance rendering:** chip color + icon + text label (not color alone); hover/tap opens the evidence (quote and page image region in enhanced scope, formula drawer for calculations, assumption text with citation).
+**Provenance rendering.** Chips combine source and verification (FR1); hover or tap shows evidence (quote and page), the formula drawer, or assumption text.
 
-**Contradiction prevention:** the UI never renders two sources for the same metric; all sections read from the single `DecisionReport` snapshot (`report_id`), and a stale-report banner appears if facts change (`profile_version` mismatch).
+**Consistency.** All sections read one `DecisionReport` snapshot; a stale-report banner appears on a `profile_version` mismatch; one formatter is used everywhere.
 
 ## 12. Data models and schemas
 
-`ExplanationPlan`, `ExplanationSection` (contracts §3.10), `ProvenanceChip {kind, label, evidence_id}`, `GlossaryTerm {term, definition, cfpb_url}`, `Citation {id, title, url, accessed}`.
+Contracts v1.1 §3.10–3.12: `Claim`, `ExplanationEvidence` (with verification), `ExplanationSection` (`claims[]`, `template_text`, reserved `narrative_text = null`), `DecisionReport` (`key_points`, `readiness`, `data_mode`), `GlossaryTerm`, `Citation`.
 
 ## 13. Inputs and outputs
 
-Inputs: `DecisionReport`, glossary, config. Outputs: rendered screens; `POST /reports/{id}/explain` narratives; printable report (HTML print stylesheet; PDF export in enhanced scope).
+Inputs: `DecisionReport` v1.1, readiness, glossary, config assumptions. Outputs: rendered screens and a printable report (HTML print stylesheet). No narration in the MVP.
 
 ## 14. API interaction requirements
 
-All endpoints in contracts §4; polling for document extraction; optimistic UI for answers with server-confirmed facts.
+All endpoints in contracts v1.1 §4, including `/readiness`. `POST /reports/{id}/explain` returns 501 in the MVP (deferred).
 
 ## 15. Integration dependencies
 
-Stage 1 (questions, why, completeness), Stage 2 (verification table), Stage 3/4/5 (report), Dev 4 (explain endpoint). Agent 6↔1 review outcome: the intake shows at most one question at a time plus the optional list; estimated facts render with an "estimate" badge and a one-tap "refine" action; questions never exceed 10 before "Run analysis" is offered.
+Stage 1 (questions, `why_we_ask`, readiness, refinements, declines), Stage 2 (verification states, chooser, mismatch), Stages 3–5 (report metrics, flags, paired scenarios, alternatives with flags, rate sensitivity), Dev 4 claim builder. Agent 6↔1 outcome (v1.1): one question at a time; core questioning ends at readiness; refinements optional; estimates badged with "refine".
 
 ## 16. Error and failure handling (failure & uncertainty UX)
 
 | Situation | UX |
 |---|---|
-| LLM unavailable | templates only; subtle "AI wording unavailable" note; nothing else changes |
-| Narrative failed validation | template shown; no user-facing error |
-| Extraction failed / scan unreadable | manual entry form pre-filled with any verified fields |
-| Conflicting terms | both values shown with evidence; user picks or edits |
-| Missing T0 fact | dashboard section shows "needs: savings" with a one-tap question |
-| Unsupported product | explanatory block + what we can still show (document terms) |
-| Stale report | banner + re-run |
+| LLM unavailable or data mode ≠ paid | Typed widgets; manual offer entry; "Demo mode: sample documents only" banner when `synthetic_only` |
+| Analysis unavailable | Readiness panel: what's needed, one-tap question |
+| Extraction failed or scan in MVP | Manual entry form pre-filled with any matched fields |
+| Conflicting term (reader disagreement) | Both candidates with evidence; user picks or edits |
+| Payment mismatch | Explanation (financed fees or an irregular first period) and the difference |
+| Deficit | Key point #1 in neutral wording |
+| Unsupported product | Explanation plus the terms we can still show |
+| Stale report | Banner + re-run |
 
 ## 17. Security and privacy
 
@@ -128,33 +123,34 @@ No analytics SDKs; no third-party scripts beyond fonts; session token in memory 
 
 ## 18. Testing and evaluation
 
-- **Validation gate tests:** 30 synthetic narratives (10 valid, 20 with injected wrong numbers/advice phrases) — gate must reject all 20.
-- **Provenance coverage:** automated check that every numeric DOM node has a `data-evidence-id` (Playwright optional; at minimum a unit test on the render model).
-- **Usability:** 3 hallway tests with a scripted persona; metrics: task completion (find total interest; find what's missing), time to first insight, misread rate on "is this a prediction?" question (target 0/3 say yes).
-- **Accessibility:** axe-core run on 4 screens; keyboard-only walkthrough.
-- **Readability:** template texts scored with `textstat` (◻ https://pypi.org/project/textstat/) ≤ grade 8.
+- A-12r claim fidelity: every rendered sentence maps to ≥ 1 claim; every numeric node has an evidence id.
+- A-41 key points reproducible from report values. A-42 no chip says "verified".
+- A-40 (only before enabling deferred narration): 20 adversarial narratives (misattribution, wrong direction, false causation, implied affordability), all rejected.
+- Usability: 3 hallway tests reported as qualitative observations with n = 3 (no percentages).
+- Accessibility: axe-core on 4 screens; keyboard walkthrough. Readability of templates ≤ grade 8 (`textstat`).
 
 ## 19. Performance and cost estimates
 
-One narration call per section on demand (≤ 6 sections × ~700 input / 150 output tokens); negligible cost; 1–3 s latency hidden by rendering templates first. Frontend bundle with Recharts ≈ 200–300 kB gzipped (estimate).
+No LLM latency in the report path (narration deferred); claim building is milliseconds. Frontend bundle with Recharts ≈ 200–300 kB gzipped (estimate).
 
 ## 20. MVP, enhanced, and production scope
 
-- **MVP:** 5 screens, provenance chips, verification table, templates for all sections, scenario cards, Pareto scatter, missing-info panel, glossary tooltips, print report.
-- **Enhanced:** validated narration, evidence highlights on page images, sliders for scenarios/levers, PDF export, "explain this number" chat limited to plan content.
-- **Production:** localization, user accounts and saved reports, consented data connections, A/B-tested comprehension, formal accessibility audit.
+- **MVP:** five screens, claims and templates, key points, readiness panel, chips with verification, verification table with chooser, paired stress cards, alternatives scatter with flags, missing-info, print report, data-mode banner.
+- **Enhanced:** claim-referenced LLM narration (after A-40), evidence highlights on page images, sliders, PDF export.
+- **Production:** localization, accounts, comprehension studies, formal accessibility audit.
 
 ## 21. Architectural decision records
 
-**ADR-S6-01 Explanation architecture** — Hybrid C with templates-first. Confidence: high.
+**ADR-S6-01 Explanation architecture** — v1.0: hybrid C with templates first. **Superseded by ADR-S6-05 (v1.1).**
 **ADR-S6-02 Frontend stack** — Next.js + TypeScript + Tailwind + shadcn/ui + Recharts. Confidence: high.
 **ADR-S6-03 No RAG/vector DB** — citations are structured; glossary is static. Confidence: high.
+**ADR-S6-05 (v1.1) Claim-based explanations; narration deferred** — numeric gates can't validate relationships; claims make every sentence traceable. Confidence: high. (ADR-023.)
 **ADR-S6-04 Non-advice framing** — deny-list + disclaimers + user control. Confidence: high.
 
 ## 22. Unresolved questions
 
-- Print/PDF: browser print stylesheet (MVP) vs server PDF (enhanced) — owner Dev 3, checkpoint 2.
-- Narration temperature and max words — defaults 0.3 / 120; tune after gate tests (owner Dev 4).
+- Print stylesheet (MVP) vs server PDF (enhanced): Dev 3 at CP2.
+- Narration temperature and limits: moot until the deferred feature is enabled.
 
 ## 23. Source references
 

@@ -1,40 +1,55 @@
-%% I. Error and recovery flow — every failure leaves the user with a next action
+%% I. Error and recovery flow (v1.1) — every failure leaves the user with a next action
 flowchart TB
   REQ["Incoming request"] --> KIND{"Failure class"}
 
   KIND -->|invalid input| V1["400 VALIDATION_ERROR with field + rule"]
-  V1 --> V2["UI re-asks the same question with inline hint; no state change"]
+  V1 --> V2["UI re-asks the same question with an inline hint; no state change"]
 
-  KIND -->|conflicting data| C1["409 CONFLICTING_FACTS or term checks fail"]
-  C1 --> C2{"Where?"}
-  C2 -->|intake| C3["Clarification question (C01–C07); both values kept until resolved"]
-  C2 -->|document| C4["Both terms marked conflicting; user picks or edits; nothing auto-corrected"]
+  KIND -->|hard contradiction| C1["409 CONFLICTING_FACTS (genuine contradictions only)"]
+  C1 --> C3["Clarification question; both values kept until resolved"]
+
+  KIND -->|deficit or implausible value| H1["Not an error: H01 / H02 acknowledgement once"]
+  H1 --> H2["Accepted and flagged (DEFICIT_BEFORE_LOAN); analysis continues"]
+
+  KIND -->|document term disagreement| D1["Reader vs LLM disagree, or arithmetic / itemization fails"]
+  D1 --> D2["Field conflicting; both candidates with evidence; user picks or edits"]
+
+  KIND -->|payment or APR not reproducible| P1["PAYMENT_MISMATCH or APR warn (not a conflict)"]
+  P1 --> P2["Explain likely causes (financed fees, irregular first period) and the difference"]
+
+  KIND -->|data mode restriction| M1["403 DATA_MODE_RESTRICTED (real upload in synthetic_only)"]
+  M1 --> M2["Explain the mode; offer manual entry or a sample document"]
 
   KIND -->|AI timeout or malformed| A1["timeout 20–30 s → retry once (temperature 0)"]
   A1 --> A2{"Still failing?"}
   A2 -->|answer parsing| A3["Typed widget for the same question"]
-  A2 -->|extraction| A4["Manual offer entry (same LoanOffer shape); doc kept for reference"]
-  A2 -->|narration| A5["Template text shown; narrative_validated = false"]
+  A2 -->|extraction| A4["Manual offer entry with the same checks"]
 
-  KIND -->|provider API unavailable| U1["503 LLM_UNAVAILABLE, fallback_available = true; /health shows degraded"]
-  U1 --> U2["UI banner: AI features offline; all deterministic features continue"]
+  KIND -->|provider unavailable| U1["503 LLM_UNAVAILABLE, fallback_available = true; /health degraded"]
+  U1 --> U2["Banner: AI features offline; deterministic features continue"]
 
-  KIND -->|unsupported calculation| S1["422 UNSUPPORTED_PRODUCT (variable, balloon, lease, precomputed) or INSUFFICIENT_INFORMATION"]
-  S1 --> S2["Explain why; show extracted terms; list what is needed; Ask-the-lender items"]
+  KIND -->|unsupported or insufficient| S1["422 UNSUPPORTED_PRODUCT (boolean + quote) or INSUFFICIENT_INFORMATION (with readiness)"]
+  S1 --> S2["Explain why; show terms; list what is needed; Ask-the-lender items"]
+
+  KIND -->|deferred feature| N1["501 NOT_IMPLEMENTED (narration endpoint)"]
+  N1 --> N2["UI uses claim templates (no user-visible gap)"]
 
   KIND -->|stale report| R1["profile_version mismatch"]
-  R1 --> R2["Banner + one-click re-run analysis (idempotent)"]
+  R1 --> R2["Banner + one-click re-run (idempotent)"]
 
-  KIND -->|internal error| I1["500 INTERNAL with request_id; logged with stack"]
-  I1 --> I2["UI: retry button; session data intact (append-only ledger)"]
+  KIND -->|internal error| I1["500 INTERNAL with request_id"]
+  I1 --> I2["Retry button; ledger intact (append-only)"]
 
   V2 --> OK["User continues"]
   C3 --> OK
-  C4 --> OK
+  H2 --> OK
+  D2 --> OK
+  P2 --> OK
+  M2 --> OK
   A3 --> OK
   A4 --> OK
-  A5 --> OK
   U2 --> OK
   S2 --> OK
+  N2 --> OK
   R2 --> OK
   I2 --> OK

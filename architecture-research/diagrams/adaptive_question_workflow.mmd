@@ -1,22 +1,26 @@
-%% D. Adaptive question-selection workflow (Stage 1)
+%% D. Adaptive question-selection workflow (Stage 1 v1.1): readiness-driven, lexicographic priority
 flowchart TB
-  START["Answer received (typed or free text)"] --> ISFREE{"Free text?"}
-  ISFREE -->|yes| PARSE["LLM #1 parse → facts (schema, key whitelist)"]
-  ISFREE -->|no| TYPED["Typed value → FinancialFact"]
-  PARSE --> OK{"Schema valid and keys registered?"}
-  OK -->|no, retry once then| WIDGET["Fallback: typed widget for the same question"]
-  OK -->|yes| LEDGER["Append facts (supersede on change, status stated/estimated)"]
-  TYPED --> LEDGER
-  LEDGER --> PROF["Materialize profile; run constraint rules C01–C07"]
-  PROF --> CONF{"Conflicts?"}
-  CONF -->|yes| CLAR["Emit clarification question (never overwrite silently)"]
-  CLAR --> START
-  CONF -->|no| CAND["Candidate set: missing/estimated facts with a path to a reachable metric"]
-  CAND --> SENS["For each candidate: partial compute at low/high bounds → sensitivity"]
-  SENS --> SCORE["score = req + w·sens − effort − privacy (config)"]
-  SCORE --> STOP{"T0 complete and max sens < τ?"}
-  STOP -->|yes| OFFER["Return null → UI offers Run analysis + optional questions with sens values"]
-  STOP -->|no| PICK["Select argmax; generate text + why_we_ask from dependency path"]
-  PICK --> LOG["question_log: score_breakdown"]
-  LOG --> ASK["Ask (skip / estimate allowed)"]
-  ASK --> START
+  START["Answer received: typed, free text, skip, or decline"] --> KIND{"Answer type"}
+  KIND -->|decline| DEC["Fact status = declined (terminal unless reopened)"]
+  KIND -->|skip| SKIP["Deferred for this pass only"]
+  KIND -->|typed| TYPED["FinancialFact (provided or estimated)"]
+  KIND -->|free text| MODE{"LLM_DATA_MODE = paid?"}
+  MODE -->|no| WIDGET["Typed widget for the same question"]
+  MODE -->|yes| PARSE["LLM #1 parse → facts (whitelisted keys; debt items; low month)"]
+  PARSE --> OK{"Schema valid?"}
+  OK -->|no, after one retry| WIDGET
+  OK -->|yes| LEDGER
+  TYPED --> LEDGER["Append to ledger (supersede on change)"]
+  DEC --> LEDGER
+  SKIP --> PROF
+  WIDGET --> START
+  LEDGER --> PROF["Materialize profile"]
+  PROF --> HARD{"Hard contradiction (C01 / C02 / C04 / C07)?"}
+  HARD -->|yes| CLAR["Clarification question"] --> START
+  HARD -->|no| SOFT{"Unacknowledged H01 deficit or H02 plausibility?"}
+  SOFT -->|yes| ACK["Acknowledge once; deficit accepted and flagged"] --> START
+  SOFT -->|no| READY["AnalysisReadiness per selected analysis (engine required_inputs; offer facts awaiting_offer)"]
+  READY --> BLOCK{"Any blocking fact missing (not declined, not awaiting offer)?"}
+  BLOCK -->|yes| PICK["Ask first by dependency_order, then key; why_we_ask = analysis it unlocks"]
+  PICK --> LOG["question_log: priority_class, blocks_analyses"] --> START
+  BLOCK -->|no| DONE["Return null + readiness + refinement list (curated; effect shown only with user-derived bounds)"]

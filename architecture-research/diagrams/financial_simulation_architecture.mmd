@@ -1,55 +1,62 @@
-%% F. Financial computation and simulation architecture (Stages 3–5): dependencies and scenario generation
+%% F. Financial computation and simulation architecture (Stages 3–5, v1.1)
 flowchart LR
   subgraph Inputs["Verified inputs"]
-    P["Profile facts (status ≥ estimated)"]
+    P["Profile facts (status provided / estimated)"]
     O["LoanOffer (ready_for_calculation)"]
-    CFG["config: assumptions.yaml, scenarios.yaml, levers.yaml"]
+    CFG["config: assumptions.yaml, scenarios.yaml (illustrative), levers.yaml"]
   end
 
   subgraph Engine["engine/ (Decimal, pure functions)"]
-    F01["F01 payment"] --> F01s["F01s schedule"]
-    F01s --> F02["F02 total of payments"] --> F03["F03 total interest"] --> F04["F04 total cost of purchase"]
-    F05["F05 APR recompute (bisection)"]
-    F06["F06 LTV"]
-    F08["F08 residual before"] --> F09["F09 residual after"]
+    F00["F00 principal: stated / AF+PFC / AF + a_pfc_zero"] --> F01["F01 payment on principal (vs disclosed → PAYMENT_MISMATCH)"]
+    F01 --> F01s["F01s schedule"] --> F02["F02 total of payments"]
+    F02 --> F03["F03 finance charge (TOP − AF) / F03i interest (TOP − principal)"] --> F04["F04 total paid through deal + breakdown (equity basis)"]
+    F05["F05 APR on amount financed (warn outside 1/8 pt)"]
+    F06["F06 LTV / F06d negative equity at start"]
+    F13["F13 savings after purchase"]
+    F14["F14 incremental vehicle costs (new − replaced)"]
+    F08["F08 monthly left before"] --> F09["F09 monthly left after"]
     F01 --> F09
-    F09 --> F10["F10 reserve months after"]
-    F11["F11 savings months of income"]
-    F01s --> F12["F12 negative-equity months (value curve: user or assumption)"]
-    FLAGS["Flags with CFPB citations (config thresholds)"]
+    F14 --> F09
+    F13 --> F10["F10 reserve months after"]
+    F09 --> F10
+    MN["month_net(t, run): debts end on schedule; payment only with offer"]
+    REQ["REQUIRED_INPUTS map → Stage 1 readiness"]
+    FLAGS["Flags v1.1 (cited or informational)"]
   end
 
   subgraph Scenarios["scenarios/"]
-    CAT["Catalog: income dip (3 wks ×2), expense spike, −25% ×3 mo, job loss N mo, cost +20%, custom"]
-    RUN["Monthly runner: S_t = S_t−1 + income_t − outflows_t"]
-    OAT["OAT sensitivity (±10% per driver)"]
-    BE["Break-even income drop (bisection over M months)"]
-    MC["Monte Carlo on triangular income (enhanced, seeded, labeled)"]
+    CAT["Illustrative catalog: expense spike, income cut, low month, job loss, cost rise"]
+    RUN["Paired runs: without (start = savings) / with (start = F13)"]
+    FLOOR["Savings floor at 0 + unfunded gap (no interest)"]
+    OAT["OAT ±10% (labeled)"]
+    BE["Break-even income drop, M = 3 and 6 (deficit → 0; capped)"]
   end
 
   subgraph Counterfactual["counterfactual/"]
-    LEV["Levers: down, term, principal Δ, APR of other offers, add-ons, delay"]
-    GRID["Grid generation + feasibility (user constraints)"]
-    EVAL["Evaluate each: engine + same scenario catalog"]
-    PAR["Pareto filter: interest ↓, residual ↑, break-even ↑"]
-    LS["Lever sensitivity ranking"]
+    LEV["Levers: cash down (moves F13), term (same rate assumed), optional add-ons, verified offers"]
+    GRID["Grid + constraints"]
+    EVAL["Evaluate: engine + with-offer scenarios"]
+    PAR["Pareto: finance charge, monthly left after, savings after purchase, break-even"]
+    RS["Rate sensitivity statement (not an option)"]
   end
 
   P --> F08
-  O --> F01
+  P --> F13
+  P --> F14
+  O --> F00
   O --> F05
   O --> F06
   CFG --> FLAGS
   CFG --> CAT
   CFG --> LEV
-  F09 --> RUN
+  MN --> RUN
   CAT --> RUN
+  RUN --> FLOOR --> BE
   RUN --> OAT
-  RUN --> BE
-  RUN --> MC
-  LEV --> GRID --> EVAL --> PAR --> LS
-  EVAL --> F01
+  LEV --> GRID --> EVAL --> PAR
+  EVAL --> F00
   EVAL --> RUN
-  F04 --> OUT["CalculationResult + ScenarioResult[] + CounterfactualResult → DecisionReport"]
+  F01 --> RS
+  F04 --> OUT["CalculationResult + ScenarioResult[] + CounterfactualResult → claims → DecisionReport"]
   BE --> OUT
-  LS --> OUT
+  PAR --> OUT

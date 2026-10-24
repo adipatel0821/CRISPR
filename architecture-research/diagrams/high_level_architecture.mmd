@@ -1,32 +1,32 @@
-%% A. High-level system architecture — DecisionTwin (consistent with supervisor/system_architecture.md v1.0)
+%% A. High-level system architecture — DecisionTwin v1.1 (consistent with supervisor/system_architecture.md v1.1)
 flowchart LR
   subgraph Client["Browser"]
-    WEB["Next.js app (TypeScript, Tailwind, shadcn/ui, Recharts)"]
+    WEB["Next.js app (TypeScript, Tailwind, shadcn/ui, Recharts) — data-mode banner, readiness panel"]
   end
 
   subgraph Backend["FastAPI service — /api/v1 (Python 3.12)"]
-    API["Routers + Pydantic schemas (OpenAPI)"]
+    API["Routers + Pydantic schemas v1.1 (OpenAPI)"]
     subgraph Intelligence["Intelligence modules"]
-      INTAKE["intake/ — ontology DAG (NetworkX), fact ledger, ranker, answer parser"]
-      DOCS["documents/ — PyMuPDF, extraction, verifier"]
-      EXPLAIN["explain/ — plans, templates, narration gate"]
+      INTAKE["intake/ — ontology DAG (NetworkX), fact ledger (status x verification), readiness, priority, answer parser"]
+      DOCS["documents/ — PyMuPDF, LLM extraction, deterministic TILA reader, verifier, offer chooser"]
+      EXPLAIN["explain/ — claim builder, templates, key points (narration deferred)"]
     end
     subgraph Compute["Deterministic computation (Decimal)"]
-      ENGINE["engine/ — F01–F12, flags, config"]
-      SCEN["scenarios/ — catalog, runner, sensitivity, break-even"]
-      CF["counterfactual/ — levers, grid, Pareto"]
+      ENGINE["engine/ — F00–F14, flags, required_inputs, month_net"]
+      SCEN["scenarios/ — illustrative catalog, paired runs, floor + gap, break-even"]
+      CF["counterfactual/ — 4 actionable levers, Pareto, rate sensitivity"]
     end
-    LLM["llm/ — LLMClient adapter (timeouts, retries, schema validation, audit log)"]
+    LLM["llm/ — LLMClient adapter (LLM_DATA_MODE, inline only, timeouts, retries, audit log)"]
     STORE["storage/ — SQLModel repositories"]
   end
 
   subgraph Persistence["Persistence"]
     DB[("SQLite (MVP) / Postgres (prod)")]
-    TMP[("Session temp files (uploads, deleted after extraction)")]
+    TMP[("Session temp files (deleted after extraction)")]
   end
 
   subgraph Provider["Model provider"]
-    GEMINI["Gemini API — structured output, document understanding"]
+    GEMINI["Gemini API — paid quota for real data; synthetic fixtures only on unpaid quota"]
   end
 
   WEB -->|HTTPS JSON| API
@@ -34,15 +34,15 @@ flowchart LR
   API --> DOCS
   API --> ENGINE
   API --> EXPLAIN
-  INTAKE -->|sensitivity via partial compute| ENGINE
-  DOCS -->|payment and APR checks| ENGINE
-  SCEN --> ENGINE
+  INTAKE -->|reads required_inputs| ENGINE
+  DOCS -->|F00 / F01 / F05 checks| ENGINE
+  SCEN -->|month_net per month| ENGINE
   CF --> ENGINE
   CF --> SCEN
+  EXPLAIN -->|claims from report values| ENGINE
   INTAKE --> LLM
   DOCS --> LLM
-  EXPLAIN --> LLM
-  LLM -->|3 call types only| GEMINI
+  LLM -->|2 MVP call types: parse, extract| GEMINI
   INTAKE --> STORE
   DOCS --> STORE
   EXPLAIN --> STORE

@@ -1,70 +1,62 @@
-%% G. End-to-end sequence — one session from start to report
+%% G. End-to-end sequence — v1.1 two-track session
 sequenceDiagram
   autonumber
   actor User
   participant Web as Next.js UI
   participant API as FastAPI /api/v1
-  participant Intake as intake (graph + ranker)
-  participant Docs as documents (PyMuPDF + verifier)
+  participant Intake as intake (graph, readiness, priority)
+  participant Docs as documents (PyMuPDF, reader, verifier)
   participant LLM as LLMClient → Gemini
   participant Engine as engine / scenarios / counterfactual
-  participant Explain as explain (templates + gate)
+  participant Explain as explain (claims, templates)
   participant DB as SQLite
 
-  User->>Web: Start, accept privacy notice
+  User->>Web: Start, read privacy and data-mode notice, choose analyses
   Web->>API: POST /sessions
-  API->>DB: create session (token hashed)
-  API-->>Web: session_id, token
+  API->>DB: create session (token hashed, data_mode recorded)
+  API-->>Web: session_id, token, data_mode
 
-  loop Adaptive intake until stop
-    Web->>API: GET /sessions/{id}/next-question
-    API->>Intake: rank candidates (partial compute via Engine)
-    Intake->>Engine: compute at low/high bounds
-    Engine-->>Intake: sensitivity
-    Intake-->>API: QuestionCandidate + why_we_ask
-    API-->>Web: question
-    User->>Web: answer (typed or free text)
-    Web->>API: POST /answers
-    alt free text
-      API->>LLM: parse (JSON schema)
-      LLM-->>API: facts or malformed
-      API-->>Web: facts, or fallback widget
+  par Track 2: offer
+    User->>Web: upload contract (or type terms)
+    Web->>API: POST /documents
+    API->>Docs: data-mode gate, validate, text layer, redact
+    Docs->>LLM: extraction (inline, label, value, page, quote)
+    LLM-->>Docs: LoanDocumentExtraction
+    Docs->>Docs: deterministic TILA reader
+    Docs->>Engine: F00 / F01 / F05 checks
+    Docs-->>API: terms with checks (or conflicts, offer chooser)
+    API->>DB: store terms, delete raw file
+  and Track 1: household intake
+    loop until selected analyses are available
+      Web->>API: GET /next-question
+      API->>Intake: readiness from engine required_inputs
+      Intake-->>API: blocking question (or null + refinements)
+      API-->>Web: question + why_we_ask + readiness
+      User->>Web: answer / skip / decline / estimate
+      Web->>API: POST /answers
+      opt free text and data_mode = paid
+        API->>LLM: parse (whitelisted keys)
+        LLM-->>API: facts or malformed → typed widget
+      end
+      API->>DB: append facts
     end
-    API->>DB: append facts
   end
 
-  User->>Web: upload contract
-  Web->>API: POST /documents (multipart)
-  API->>Docs: validate, text layer, redact
-  Docs->>LLM: structured extraction with quotes
-  LLM-->>Docs: LoanDocumentExtraction
-  Docs->>Engine: payment / APR checks
-  Docs-->>API: VerifiedFinancialTerm[] (checks)
-  API->>DB: store terms, delete raw file
-  Web->>API: GET /documents/{doc_id} (poll)
+  Web->>API: GET /documents/{doc_id}
   API-->>Web: verification table
-  User->>Web: confirm / edit terms
+  User->>Web: confirm / edit / choose offer
   Web->>API: POST /documents/{doc_id}/verify
-  API-->>Web: LoanOffer ready_for_calculation
+  API-->>Web: LoanOffer ready, readiness updated
 
-  Web->>API: POST /sessions/{id}/analysis (Idempotency-Key)
-  API->>Engine: compute, run_catalog, evaluate
+  Web->>API: POST /analysis (Idempotency-Key)
+  API->>Engine: compute (F00–F14), paired scenarios, counterfactuals
   Engine-->>API: results
-  API->>Explain: build plans + templates
-  Explain-->>API: ExplanationSection[] (template_text)
+  API->>Explain: build claims, templates, key points
+  Explain-->>API: ExplanationSection[] (no LLM)
   API->>DB: store DecisionReport
   API-->>Web: DecisionReport
-  Web-->>User: dashboard with provenance chips
-
-  opt Narrative wording
-    Web->>API: POST /reports/{id}/explain (section_id)
-    API->>Explain: narrate (LLM #3) then validate
-    Explain->>LLM: plan → text
-    LLM-->>Explain: text
-    Explain-->>API: narrative or template fallback
-    API-->>Web: section update
-  end
+  Web-->>User: key points first, then sections with provenance and verification chips
 
   User->>Web: delete my data
   Web->>API: DELETE /sessions/{id}
-  API->>DB: purge all rows for session
+  API->>DB: purge all rows for the session

@@ -1,6 +1,8 @@
 # Stage 05 — Counterfactual Decision & Alternative Evaluation
 
-**Agent:** Stage Architecture Agent 5 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 4 and 6) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.0
+> **Version 1.1 (post-audit, 2026-10-24).** Revised per `reviews/stage_05_review.md` (verdict REVISE). The MVP keeps only user-actionable levers. The hypothetical "1 point lower APR" is removed and replaced by a rate-sensitivity statement (CH-26; closes Q-3). The down-payment lever now moves savings after purchase, which becomes a Pareto objective (CH-27). Term alternatives are labeled "same rate assumed" (CH-28). Competing offers are compared only as full verified offers (CH-30). The price and delay levers are deferred (CH-29).
+
+**Agent:** Stage Architecture Agent 5 · **Reviewed by:** Supervisor (Phase C: reviews with Agents 4 and 6) · **Contracts:** `supervisor/api_and_data_contracts.md` v1.1 (authoritative schemas)
 **Research date:** 2026-10-24.
 
 ---
@@ -15,12 +17,11 @@ Define levers and their domains → generate feasible alternatives → evaluate 
 
 ## 3. Functional requirements
 
-- FR1 Levers: `down_payment`, `term_months`, `amount_financed_delta` (lower price / principal), `apr` (competing offers or "if you got the buy rate"), `add_ons_removed`, `delay_months` (save first).
-- FR2 User constraints: max monthly payment, minimum reserve months, max term, keep add-on X.
-- FR3 Compare 2+ uploaded/entered offers under identical scenarios.
-- FR4 Pareto set over configurable objectives (default: total interest ↓, monthly residual after ↑, break-even income drop ↑).
-- FR5 Sensitivity ranking of levers for *this* user.
-- FR6 Never output a single "best" choice; output trade-offs and the user's own constraint feasibility.
+- FR1 MVP levers: `cash_down_delta` (bounded by savings when the down payment comes from savings), `term_months` (labeled `same_rate_assumed`), `remove_optional_add_ons` (only where `optional = true`), `offer_id` (verified competing offers).
+- FR2 User constraints: max monthly payment, minimum reserve months after purchase, max term, keep add-on X.
+- FR3 Pareto set over finance charge ↓, monthly left after ↑, savings after purchase ↑, break-even (3 months) ↑.
+- FR4 Lever sensitivity ranking and a rate-sensitivity statement ("each 1 point of APR changes the finance charge by about $X").
+- FR5 Never output a single best choice; never present a rate that isn't from a verified offer.
 
 ## 4. Nonfunctional requirements
 
@@ -63,24 +64,24 @@ Base `LoanOffer`, profile, Stage 4 catalog, lever domains (config, with user ove
 
 ## 9. Recommended architecture
 
-`counterfactual/` package: `levers.py` (domains + user overrides), `generate.py` (cartesian product with feasibility filters), `evaluate.py` (calls `engine.compute` and `scenarios.run_catalog`), `pareto.py`, `sensitivity.py`, `narrate_facts.py` (produces structured trade-off facts for Stage 6, no prose).
+`counterfactual/` package: `levers.py` (MVP domains + user overrides + deferred list), `generate.py` (grid with feasibility), `evaluate.py` (`engine.compute` incl. F00/F13/F14 + `scenarios.run_catalog(with_offer)`), `pareto.py` (4 objectives), `sensitivity.py` (lever ranking + rate statement), `facts.py` (structured trade-off claims for Stage 6).
 
 ## 10. Detailed processing workflow
 
-1. Build lever domains: down payment `{base, +500, +1000, +2000, +3000}` ∩ `≤ savings − reserve_floor`; term `{36,48,60,72}`; principal delta `{0, −5%, −10%}`; APR `{base} ∪ {other offers' APR} ∪ {base − 1pt (illustrative "if you shopped the rate", labeled assumption)}`; add-ons `{keep, remove optional}`; delay `{0, 3, 6}` months (down payment += surplus × months; savings unchanged by default).
-2. Generate combinations (≤ 5×4×3×3×2×3 = 1,080; prune by constraints → typically < 400).
-3. Evaluate each: Stage 3 metrics + Stage 4 default catalog (reuse baseline paths where levers don't change them).
-4. Compute deltas vs base; mark `feasible` (user constraints) with reasons.
-5. Pareto filter on objectives; stable sort by `(total_interest, −residual_after)` for display.
-6. OAT lever sensitivity from single-lever alternatives: `normalized_effect = |Δmetric| / range(metric over single-lever variations)`.
-7. Emit `CounterfactualResult` and trade-off facts, e.g., `{alt_id, statement_type: "pay_more_monthly_save_total", amounts: {...}}`.
+1. Domains: cash down delta `{0, +500, +1,000, +2,000}` (∩ ≤ savings when the source is savings); term `{36, 48, 60, 72}`; remove optional add-ons `{false, true}`; offer ∈ verified offers.
+2. Generate ≤ 4 × 4 × 2 × k combinations (≤ 32 per offer); apply constraints; keep infeasible ones with reasons.
+3. Evaluate: engine (principal recomputed from the new cash down or add-on removal; F13 recomputed) and paired scenarios (with-offer run).
+4. Deltas vs base, including `savings_after_purchase`.
+5. Pareto filter on the four objectives.
+6. OAT lever ranking; rate sensitivity = finance-charge change from a ±1 pt rate *calculation* (stated as sensitivity, not as an option).
+7. Emit `CounterfactualResult` and trade-off claims (e.g., "pays $X less in finance charges, keeps $Y less in savings").
 
 ## 11. Algorithms and reasoning strategies
 
-- **Pareto dominance:** `a ≻ b` iff `a` is no worse on all objectives and strictly better on ≥ 1. Non-dominated set computed by pairwise check (n ≤ 400 ⇒ ≤ 160k comparisons, trivial).
-- **Trade-off statements (structured, not prose):** "shorter term" → `Δmonthly_payment > 0`, `Δtotal_interest < 0`; "larger down" → `Δreserve_months < 0 now`, `Δpayment < 0`, `ΔLTV < 0`; "delay k months" → `Δdown > 0`, `Δreserve 0`, "price risk unknown" (flagged as missing info, not modeled).
-- **Consistency checks:** base alternative (all levers at base) must reproduce the base `CalculationResult` byte-for-byte; monotone expectations tested (longer term ⇒ lower payment, higher interest).
-- **Complexity:** O(|grid| × (engine + scenarios)) ≈ 400 × (2 ms + 5 ms) ≈ 3 s worst case → reduce the grid to ≤ 200 by default (drop `−10%` principal and `delay 6` unless savings allow) to stay under 1 s; parallelism unnecessary.
+- **Pareto dominance** over four objectives; pairwise check (n ≤ 128).
+- **Trade-off claims (structured):** larger down → payment ↓, finance charge ↓, savings after purchase ↓, reserve ↓. Shorter term → payment ↑, finance charge ↓ (`same_rate_assumed`). Remove optional add-on → principal ↓, payment ↓. Competing offer → full-terms comparison.
+- **Consistency:** the base alternative reproduces the base `CalculationResult` byte for byte; monotonicity tests.
+- **Complexity:** ≤ 128 × (engine ~2 ms + paired scenarios ~5 ms) ≈ < 1 s.
 
 ## 12. Data models and schemas
 
@@ -88,7 +89,7 @@ Contracts §3.9 (`CounterfactualResult`, `Alternative`); `Constraint {kind: max_
 
 ## 13. Inputs and outputs
 
-Inputs: base offer, profile, config lever domains, user constraints, optional additional offers. Outputs: `CounterfactualResult` with Pareto set, sensitivity ranking, trade-off facts, infeasibility reasons.
+Inputs: base `LoanOffer`, verified competing offers, profile, lever domains, user constraints. Outputs: `CounterfactualResult` v1.1 (alternatives with `assumption_flags`, Pareto set, 4 objectives, `rate_sensitivity`, `sensitivity_ranking`, `deferred_levers`), trade-off claims.
 
 ## 14. API interaction requirements
 
@@ -96,7 +97,7 @@ Part of `POST /sessions/{id}/analysis`; a lightweight `POST /sessions/{id}/analy
 
 ## 15. Integration dependencies
 
-Stage 3 (engine), Stage 4 (same catalog + assumption ids — Agent 4↔5 review), Stage 6 (renders Pareto scatter and trade-off statements verbatim from facts; narrative only through the validated gate — Agent 5↔6 review: Stage 6 must never add a lever or number not present in `CounterfactualResult`).
+Stage 3 (F00/F01/F13/F14 per alternative), Stage 4 (identical catalog and assumption ids; with-offer runs start from each alternative's F13), Stage 6 (renders `assumption_flags` verbatim; never says "better" or "best"; the rate sensitivity appears as a sentence plus an Ask-the-lender item about the buy rate).
 
 ## 16. Error and failure handling
 
@@ -108,7 +109,7 @@ No new data; competing offers may contain lender names — stored session-scoped
 
 ## 18. Testing and evaluation
 
-Base reproduction test; Pareto correctness on a hand-built 6-point set; monotonicity; determinism golden file; constraint feasibility unit tests; performance test (≤ 1 s for default grid).
+A-11r base reproduction and monotonicity; A-36 down-payment trade-off (payment ↓ and savings after purchase ↓ by the same delta); A-37 no APR outside verified offers; A-38 every term alternative carries `same_rate_assumed`; A-39 a non-optional add-on is never removed; performance (≤ 1 s).
 
 ## 19. Performance and cost estimates
 
@@ -116,19 +117,20 @@ Base reproduction test; Pareto correctness on a hand-built 6-point set; monotoni
 
 ## 20. MVP, enhanced, and production scope
 
-- **MVP:** 4 levers (down, term, add-ons, APR of other offers), Pareto set, sensitivity ranking, trade-off facts, user constraints (max payment, min reserve).
-- **Enhanced:** `delay_months`, principal deltas, interactive overrides, comparison of 3 uploaded offers.
-- **Production:** real rate quotes (consented), vehicle price data for delay scenarios, personalization of lever domains, explicit preference elicitation with transparent weights (optional, user-controlled).
+- **MVP:** cash down, term (what-if), optional add-on removal, verified competing offers, Pareto (4 objectives), lever ranking, rate sensitivity statement, constraints.
+- **Deferred (documented inputs needed):** price change (tax rate, insurance quote, fees), delay purchase (current transport costs during the wait, realistic monthly saving, price risk). The illustrative lower-rate option is removed permanently.
+- **Production:** real rate quotes (consented), user-controlled preference elicitation.
 
 ## 21. Architectural decision records
 
 **ADR-S5-01 Method** — Exhaustive grid + Pareto; no scalar optimizer. Confidence: high.
 **ADR-S5-02 Causal language** — Counterfactuals are model what-ifs; no causal claims; CFPB population statistics used only as cited context. Confidence: high.
+**ADR-S5-04 (v1.1) Actionable levers only** — no hypothetical rates; down payment moves savings; term changes labeled; price/delay deferred. Confidence: high. (ADR-020.)
 **ADR-S5-03 Preference neutrality** — No ranking of alternatives beyond Pareto membership and user constraints. Confidence: high.
 
 ## 22. Unresolved questions
 
-- Whether to include the illustrative "buy rate − 1pt" alternative in the MVP (risk: looks like a promise). Proposal: include only as "if a competing offer were 1 point lower," clearly labeled hypothetical, with the CFPB "ask for the buy rate" prompt. Owner: Dev 1 + Dev 4, checkpoint 2.
+- Resolved in v1.1: Q-3 (the illustrative lower-rate alternative is excluded; replaced by a sensitivity statement).
 
 ## 23. Source references
 

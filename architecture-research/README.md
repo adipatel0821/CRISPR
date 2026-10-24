@@ -1,65 +1,60 @@
 # DecisionTwin — Architecture Research & Design (HackPSU Fall 2026)
 
-**Status:** architecture and documentation phase complete · **Date:** 2026-10-24 · **No application code was written.**
+**Status:** architecture **v1.1 (post-audit)** · **Verdict:** READY WITH NONBLOCKING LIMITATIONS · **Date:** 2026-10-24 · **No application code exists.** Architecture approval and implementation authorization are separate team decisions.
 **Tracks:** FNB Challenge (Trust, Decisions & Financial Confidence) · Nittany AI Challenge · (MLH Best Use of Gemini API, if applicable)
 
 ## Read in this order
 
-0. `SUMMARY.md` / `SUMMARY.pdf` — two-page overview of the work and every file.
-1. `supervisor/system_architecture.md` — the decision, the stack, the Phase D challenge, and the final review summary.
-2. `supervisor/team_execution_plan.md` — verified deadlines, roles, time budget, vertical slice, cut list.
-3. `supervisor/api_and_data_contracts.md` — the schemas every developer codes against (frozen v1.0).
-4. Your stage document (`stage-0X-*/stage_0X_architecture.md`) and its Word companion (`stage_0X_technical_stack.docx`).
-5. `supervisor/mvp_acceptance_plan.md` — the tests that define "done."
-6. `supervisor/integration_risk_register.md`, `supervisor/architecture_decisions.md`.
-7. `diagrams/*.mmd` — paste into any Mermaid renderer (GitHub, VS Code, mermaid.live).
+0. `SUMMARY.md` / `SUMMARY.pdf` — two-page overview of all work and every file.
+1. `reviews/supervisor_final_review.md` — what the audit found, what changed, red-team results, verdict.
+2. `supervisor/system_architecture.md` — the architecture (v1.1).
+3. `supervisor/api_and_data_contracts.md` — **the only authoritative schema source (v1.1)**.
+4. `supervisor/team_execution_plan.md` and `reviews/final_implementation_blueprint.md` — roles, schedule from 19:45 EDT, checkpoints, cut list.
+5. Your stage report (`stage-0X-*/stage_0X_architecture.md`, v1.1 header lists changes), its Word spec, and its review (`reviews/stage_0X_review.md`).
+6. `supervisor/mvp_acceptance_plan.md` (A-01…A-42), `reviews/implementation_readiness_checklist.md`.
+7. `reviews/architecture_change_matrix.md` (CH-01…CH-38), `supervisor/architecture_decisions.md` (ADR-001…ADR-023), `supervisor/integration_risk_register.md`, `reviews/evidence_register.md`.
+8. `diagrams/*.mmd` — paste into any Mermaid renderer.
 
-## Process disclosure (required by the assignment)
+## Process disclosure
 
-- This session ran in claude.ai chat, which **has no subagent-delegation capability**. The six Stage Agents were therefore executed as **six separately scoped research passes** against the Phase A contracts, followed by **one Supervisor synthesis pass**. Cross-agent reviews (Phase C) were performed as explicit pairwise checks and their outcomes are recorded in `system_architecture.md §6` and `api_and_data_contracts.md §7`.
-- Web verification performed today (✅): HackPSU Fall 2026 Devpost page (deadlines, rules, judging criteria, sponsor tracks); Gemini API structured-output documentation; Gemini API document-understanding documentation. CFPB figures come from the project's CFPB research file (scraped 2026-10-24); the AI-extracted PDF figures it flags must be checked in the PDFs before they go on slides.
-- Not re-fetched today (◻): framework documentation URLs (NetworkX, PyMuPDF, FastAPI, Next.js, Recharts, Python `decimal`, Reg Z pages). They are cited as known documentation locations, not as verified-today facts. Textbook references are labeled as such.
-- Computational verification performed today: the Stage 3 formulas reproduce the CFPB en-753 term table and the CFPB auto-loan worksheet example exactly; the APR solver was checked on a worked example.
-- The Part 10 decision-matrix weights are the assignment's research weights, **not** HackPSU judging criteria. The official criteria (Implementation, Clarity, Creativity, Growth, Impact) are quoted in the execution plan.
+- **v1.0** (commit `a180770`): six scoped research passes plus a supervisor synthesis. This chat environment can't spawn subagents.
+- **v1.1 audit:** six sequential scoped review passes (Stage 1→6), a supervisor synthesis with contract reconciliation, and a separate red-team pass. These were simulated roles, not independent agents. The v1.0 documents were authored in the same conversation, so every material finding is backed by a primary source fetched on 2026-10-24 or a numeric reproduction (`reviews/evidence_register.md`).
+- **Verified 2026-10-24:** Devpost deadlines and judging criteria (fetched twice); Gemini structured output, document understanding and API terms; Reg Z §1026.18(b); CFPB Making Ends Meet emergency-savings report; Fulford & Low expense-shock paper.
+- **Retracted from v1.0:** the "CFPB median 3-week shock"; "validated narration"; "verified" meaning user-confirmed.
+- **Not re-fetched:** framework documentation URLs (cited as locations, marked ◻).
+
+## Most important v1.1 changes
+
+1. Loan payment computed on the **principal**, not the amount financed. APR solved on amount financed without double-subtracting fees.
+2. Trade-in counted at **equity**. **Savings after the down payment** drives reserve and stress. **Replaced-vehicle** costs are netted.
+3. Real documents go to Gemini **only on paid quota** (`LLM_DATA_MODE`), because the unpaid-tier terms prohibit sensitive data.
+4. Document checks add **label anchors, an independent TILA reader and an offer chooser**.
+5. Intake is **readiness-driven and blocking-first**; deficits are acknowledged, not rejected.
+6. Scenarios are **illustrative**, paired with and without the loan, and floored at zero.
+7. Alternatives are **actionable only** (no hypothetical rates).
+8. Explanations are **claim-based templates**; LLM narration is deferred.
 
 ## Deliverable index
 
 | Path | Type | Status |
 |---|---|---|
-| `README.md` | Markdown | ✅ |
-| `SUMMARY.md` | Two-page summary (Markdown) | ✅ |
-| `SUMMARY.pdf` | Two-page summary (typeset, 2 pages) | ✅ |
-| `stage-01-knowledge-graph/stage_01_architecture.md` | Markdown (23 sections) | ✅ |
-| `stage-01-knowledge-graph/stage_01_technical_stack.docx` | Word | ✅ |
-| `stage-02-document-intelligence/stage_02_architecture.md` | Markdown | ✅ |
-| `stage-02-document-intelligence/stage_02_technical_stack.docx` | Word | ✅ |
-| `stage-03-financial-modeling/stage_03_architecture.md` | Markdown | ✅ |
-| `stage-03-financial-modeling/stage_03_technical_stack.docx` | Word | ✅ |
-| `stage-04-risk-simulation/stage_04_architecture.md` | Markdown | ✅ |
-| `stage-04-risk-simulation/stage_04_technical_stack.docx` | Word | ✅ |
-| `stage-05-counterfactual-intelligence/stage_05_architecture.md` | Markdown | ✅ |
-| `stage-05-counterfactual-intelligence/stage_05_technical_stack.docx` | Word | ✅ |
-| `stage-06-explainable-ai/stage_06_architecture.md` | Markdown | ✅ |
-| `stage-06-explainable-ai/stage_06_technical_stack.docx` | Word | ✅ |
-| `supervisor/system_architecture.md` | Markdown | ✅ |
-| `supervisor/master_technical_specification.docx` | Word | ✅ |
-| `supervisor/api_and_data_contracts.md` | Markdown | ✅ |
-| `supervisor/team_execution_plan.md` | Markdown | ✅ |
-| `supervisor/architecture_decisions.md` | Markdown | ✅ |
-| `supervisor/integration_risk_register.md` | Markdown | ✅ |
-| `supervisor/mvp_acceptance_plan.md` | Markdown | ✅ |
-| `diagrams/high_level_architecture.mmd` | Mermaid (A) | ✅ parses |
-| `diagrams/complete_data_flow.mmd` | Mermaid (B) | ✅ parses |
-| `diagrams/financial_knowledge_graph.mmd` | Mermaid (C) | ✅ parses |
-| `diagrams/adaptive_question_workflow.mmd` | Mermaid (D) | ✅ parses |
-| `diagrams/document_intelligence_flow.mmd` | Mermaid (E) | ✅ parses |
-| `diagrams/financial_simulation_architecture.mmd` | Mermaid (F) | ✅ parses |
-| `diagrams/end_to_end_sequence.mmd` | Mermaid (G) | ✅ parses |
-| `diagrams/deployment_architecture.mmd` | Mermaid (H) | ✅ parses |
-| `diagrams/error_recovery_flow.mmd` | Mermaid (I) | ✅ parses |
+| `README.md`, `SUMMARY.md`, `SUMMARY.pdf` | Overview | v1.1 |
+| `stage-0{1..6}-*/stage_0X_architecture.md` (6) | Stage reports | v1.1 |
+| `stage-0{1..6}-*/stage_0X_technical_stack.docx` (6) | Word specs | v1.1, render-checked |
+| `supervisor/system_architecture.md` | Architecture | v1.1 |
+| `supervisor/api_and_data_contracts.md` | Contracts | v1.1 (authoritative) |
+| `supervisor/architecture_decisions.md` | ADR register | ADR-001…023 |
+| `supervisor/integration_risk_register.md` | Risks | v1.1 (R-01…R-22) |
+| `supervisor/mvp_acceptance_plan.md` | Tests | v1.1 (A-01…A-42) |
+| `supervisor/team_execution_plan.md` | Plan | v1.1 (from 19:45 EDT) |
+| `supervisor/master_technical_specification.docx` | Word master spec | v1.1, render-checked |
+| `reviews/00_baseline_assessment.md` | Audit baseline | new |
+| `reviews/stage_0{1..6}_review.md` (6) | Stage reviews | new |
+| `reviews/supervisor_final_review.md` | Synthesis + red team | new |
+| `reviews/architecture_change_matrix.md` | Change trace | new |
+| `reviews/implementation_readiness_checklist.md` | Readiness checks | new |
+| `reviews/evidence_register.md` | Evidence | new |
+| `reviews/final_implementation_blueprint.md` | Build plan | new |
+| `diagrams/*.mmd` (9) | Mermaid | v1.1, 9/9 parse |
 
-All DOCX files were generated with docx-js and render-checked via LibreOffice. All nine Mermaid sources were validated with the Mermaid parser (headless); rendered SVGs were not produced because no browser is available in this environment — any Mermaid-capable viewer will render them.
-
-## Missing or failed deliverables
-
-None. Three architecture decisions remain open with owners and deadlines (see `system_architecture.md §17`): the Gemini model string/quota, the negative-equity depreciation assumption, and whether to include the hypothetical lower-rate alternative.
+Validation performed: Mermaid parser (9/9); DOCX conversion to PDF (7/7) with visual checks; a cross-document consistency script over 23 files (formula IDs, error codes, endpoints, statuses, assumption IDs, deferred scope) with 0 issues remaining.

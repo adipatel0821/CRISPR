@@ -1,4 +1,4 @@
-%% H. Deployment architecture — primary (laptop Docker Compose) and optional cloud variant
+%% H. Deployment architecture (v1.1) — primary (laptop Docker Compose) and optional cloud variant
 flowchart TB
   subgraph Laptop["PRIMARY DEMO: team laptop — docker compose up"]
     direction LR
@@ -7,7 +7,7 @@ flowchart TB
       A["api container — FastAPI/uvicorn :8000"]
     end
     VOL[("volume: decisiontwin.sqlite (WAL) + tmp uploads")]
-    ENV[".env: GEMINI_API_KEY (git-ignored)"]
+    ENV[".env: GEMINI_API_KEY, LLM_DATA_MODE (git-ignored)"]
     W -->|HTTP JSON| A
     A --> VOL
     ENV -.-> A
@@ -25,16 +25,16 @@ flowchart TB
   end
 
   subgraph External["External boundary (TLS)"]
-    G["Gemini API (model provider)"]
+    G["Gemini API — inline requests only; paid quota required for real user data"]
   end
 
   subgraph Obs["Observability"]
     LOGS["Structured JSON logs (request_id, session_id, latency)"]
     AUD[("llm_calls audit table: prompt hash, schema version, validation outcome")]
-    H["/health: DB + LLM reachability"]
+    H["/health: DB + LLM reachability + data_mode"]
   end
 
-  A -->|3 call types, timeouts, retries| G
+  A -->|2 MVP call types, timeouts, retries| G
   R -->|same adapter| G
   A --> LOGS
   A --> AUD

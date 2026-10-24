@@ -19,6 +19,7 @@ Format per ADR: **ID · Problem · Options · Selected · Evidence · Rejected b
 | ADR-013 | AI reliability controls: schema outputs, fallbacks, validation gate | Accepted |
 | ADR-014 | No agent framework, vector DB, or microservices | Accepted |
 | ADR-015 | Non-advice policy and claim discipline | Accepted |
+| ADR-016 … ADR-023 | v1.1 audit decisions (below) | Accepted |
 
 ---
 
@@ -61,7 +62,7 @@ Format per ADR: **ID · Problem · Options · Selected · Evidence · Rejected b
 **Selected.** Standard-library `decimal` with explicit rounding; no NumPy/pandas/numpy-financial in the core. Evidence: recomputation today reproduces CFPB en-753 table and worksheet exactly; floats introduce cent drift and display ambiguity. **Confidence:** high.
 
 ### ADR-007 — Simulation methodology
-**Selected.** Deterministic scenario catalog (CFPB-median default shocks, labeled assumptions) + one-at-a-time sensitivity + bisection break-even income drop. Monte Carlo on a triangular income distribution is an enhancement with explicit "assumption-driven range" labeling. Rejected: scenario trees with probabilities (no basis), predictive distress models (no individual data; misleading). **Confidence:** high.
+**Selected.** Deterministic scenario catalog (v1.0 default shocks were attributed to a CFPB median — **retracted; see ADR-019**) + one-at-a-time sensitivity + bisection break-even income drop. Monte Carlo on a triangular income distribution is an enhancement with explicit "assumption-driven range" labeling. Rejected: scenario trees with probabilities (no basis), predictive distress models (no individual data; misleading). **Confidence:** high.
 
 ### ADR-008 — Alternative comparison methodology
 **Selected.** Enumerate discrete lever combinations, evaluate with the same engine and scenarios, filter by Pareto dominance over (total interest ↓, residual ↑, break-even drop ↑), rank levers by OAT effect, present trade-offs and user-constraint feasibility; never a single recommendation. Rejected: scalar optimization (assumes preferences), LLM-proposed options (unverifiable). **Confidence:** high.
@@ -87,3 +88,67 @@ Format per ADR: **ID · Problem · Options · Selected · Evidence · Rejected b
 
 ### ADR-015 — Non-advice policy and claim discipline
 **Selected.** The system never states a decision is good/bad/safe/affordable; flags carry citations and configurable thresholds; narratives pass a deny-list; judge-facing materials claim provenance, verification, adaptive questioning and assumption-explicit stress testing — not prediction, causality or agentic AI. **Confidence:** high.
+
+---
+
+# v1.1 Audit Decisions (2026-10-24)
+
+Source: `../reviews/supervisor_final_review.md`, `../reviews/architecture_change_matrix.md`. Amendments to earlier ADRs:
+
+- **ADR-001:** retained; its ranking is superseded by ADR-016.
+- **ADR-003:** retained; MVP call types reduced to two (ADR-023), gated by data mode (ADR-022).
+- **ADR-006:** retained; formulas corrected by ADR-018.
+- **ADR-007:** retained as a method; defaults replaced by ADR-019.
+- **ADR-008:** retained as a method; lever set replaced by ADR-020.
+- **ADR-013:** narration control superseded by ADR-023.
+
+| ID | Decision | Status |
+|---|---|---|
+| ADR-016 | Analysis readiness + lexicographic priority; two-track intake | Accepted |
+| ADR-017 | Fact state = status × verification; `declined` | Accepted |
+| ADR-018 | Principal-based loan math; equity-based total cost; transaction effects; no assumed depreciation | Accepted |
+| ADR-019 | Illustrative paired scenarios; savings floor + unfunded gap; CFPB as context only | Accepted |
+| ADR-020 | Actionable levers only; rate sensitivity statement; what-if labels | Accepted |
+| ADR-021 | Document independent reader, label anchors, itemization, offer chooser | Accepted |
+| ADR-022 | `LLM_DATA_MODE` (paid / synthetic_only / off); inline requests only | Accepted |
+| ADR-023 | Claim-based explanations; LLM narration deferred to a claim-referenced design | Accepted |
+
+### ADR-016 — Readiness and question priority
+**Problem.** The v1.0 additive score let refinement questions outrank required ones (T1 could score 1.1 vs T0 ~0.9), and the global stopping rule (sensitivity < 0.05) contradicted the P1 persona (0.06/0.09 offered as optional). Interview-before-upload serialized extraction latency.
+**Options.** Patch the score with a T0 override; EVOI; **per-analysis readiness from engine `required_inputs` + lexicographic order (blocking → refinement)**.
+**Selected.** The last option, plus two-track intake (offer extracted in parallel; loan terms never asked).
+**Evidence.** Stage 1 review §7–§11; persona walkthroughs; A-20/A-23.
+**Rejected because.** Patched score is still opaque; EVOI lacks a prior and a utility.
+**Risks.** Curated refinement order is a design assumption (DA-07), shown in the UI. **Confidence:** high.
+
+### ADR-017 — Two-dimensional fact state
+**Problem.** `verified` meant "the user confirmed", so a confirmed guess and an evidence-matched contract term looked identical; skipped facts looped.
+**Selected.** `status` ∈ {provided, estimated, assumed, missing, declined, conflicting, superseded, calculated} × `verification` ∈ {none, user_confirmed, evidence_matched, evidence_matched_user_confirmed}; `declined` is terminal unless reopened.
+**Rejected.** A longer single enum (combinatorial and error-prone). **Confidence:** high.
+
+### ADR-018 — Correct loan math and transaction effects
+**Problem.** Payment on amount financed (understates by $9.38/mo for $500 of financed PFC on $20,000/60 mo at 4.75%); APR double-subtracted PFC (6.879% vs 5.796%); total cost used gross trade value; reserve ignored the down payment (1.27 vs 0.32 months); replaced car costs were double-counted ($260/mo); an assumed depreciation curve fabricated timelines.
+**Evidence.** Reg Z §1026.18(b) (fetched 2026-10-24); numeric reproduction (`reviews/evidence_register.md` MR-02…MR-06).
+**Selected.** F00 principal resolution; F01 on principal with a disclosed-payment check; F05 on AF; F03/F03i finance charge vs interest; F04 total paid through the deal with breakdown; F13 savings after purchase; F14 incremental vehicle costs; `debts_after`; F12 only from user estimates. Closes Q-2. **Confidence:** high.
+
+### ADR-019 — Scenario defaults and recursion
+**Problem.** "CFPB median 3-week shock" was unsupported; savings went negative; there was no without-loan comparison; the baseline test was wrong.
+**Selected.** Illustrative user-relative catalog (expense = 1 month of essentials; −25% × 3 months; low month; job loss 2 months; +20% vehicle costs), labeled "not a forecast"; CFPB research as a context sentence only; paired runs; floor at 0 + unfunded gap; month-by-month baseline equality; break-even M = 3 and 6 with defined edges (closes Q-4). **Confidence:** high.
+
+### ADR-020 — Actionable alternatives
+**Problem.** A hypothetical "−1 pt APR" option implied availability; the down-payment lever hid its savings cost; term changes implied lender pricing; price/delay levers were underspecified.
+**Selected.** Levers: cash down (moves F13), term (`same_rate_assumed`), remove optional add-ons, verified competing offers. Objectives: finance charge, monthly left after, savings after purchase, break-even. A rate-sensitivity statement replaces the hypothetical offer (closes Q-3). Price/delay deferred. **Confidence:** high.
+
+### ADR-021 — Document grounding beyond consistency
+**Problem.** Quote matching proves text exists, not that it is the right field; a consistent wrong column (multi-option dealer sheet) passes all identities; confidence was uncalibrated; negations blocked products.
+**Selected.** Label co-location; deterministic TILA-box reader as an independent second source; offer chooser; itemization reconciliation; APR non-reproduction as `warn`; booleans-with-quotes for product type; `model_self_report` internal only.
+**Rejected.** A second LLM self-check (correlated errors). **Confidence:** high.
+
+### ADR-022 — LLM data mode
+**Problem.** Gemini API terms (verified 2026-10-24): on unpaid quota, content may be used to improve Google products and read by human reviewers; "Do not submit sensitive, confidential, or personal information to the Unpaid Services." Paid services don't use prompts/responses to improve products.
+**Selected.** `LLM_DATA_MODE`: `paid` (real data allowed), `synthetic_only` (bundled fixtures only; free-text parsing off), `off` (no LLM). Inline requests only (no 48 h File API storage). The UI shows the mode.
+**Risks.** If billing is not enabled, the demo must use synthetic documents; real-user claims must not be made. **Confidence:** high.
+
+### ADR-023 — Explanations
+**Problem.** A numeric-membership gate passes misattributed, wrong-direction or causally false sentences built from permitted numbers.
+**Selected.** Typed claims built from results, rendered by templates (MVP); key points; narration deferred to a claim-referenced design (sentences cite claim ids; per-claim number, direction, metric-name and coverage checks) enabled only after an adversarial test set passes (A-40). `POST /reports/{id}/explain` returns 501 in the MVP. **Confidence:** high.

@@ -1,30 +1,39 @@
-%% E. AI document processing workflow (Stage 2)
+%% E. AI document processing workflow (Stage 2 v1.1)
 flowchart TB
-  UP["Upload PDF/PNG/JPG"] --> VAL{"Magic bytes OK, ≤10 MB, ≤30 pages, not encrypted?"}
-  VAL -->|no| REJ["400 + reason → manual entry path"]
-  VAL -->|yes| SAN["Re-save via PyMuPDF (strip active content), random name, session temp dir"]
-  SAN --> TXT["Extract text per page"]
-  TXT --> MODE{"Text density ≥ 50 chars/page?"}
-  MODE -->|yes| RED["Redact SSN / account / email / phone"]
-  MODE -->|no| IMG["Render pages to PNG (consent required: images not redactable)"]
-  RED --> LLM["LLM #2 structured extraction: value + page + verbatim quote per field; untrusted-data framing; no tools"]
-  IMG --> LLM
-  LLM --> SCHEMA{"Schema valid?"}
-  SCHEMA -->|no| RETRY["Retry once"] --> SCHEMA2{"Valid?"}
-  SCHEMA2 -->|no| MAN["Manual entry (same LoanOffer shape)"]
-  SCHEMA -->|yes| VER["Verifier"]
-  SCHEMA2 -->|yes| VER
-  VER --> QM["Quote-in-text match (exact → normalized → fuzzy ≥ 90)"]
-  VER --> AR["Arithmetic: AF + FC ≈ TOP; P×n ≈ TOP; APR recompute within 1/8 pt; rate ≤ APR"]
-  VER --> RG["Range sanity; instruction-text screening"]
-  VER --> PT{"Unsupported product (variable, balloon, lease, precomputed)?"}
-  PT -->|yes| BLOCK["422 UNSUPPORTED_PRODUCT with explanation; terms still shown"]
-  QM --> TBL
-  AR --> TBL
-  RG --> TBL
-  PT -->|no| TBL["Verification table: value · evidence · check status"]
-  TBL --> USER{"User confirms / edits / marks missing each field"}
-  USER --> READY{"Minimum computable set verified?"}
-  READY -->|yes| OFF["LoanOffer.ready_for_calculation = true → engine"]
-  READY -->|no| ASK["Stage 1 asks for missing terms or adds Ask-the-lender item"]
-  OFF --> DEL["Delete raw file; keep page text + quotes for session"]
+  UP["Upload PDF"] --> DM{"LLM_DATA_MODE"}
+  DM -->|off| MAN["Manual offer entry (same checks)"]
+  DM -->|synthetic_only and not a bundled fixture| R403["403 DATA_MODE_RESTRICTED → manual entry"]
+  DM -->|paid, or bundled fixture| VAL{"Magic bytes OK, ≤10 MB, ≤30 pages, not encrypted?"}
+  VAL -->|no| REJ["400 + reason → manual entry"]
+  VAL -->|yes| SAN["Re-save via PyMuPDF (strip active content); random name; session temp dir"]
+  SAN --> TXT["Text per page"]
+  TXT --> DENS{"Text layer present?"}
+  DENS -->|no: scan or photo| ENH["MVP: manual entry with explanation (image mode is enhanced scope, with consent)"]
+  DENS -->|yes| RED["Redact SSN / account / email / phone"]
+  RED --> LLM["LLM #2 inline extraction: label_text, value_text, page, quote per field; offers count; itemization; booleans"]
+  RED --> RDR["Deterministic TILA reader: AMOUNT FINANCED, FINANCE CHARGE, ANNUAL PERCENTAGE RATE, TOTAL OF PAYMENTS, TOTAL SALE PRICE"]
+  LLM --> SCH{"Schema valid?"}
+  SCH -->|no, after one retry| MAN
+  SCH -->|yes| VER["Verifier"]
+  RDR --> VER
+  VER --> C1["quote_match + label_anchor"]
+  VER --> C2["independent_reader agreement (disagree → conflicting, both candidates shown)"]
+  VER --> C3["arithmetic: AF + FC ≈ TOP; P × n ≈ TOP; TSP ≈ TOP + down"]
+  VER --> C4["itemization reconcile; APR recompute on AF (outside 1/8 pt → warn)"]
+  VER --> C5{"Product boolean true with a quote (variable, balloon, lease, precomputed)?"}
+  C5 -->|yes| BLOCK["422 UNSUPPORTED_PRODUCT with explanation; terms still shown"]
+  C5 -->|keyword only| ASKP["Ask the user to confirm product type"]
+  C1 --> NOFF
+  C2 --> NOFF
+  C3 --> NOFF
+  C4 --> NOFF
+  C5 -->|no| NOFF{"More than one offer in the document?"}
+  NOFF -->|yes| CHOOSE["User picks the offer being evaluated"] --> TBL
+  NOFF -->|no| TBL["Verification table: value · label · quote · page · checks (no model confidence)"]
+  TBL --> USER{"Per field: confirm / edit / mark missing"}
+  USER --> VSTATE["verification: evidence_matched(_user_confirmed) or user_confirmed"]
+  VSTATE --> READY{"Minimum computable set present, no conflicts?"}
+  READY -->|yes| OFF["LoanOffer ready_for_calculation → engine F00 principal resolution"]
+  READY -->|no| MISS["Readiness shows what's missing; Ask-the-lender items"]
+  MAN --> OFF
+  OFF --> DEL["Delete raw file; keep page text + quotes for the session"]
