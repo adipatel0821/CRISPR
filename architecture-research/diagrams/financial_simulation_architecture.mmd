@@ -1,0 +1,55 @@
+%% F. Financial computation and simulation architecture (Stages 3–5): dependencies and scenario generation
+flowchart LR
+  subgraph Inputs["Verified inputs"]
+    P["Profile facts (status ≥ estimated)"]
+    O["LoanOffer (ready_for_calculation)"]
+    CFG["config: assumptions.yaml, scenarios.yaml, levers.yaml"]
+  end
+
+  subgraph Engine["engine/ (Decimal, pure functions)"]
+    F01["F01 payment"] --> F01s["F01s schedule"]
+    F01s --> F02["F02 total of payments"] --> F03["F03 total interest"] --> F04["F04 total cost of purchase"]
+    F05["F05 APR recompute (bisection)"]
+    F06["F06 LTV"]
+    F08["F08 residual before"] --> F09["F09 residual after"]
+    F01 --> F09
+    F09 --> F10["F10 reserve months after"]
+    F11["F11 savings months of income"]
+    F01s --> F12["F12 negative-equity months (value curve: user or assumption)"]
+    FLAGS["Flags with CFPB citations (config thresholds)"]
+  end
+
+  subgraph Scenarios["scenarios/"]
+    CAT["Catalog: income dip (3 wks ×2), expense spike, −25% ×3 mo, job loss N mo, cost +20%, custom"]
+    RUN["Monthly runner: S_t = S_t−1 + income_t − outflows_t"]
+    OAT["OAT sensitivity (±10% per driver)"]
+    BE["Break-even income drop (bisection over M months)"]
+    MC["Monte Carlo on triangular income (enhanced, seeded, labeled)"]
+  end
+
+  subgraph Counterfactual["counterfactual/"]
+    LEV["Levers: down, term, principal Δ, APR of other offers, add-ons, delay"]
+    GRID["Grid generation + feasibility (user constraints)"]
+    EVAL["Evaluate each: engine + same scenario catalog"]
+    PAR["Pareto filter: interest ↓, residual ↑, break-even ↑"]
+    LS["Lever sensitivity ranking"]
+  end
+
+  P --> F08
+  O --> F01
+  O --> F05
+  O --> F06
+  CFG --> FLAGS
+  CFG --> CAT
+  CFG --> LEV
+  F09 --> RUN
+  CAT --> RUN
+  RUN --> OAT
+  RUN --> BE
+  RUN --> MC
+  LEV --> GRID --> EVAL --> PAR --> LS
+  EVAL --> F01
+  EVAL --> RUN
+  F04 --> OUT["CalculationResult + ScenarioResult[] + CounterfactualResult → DecisionReport"]
+  BE --> OUT
+  LS --> OUT

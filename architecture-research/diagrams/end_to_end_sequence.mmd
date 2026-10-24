@@ -1,0 +1,70 @@
+%% G. End-to-end sequence — one session from start to report
+sequenceDiagram
+  autonumber
+  actor User
+  participant Web as Next.js UI
+  participant API as FastAPI /api/v1
+  participant Intake as intake (graph + ranker)
+  participant Docs as documents (PyMuPDF + verifier)
+  participant LLM as LLMClient → Gemini
+  participant Engine as engine / scenarios / counterfactual
+  participant Explain as explain (templates + gate)
+  participant DB as SQLite
+
+  User->>Web: Start, accept privacy notice
+  Web->>API: POST /sessions
+  API->>DB: create session (token hashed)
+  API-->>Web: session_id, token
+
+  loop Adaptive intake until stop
+    Web->>API: GET /sessions/{id}/next-question
+    API->>Intake: rank candidates (partial compute via Engine)
+    Intake->>Engine: compute at low/high bounds
+    Engine-->>Intake: sensitivity
+    Intake-->>API: QuestionCandidate + why_we_ask
+    API-->>Web: question
+    User->>Web: answer (typed or free text)
+    Web->>API: POST /answers
+    alt free text
+      API->>LLM: parse (JSON schema)
+      LLM-->>API: facts or malformed
+      API-->>Web: facts, or fallback widget
+    end
+    API->>DB: append facts
+  end
+
+  User->>Web: upload contract
+  Web->>API: POST /documents (multipart)
+  API->>Docs: validate, text layer, redact
+  Docs->>LLM: structured extraction with quotes
+  LLM-->>Docs: LoanDocumentExtraction
+  Docs->>Engine: payment / APR checks
+  Docs-->>API: VerifiedFinancialTerm[] (checks)
+  API->>DB: store terms, delete raw file
+  Web->>API: GET /documents/{doc_id} (poll)
+  API-->>Web: verification table
+  User->>Web: confirm / edit terms
+  Web->>API: POST /documents/{doc_id}/verify
+  API-->>Web: LoanOffer ready_for_calculation
+
+  Web->>API: POST /sessions/{id}/analysis (Idempotency-Key)
+  API->>Engine: compute, run_catalog, evaluate
+  Engine-->>API: results
+  API->>Explain: build plans + templates
+  Explain-->>API: ExplanationSection[] (template_text)
+  API->>DB: store DecisionReport
+  API-->>Web: DecisionReport
+  Web-->>User: dashboard with provenance chips
+
+  opt Narrative wording
+    Web->>API: POST /reports/{id}/explain (section_id)
+    API->>Explain: narrate (LLM #3) then validate
+    Explain->>LLM: plan → text
+    LLM-->>Explain: text
+    Explain-->>API: narrative or template fallback
+    API-->>Web: section update
+  end
+
+  User->>Web: delete my data
+  Web->>API: DELETE /sessions/{id}
+  API->>DB: purge all rows for session

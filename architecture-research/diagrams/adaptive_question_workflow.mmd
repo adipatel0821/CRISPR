@@ -1,0 +1,22 @@
+%% D. Adaptive question-selection workflow (Stage 1)
+flowchart TB
+  START["Answer received (typed or free text)"] --> ISFREE{"Free text?"}
+  ISFREE -->|yes| PARSE["LLM #1 parse → facts (schema, key whitelist)"]
+  ISFREE -->|no| TYPED["Typed value → FinancialFact"]
+  PARSE --> OK{"Schema valid and keys registered?"}
+  OK -->|no, retry once then| WIDGET["Fallback: typed widget for the same question"]
+  OK -->|yes| LEDGER["Append facts (supersede on change, status stated/estimated)"]
+  TYPED --> LEDGER
+  LEDGER --> PROF["Materialize profile; run constraint rules C01–C07"]
+  PROF --> CONF{"Conflicts?"}
+  CONF -->|yes| CLAR["Emit clarification question (never overwrite silently)"]
+  CLAR --> START
+  CONF -->|no| CAND["Candidate set: missing/estimated facts with a path to a reachable metric"]
+  CAND --> SENS["For each candidate: partial compute at low/high bounds → sensitivity"]
+  SENS --> SCORE["score = req + w·sens − effort − privacy (config)"]
+  SCORE --> STOP{"T0 complete and max sens < τ?"}
+  STOP -->|yes| OFFER["Return null → UI offers Run analysis + optional questions with sens values"]
+  STOP -->|no| PICK["Select argmax; generate text + why_we_ask from dependency path"]
+  PICK --> LOG["question_log: score_breakdown"]
+  LOG --> ASK["Ask (skip / estimate allowed)"]
+  ASK --> START

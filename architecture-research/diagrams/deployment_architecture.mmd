@@ -1,0 +1,46 @@
+%% H. Deployment architecture — primary (laptop Docker Compose) and optional cloud variant
+flowchart TB
+  subgraph Laptop["PRIMARY DEMO: team laptop — docker compose up"]
+    direction LR
+    subgraph Net["Local network (localhost only)"]
+      W["web container — Next.js :3000"]
+      A["api container — FastAPI/uvicorn :8000"]
+    end
+    VOL[("volume: decisiontwin.sqlite (WAL) + tmp uploads")]
+    ENV[".env: GEMINI_API_KEY (git-ignored)"]
+    W -->|HTTP JSON| A
+    A --> VOL
+    ENV -.-> A
+  end
+
+  subgraph Cloud["OPTIONAL (enhancement after CP2): hosted variant"]
+    direction LR
+    V["Vercel — Next.js (HTTPS)"]
+    R["Render / Railway / Vultr VM — FastAPI (HTTPS, CORS allow-list)"]
+    PV[("persistent disk: SQLite → Postgres in production")]
+    SEC["Platform secrets store"]
+    V -->|HTTPS| R
+    R --> PV
+    SEC -.-> R
+  end
+
+  subgraph External["External boundary (TLS)"]
+    G["Gemini API (model provider)"]
+  end
+
+  subgraph Obs["Observability"]
+    LOGS["Structured JSON logs (request_id, session_id, latency)"]
+    AUD[("llm_calls audit table: prompt hash, schema version, validation outcome")]
+    H["/health: DB + LLM reachability"]
+  end
+
+  A -->|3 call types, timeouts, retries| G
+  R -->|same adapter| G
+  A --> LOGS
+  A --> AUD
+  A --> H
+  R --> LOGS
+  R --> AUD
+
+  classDef boundary stroke-dasharray: 5 5
+  class External boundary

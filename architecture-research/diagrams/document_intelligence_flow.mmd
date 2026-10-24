@@ -1,0 +1,30 @@
+%% E. AI document processing workflow (Stage 2)
+flowchart TB
+  UP["Upload PDF/PNG/JPG"] --> VAL{"Magic bytes OK, ≤10 MB, ≤30 pages, not encrypted?"}
+  VAL -->|no| REJ["400 + reason → manual entry path"]
+  VAL -->|yes| SAN["Re-save via PyMuPDF (strip active content), random name, session temp dir"]
+  SAN --> TXT["Extract text per page"]
+  TXT --> MODE{"Text density ≥ 50 chars/page?"}
+  MODE -->|yes| RED["Redact SSN / account / email / phone"]
+  MODE -->|no| IMG["Render pages to PNG (consent required: images not redactable)"]
+  RED --> LLM["LLM #2 structured extraction: value + page + verbatim quote per field; untrusted-data framing; no tools"]
+  IMG --> LLM
+  LLM --> SCHEMA{"Schema valid?"}
+  SCHEMA -->|no| RETRY["Retry once"] --> SCHEMA2{"Valid?"}
+  SCHEMA2 -->|no| MAN["Manual entry (same LoanOffer shape)"]
+  SCHEMA -->|yes| VER["Verifier"]
+  SCHEMA2 -->|yes| VER
+  VER --> QM["Quote-in-text match (exact → normalized → fuzzy ≥ 90)"]
+  VER --> AR["Arithmetic: AF + FC ≈ TOP; P×n ≈ TOP; APR recompute within 1/8 pt; rate ≤ APR"]
+  VER --> RG["Range sanity; instruction-text screening"]
+  VER --> PT{"Unsupported product (variable, balloon, lease, precomputed)?"}
+  PT -->|yes| BLOCK["422 UNSUPPORTED_PRODUCT with explanation; terms still shown"]
+  QM --> TBL
+  AR --> TBL
+  RG --> TBL
+  PT -->|no| TBL["Verification table: value · evidence · check status"]
+  TBL --> USER{"User confirms / edits / marks missing each field"}
+  USER --> READY{"Minimum computable set verified?"}
+  READY -->|yes| OFF["LoanOffer.ready_for_calculation = true → engine"]
+  READY -->|no| ASK["Stage 1 asks for missing terms or adds Ask-the-lender item"]
+  OFF --> DEL["Delete raw file; keep page text + quotes for session"]

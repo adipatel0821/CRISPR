@@ -1,0 +1,36 @@
+%% B. Detailed data flow — from user input to explained report
+flowchart TB
+  U["User"] -->|typed answer or free text| Q["Intake: next-question / answers"]
+  U -->|PDF / image upload| D0["Documents: validate upload (magic bytes, size, pages)"]
+  U -->|manual offer entry| OFF["LoanOffer (stated terms)"]
+
+  Q -->|free text only| P["Answer parser (LLM #1, JSON schema)"]
+  P --> F["FinancialFact ledger (append-only, provenance, status)"]
+  Q -->|typed value| F
+  F --> PROF["FinancialProfile view + conflicts + completeness"]
+  PROF --> RANK["Question ranker: requirement + sensitivity − effort − privacy"]
+  RANK -->|QuestionCandidate + why_we_ask| Q
+
+  D0 --> TXT["PyMuPDF text layer / page images"]
+  TXT --> RED["Redaction (SSN, account numbers) in text mode"]
+  RED --> EXT["Extraction (LLM #2): value + page + verbatim quote per field"]
+  EXT --> VER["Verifier: quote match, arithmetic, ranges, product type"]
+  VER --> HV["Human verification table (confirm / edit / mark missing)"]
+  HV --> OFF
+  OFF -->|ready_for_calculation| ENG
+
+  PROF --> ENG["engine.compute → CalculationResult (metrics, schedule, flags)"]
+  ENG --> SC["scenarios.run_catalog → ScenarioResult[] + ResilienceSummary"]
+  ENG --> CFX["counterfactual.evaluate → alternatives, Pareto set, lever sensitivity"]
+  SC --> CFX
+  ENG --> PLAN["explain.build_plans → ExplanationPlan per section (allowed numbers, citations)"]
+  SC --> PLAN
+  CFX --> PLAN
+  PLAN --> TPL["Templates (deterministic text)"]
+  PLAN --> NAR["Narration (LLM #3)"]
+  NAR --> GATE{"Numeric membership + deny-list gate"}
+  GATE -->|pass| REP
+  GATE -->|fail| TPL
+  TPL --> REP["DecisionReport (snapshot, calc_version, provenance)"]
+  REP --> UI["Dashboard: Now · With this loan · Under stress · Alternatives · Missing info · Report"]
+  UI --> U

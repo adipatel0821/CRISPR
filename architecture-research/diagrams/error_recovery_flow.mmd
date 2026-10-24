@@ -1,0 +1,40 @@
+%% I. Error and recovery flow — every failure leaves the user with a next action
+flowchart TB
+  REQ["Incoming request"] --> KIND{"Failure class"}
+
+  KIND -->|invalid input| V1["400 VALIDATION_ERROR with field + rule"]
+  V1 --> V2["UI re-asks the same question with inline hint; no state change"]
+
+  KIND -->|conflicting data| C1["409 CONFLICTING_FACTS or term checks fail"]
+  C1 --> C2{"Where?"}
+  C2 -->|intake| C3["Clarification question (C01–C07); both values kept until resolved"]
+  C2 -->|document| C4["Both terms marked conflicting; user picks or edits; nothing auto-corrected"]
+
+  KIND -->|AI timeout or malformed| A1["timeout 20–30 s → retry once (temperature 0)"]
+  A1 --> A2{"Still failing?"}
+  A2 -->|answer parsing| A3["Typed widget for the same question"]
+  A2 -->|extraction| A4["Manual offer entry (same LoanOffer shape); doc kept for reference"]
+  A2 -->|narration| A5["Template text shown; narrative_validated = false"]
+
+  KIND -->|provider API unavailable| U1["503 LLM_UNAVAILABLE, fallback_available = true; /health shows degraded"]
+  U1 --> U2["UI banner: AI features offline; all deterministic features continue"]
+
+  KIND -->|unsupported calculation| S1["422 UNSUPPORTED_PRODUCT (variable, balloon, lease, precomputed) or INSUFFICIENT_INFORMATION"]
+  S1 --> S2["Explain why; show extracted terms; list what is needed; Ask-the-lender items"]
+
+  KIND -->|stale report| R1["profile_version mismatch"]
+  R1 --> R2["Banner + one-click re-run analysis (idempotent)"]
+
+  KIND -->|internal error| I1["500 INTERNAL with request_id; logged with stack"]
+  I1 --> I2["UI: retry button; session data intact (append-only ledger)"]
+
+  V2 --> OK["User continues"]
+  C3 --> OK
+  C4 --> OK
+  A3 --> OK
+  A4 --> OK
+  A5 --> OK
+  U2 --> OK
+  S2 --> OK
+  R2 --> OK
+  I2 --> OK

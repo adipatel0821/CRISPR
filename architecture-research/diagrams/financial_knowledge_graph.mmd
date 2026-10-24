@@ -1,0 +1,70 @@
+%% C. Financial knowledge graph ontology (typed dependency DAG). Edge labels: required_by, improves, constrains, derived_from
+flowchart LR
+  subgraph Facts["Fact nodes (user-provided, T0 = minimum, T1 = accuracy, T2 = optional)"]
+    I1["income.take_home_monthly (T0)"]
+    I2["income.variability (T1)"]
+    I3["income.gross_monthly (T1)"]
+    E1["expenses.essential.total (T0)"]
+    E2["expenses.flexible.total (T1)"]
+    D1["debts[] monthly_payment (T0)"]
+    S1["savings.liquid (T0)"]
+    V1["vehicle.price (T0*)"]
+    V2["vehicle.related_costs (T1)"]
+    V3["vehicle.expected_resale_value (T1)"]
+    L1["loan.amount_financed, apr, term_months (T0)"]
+    L2["loan.add_ons, fees, prepayment_penalty (T1)"]
+    C1["credit.score_band (T2, gated)"]
+  end
+
+  subgraph Assumptions["Assumption nodes (config, cited, labeled)"]
+    A1["assumption.depreciation_curve"]
+    A2["assumption.flexible_expense_default"]
+    A3["assumption.shock_defaults (CFPB medians)"]
+  end
+
+  subgraph Metrics["Metric nodes (engine formulas)"]
+    M1["metric.monthly_payment F01"]
+    M2["metric.total_interest F03"]
+    M3["metric.monthly_residual_after F09"]
+    M4["metric.reserve_months_after F10"]
+    M5["metric.ltv F06"]
+    M6["metric.dti_total F07b"]
+    M7["metric.negative_equity_months F12"]
+    M8["metric.break_even_income_drop_pct (Stage 4)"]
+  end
+
+  subgraph Constraints["Constraint nodes (rules C01–C07)"]
+    K1["C03 essential + debts ≤ take-home"]
+    K2["C05 offer payment ≈ computed payment"]
+  end
+
+  L1 -->|required_by| M1
+  L1 -->|required_by| M2
+  M1 -->|derived_from| M3
+  I1 -->|required_by| M3
+  E1 -->|required_by| M3
+  D1 -->|required_by| M3
+  E2 -->|improves| M3
+  A2 -.->|default if missing| M3
+  V2 -->|improves| M3
+  S1 -->|required_by| M4
+  M3 -->|derived_from| M4
+  V1 -->|required_by| M5
+  L1 -->|required_by| M5
+  I3 -->|required_by| M6
+  D1 -->|required_by| M6
+  M1 -->|derived_from| M6
+  V3 -->|improves| M7
+  A1 -.->|default if missing| M7
+  M1 -->|derived_from| M7
+  I2 -->|improves| M8
+  S1 -->|required_by| M8
+  M3 -->|derived_from| M8
+  A3 -.->|default shocks| M8
+  L2 -->|improves| M2
+  C1 -.->|only when goal: better rate| M1
+  I1 -->|constrains| K1
+  E1 -->|constrains| K1
+  D1 -->|constrains| K1
+  L1 -->|constrains| K2
+  M1 -->|constrains| K2
