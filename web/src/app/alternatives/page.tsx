@@ -1,216 +1,135 @@
 "use client";
 
-import * as React from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
-import type { Alternative, DecisionReport } from "@/lib/contracts";
-import { displayNumber, formatMoney, formatRatioPercent, formatSignedMoney } from "@/lib/format";
-import { ASSUMPTION_FLAG_TEXT, isAvailable } from "@/lib/report";
+import type { DecisionReport } from "@/lib/contracts";
+import { highlightAlternatives } from "@/lib/insights";
+import { evidenceForClaim, isAvailable } from "@/lib/report";
+import { formatMoney } from "@/lib/format";
 import { FixtureNotice } from "@/components/banners";
 import { AlternativesScatter } from "@/components/charts";
 import { ClaimLine, decisionTitle } from "@/components/report-parts";
 import { ReportGate, UnavailableSection } from "@/components/report-gate";
-import { ResultsTabs } from "@/components/site-header";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { ProvenanceChip } from "@/components/provenance-chip";
+import { Container, Disclosure, FadeIn, Insight, PageIntro, PrimaryAction } from "@/components/system";
+import { AltComparisonCard } from "@/components/alternatives/alt-card";
+import { AltTable } from "@/components/alternatives/alt-table";
+import { baseAlternative, slotPlan, SLOT_SKIPPED_TEXT } from "@/components/alternatives/alt-view";
 
-type SortKey = "label" | "monthly_payment" | "finance_charge" | "monthly_left_after" | "savings_after_purchase" | "break_even_m3";
+const FRAMING = "What-if calculations under stated assumptions — not offers or recommendations.";
+const LEDE = `${FRAMING} Each option changes one or two things you could ask for and recalculates the same figures; the trade-offs are yours to weigh.`;
 
-const COLUMNS: { key: SortKey; label: string; fmt?: (s: string | null | undefined) => string }[] = [
-  { key: "label", label: "Option" },
-  { key: "monthly_payment", label: "Monthly payment", fmt: formatMoney },
-  { key: "finance_charge", label: "Finance charge", fmt: formatMoney },
-  { key: "monthly_left_after", label: "Left each month", fmt: formatMoney },
-  { key: "savings_after_purchase", label: "Savings after purchase", fmt: formatMoney },
-  { key: "break_even_m3", label: "Income drop absorbed (3 mo)", fmt: (s) => formatRatioPercent(s, 0) },
-];
-
-function AltTable({ alts, pareto }: { alts: Alternative[]; pareto: string[] }) {
-  const [sort, setSort] = React.useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "finance_charge", dir: "asc" });
-
-  // Ordering only (no arithmetic): compare backend strings as display numbers; infeasible rows last.
-  const sorted = [...alts].sort((a, b) => {
-    if (a.feasible !== b.feasible) return a.feasible ? -1 : 1;
-    const mul = sort.dir === "asc" ? 1 : -1;
-    if (sort.key === "label") return a.label.localeCompare(b.label) * mul;
-    const x = displayNumber(a.metrics[sort.key] ?? null);
-    const y = displayNumber(b.metrics[sort.key] ?? null);
-    if (x === null && y === null) return 0;
-    if (x === null) return 1;
-    if (y === null) return -1;
-    return (x - y) * mul;
-  });
-
-  function toggle(key: SortKey) {
-    setSort((s) => (s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
-  }
-
+function RateSensitivity({ report }: { report: DecisionReport }) {
+  const rs = report.counterfactual?.rate_sensitivity;
+  if (!rs) return null;
+  const claim = rs.statement_claim_id ? report.claims.find((c) => c.claim_id === rs.statement_claim_id && c.text) : undefined;
+  if (!claim && !rs.per_point_finance_charge_delta) return null;
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[44rem] text-sm">
-        <caption className="sr-only">Alternatives compared with your offer. Use the column buttons to sort.</caption>
-        <thead>
-          <tr className="border-b border-line-strong text-left">
-            {COLUMNS.map((c) => {
-              const active = sort.key === c.key;
-              return (
-                <th
-                  key={c.key}
-                  scope="col"
-                  aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  className={cn("py-2 pr-3 font-medium text-ink-muted", c.key !== "label" && "text-right")}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggle(c.key)}
-                    className={cn("inline-flex items-center gap-1 hover:text-ink", c.key !== "label" && "flex-row-reverse")}
-                  >
-                    {c.label}
-                    {active ? (
-                      sort.dir === "asc" ? <ArrowUp aria-hidden className="size-3.5" /> : <ArrowDown aria-hidden className="size-3.5" />
-                    ) : (
-                      <ArrowUpDown aria-hidden className="size-3.5 opacity-50" />
-                    )}
-                  </button>
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((a) => (
-            <tr key={a.alt_id} className={cn("border-b border-line align-top", !a.feasible && "text-ink-subtle", a.is_base && "bg-accent-soft/60")}>
-              <th scope="row" className="py-3 pr-3 text-left font-normal">
-                <span className={cn("font-medium", a.feasible ? "text-ink" : "text-ink-subtle")}>{a.label}</span>
-                <span className="mt-1 flex flex-wrap gap-1">
-                  {a.is_base && <Badge tone="accent">Your offer</Badge>}
-                  {!a.is_base && a.feasible && pareto.includes(a.alt_id) && <Badge tone="outline">Trade-off set</Badge>}
-                  {a.assumption_flags.map((f) => (
-                    <Badge key={f} tone="info">
-                      {ASSUMPTION_FLAG_TEXT[f] ?? f.replace(/_/g, " ")}
-                    </Badge>
-                  ))}
-                  {!a.feasible && <Badge tone="neutral">Not possible</Badge>}
-                </span>
-                {!a.feasible && a.infeasible_reasons.length > 0 && (
-                  <span className="mt-1 block text-xs text-ink-muted">{a.infeasible_reasons.join(" ")}</span>
-                )}
-              </th>
-              {COLUMNS.slice(1).map((c) => {
-                const v = a.metrics[c.key] ?? null;
-                const d = a.deltas_vs_base[c.key];
-                return (
-                  <td key={c.key} className="figure py-3 pr-3 text-right">
-                    {a.feasible ? (c.fmt ? c.fmt(v) : v) : "—"}
-                    {a.feasible && !a.is_base && d !== undefined && d !== null && d !== "0.00" && (
-                      <span className="block text-xs text-ink-subtle">{formatSignedMoney(d)} vs offer</span>
-                    )}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Insight
+      label="How much the rate matters"
+      labelAs="h2"
+      source={claim ? <ProvenanceChip evidence={evidenceForClaim(report, claim)} label="rate sensitivity" /> : undefined}
+    >
+      <p data-rate-sensitivity>
+        {claim?.text ?? `Each 1 percentage point of interest rate changes the finance charge by about ${formatMoney(rs.per_point_finance_charge_delta)}.`}
+      </p>
+      <p className="mt-1.5 text-sm text-ink-muted">
+        Dealers often see several lenders&apos; rates. You can ask whether the rate you were offered includes a markup.
+      </p>
+    </Insight>
   );
 }
 
 function Alternatives({ report }: { report: DecisionReport }) {
   const cf = report.counterfactual;
-  const rateClaim = cf?.rate_sensitivity?.statement_claim_id
-    ? report.claims.find((c) => c.claim_id === cf.rate_sensitivity?.statement_claim_id)
-    : undefined;
-  const comparisonClaims = report.claims.filter((c) => c.type === "comparison" && (c.values as Record<string, unknown>).alt_id);
+  const available = isAvailable(report, "alternatives") && !!cf;
+  const base = baseAlternative(cf);
+  const plan = slotPlan(highlightAlternatives(cf));
+  const comparisonClaims = report.claims.filter((c) => c.type === "comparison" && typeof c.values?.alt_id === "string" && c.text);
+  const total = cf?.alternatives.length ?? 0;
 
   return (
-    <div className="space-y-6">
-      <ResultsTabs />
+    <Container className="space-y-10">
       <FixtureNotice />
-      <div>
-        <p className="text-sm font-medium text-accent">{decisionTitle(report)}</p>
-        <h1 className="text-2xl font-semibold tracking-tight text-ink">Alternatives</h1>
-        <p className="max-w-2xl text-sm text-ink-muted">
-          What-if calculations, not recommendations. Each option changes one or two things you could ask for — term, down
-          payment, optional add-ons — and recalculates the same figures. None is labelled “best”; the trade-offs are yours.
-        </p>
-      </div>
+      <PageIntro eyebrow={decisionTitle(report)} title="What could you change?" lede={LEDE} />
 
-      {!isAvailable(report, "alternatives") || !cf ? (
+      {!available || !cf ? (
         <UnavailableSection report={report} analysisId="alternatives" />
       ) : (
         <>
-          <Card>
-            <CardHeader>
-              <CardTitle>What do you trade between total borrowing cost and money left each month?</CardTitle>
-              <CardDescription>
-                Further left costs less in finance charges; higher up leaves more each month. Options in the trade-off set can&apos;t
-                be beaten on every measure at once by another option.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AlternativesScatter alternatives={cf.alternatives} pareto={cf.pareto_set} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Compare the options</CardTitle>
-              <CardDescription>Sort by any column. Greyed rows aren&apos;t possible with your savings.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AltTable alts={cf.alternatives} pareto={cf.pareto_set} />
-            </CardContent>
-          </Card>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            {(rateClaim || cf.rate_sensitivity?.per_point_finance_charge_delta) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>How much does the rate matter?</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-ink">
-                  {rateClaim ? (
-                    <ClaimLine report={report} claim={rateClaim} />
-                  ) : (
-                    <p>
-                      Each 1 percentage point of rate changes the finance charge by about{" "}
-                      {formatMoney(cf.rate_sensitivity?.per_point_finance_charge_delta)}.
-                    </p>
-                  )}
-                  <p className="mt-2 text-xs text-ink-muted">
-                    Dealers often see several lenders&apos; rates. Ask whether the rate you were offered includes a markup.
-                  </p>
-                </CardContent>
-              </Card>
+          <section aria-label="Highlighted alternatives" className="space-y-4">
+            {plan.cards.length === 0 && (
+              <p className="rounded-card bg-canvas px-5 py-4 text-sm text-ink-muted">
+                None of the options improves on your offer for monthly payment, finance charge or savings.
+              </p>
             )}
+            {plan.cards.map((c, i) => {
+              const alt = cf.alternatives.find((a) => a.alt_id === c.highlight.altId) ?? c.highlight.alternative;
+              return (
+                <FadeIn key={c.highlight.altId} step={Math.min(i, 4) as 0 | 1 | 2 | 3 | 4}>
+                  <AltComparisonCard report={report} alt={alt} base={base} slots={c.slots} headingId={`alt-${alt.alt_id}`} />
+                </FadeIn>
+              );
+            })}
+            {plan.skipped.length > 0 && plan.cards.length > 0 && (
+              <ul className="space-y-1 px-1 text-sm text-ink-subtle" data-skipped-slots>
+                {plan.skipped.map((s) => (
+                  <li key={s}>{SLOT_SKIPPED_TEXT[s]}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <RateSensitivity report={report} />
+
+          <Disclosure
+            variant="card"
+            summary={`Compare all ${total} options`}
+            meta="Chart and table"
+            contentClassName="space-y-8 pt-2"
+          >
+            <div className="space-y-2">
+              <h2 className="text-[15px] font-semibold text-ink">Total borrowing cost vs. money left each month</h2>
+              <p>
+                Further left costs less in finance charges; higher up leaves more each month. Options in the trade-off set can&apos;t be
+                beaten on every measure at once by another option.
+              </p>
+              <div className="rounded-control bg-surface p-2 sm:p-3">
+                <AlternativesScatter alternatives={cf.alternatives} pareto={cf.pareto_set} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-[15px] font-semibold text-ink">Every option</h2>
+              <p>Sort by any column. Options that need more cash than your savings are listed last, with the reason.</p>
+              <div className="rounded-control bg-surface p-2 sm:p-3">
+                <AltTable alts={cf.alternatives} pareto={cf.pareto_set} />
+              </div>
+            </div>
             {comparisonClaims.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Trade-offs in words</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm text-ink">
-                  {comparisonClaims.map((c) => (
-                    <p key={c.claim_id}>
-                      <ClaimLine report={report} claim={c} />
-                    </p>
-                  ))}
-                </CardContent>
-              </Card>
+              <div className="space-y-2">
+                <h2 className="text-[15px] font-semibold text-ink">In words</h2>
+                {comparisonClaims.map((c) => (
+                  <p key={c.claim_id} className="text-ink">
+                    <ClaimLine report={report} claim={c} />
+                  </p>
+                ))}
+              </div>
             )}
-          </div>
-
-          <div className="space-y-1 text-xs text-ink-muted">
-            {cf.notes.map((n) => (
-              <p key={n}>{n}</p>
-            ))}
-            {cf.deferred_levers.length > 0 && (
-              <p>Not explored in this version: {cf.deferred_levers.map((l) => l.replace(/_/g, " ")).join(", ")}.</p>
-            )}
-          </div>
+            <div className="space-y-1 text-xs text-ink-subtle">
+              {cf.notes.map((n) => (
+                <p key={n}>{n}</p>
+              ))}
+              {cf.deferred_levers.length > 0 && (
+                <p>Not explored in this version: {cf.deferred_levers.map((l) => l.replace(/_/g, " ")).join(", ")}.</p>
+              )}
+            </div>
+          </Disclosure>
         </>
       )}
-    </div>
+
+      <div className="flex flex-col items-start gap-3 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-ink-muted">Bring it together in one page you can print or save.</p>
+        <PrimaryAction href="/report">Next: your decision report</PrimaryAction>
+      </div>
+    </Container>
   );
 }
 

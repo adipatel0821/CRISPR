@@ -3,7 +3,8 @@
  * backend claim's text, a flag detail, or fixed copy, and every number is a backend string.
  * Dependency-light so it can be unit-tested with `node --test`.
  */
-import type { DecisionReport } from "../../lib/contracts.ts";
+import type { Claim, DecisionReport } from "../../lib/contracts.ts";
+import { formatMoney } from "../../lib/format.ts";
 import {
   decisionSummary,
   limitations,
@@ -11,9 +12,49 @@ import {
   worstGapScenario,
   RUNNING_COSTS_HREF,
   RUNNING_COSTS_TEXT,
+  type DecisionSummary,
+  type SummaryPiece,
   type SummaryTone,
 } from "../../lib/insights.ts";
 import { FLAG_TEXT, triggeredFlags } from "../../lib/report.ts";
+
+/**
+ * The scenario_outcome claim for a scenario's run. The live backend writes one claim per run
+ * (values.run = "with_offer" | "without_offer"); the fixture has a single claim without `run`.
+ * Prefer the requested run, then a claim with no run; never the other run's claim.
+ */
+export function scenarioClaimFor(report: DecisionReport, scenarioId: string, run: "with_offer" | "without_offer" = "with_offer"): Claim | undefined {
+  const forScenario = report.claims.filter(
+    (c) => c.type === "scenario_outcome" && c.values?.scenario_id === scenarioId && typeof c.text === "string" && c.text.trim(),
+  );
+  return forScenario.find((c) => c.values?.run === run) ?? forScenario.find((c) => c.values?.run === undefined || c.values?.run === null);
+}
+
+function gapTemplate(report: DecisionReport, scenarioId: string): string | null {
+  const s = (report.scenarios ?? []).find((x) => x.scenario_id === scenarioId && x.run === "with_offer");
+  if (!s) return null;
+  const name = s.name ?? s.scenario_id;
+  return s.first_shortfall_month !== null && s.first_shortfall_month !== undefined
+    ? `In the illustrative scenario “${name}”, with this loan your savings run out in month ${s.first_shortfall_month} and the unfunded gap reaches ${formatMoney(s.max_unfunded_gap)}.`
+    : `In the illustrative scenario “${name}”, with this loan the unfunded gap reaches ${formatMoney(s.max_unfunded_gap)}.`;
+}
+
+function fixScenarioPiece(report: DecisionReport, p: SummaryPiece | null): SummaryPiece | null {
+  if (!p || !p.scenarioId || (p.kind !== "unfunded_gap" && p.kind !== "stress_scenario")) return p;
+  const c = scenarioClaimFor(report, p.scenarioId, "with_offer");
+  if (c) return { ...p, text: c.text as string, claimIds: [c.claim_id], evidenceIds: [...c.evidence_ids] };
+  const t = p.kind === "unfunded_gap" ? gapTemplate(report, p.scenarioId) : null;
+  return t ? { ...p, text: t, claimIds: [], evidenceIds: [] } : { ...p, claimIds: [], evidenceIds: [] };
+}
+
+/**
+ * decisionSummary(), with scenario pieces tied to the WITH-loan claim (lib/insights picks the first
+ * scenario_outcome claim for the scenario, which on live data can be the without-loan run).
+ */
+export function reportSummary(report: DecisionReport): DecisionSummary {
+  const s = decisionSummary(report);
+  return { change: s.change, concern: fixScenarioPiece(report, s.concern), next: fixScenarioPiece(report, s.next) };
+}
 
 export interface Concern {
   id: string;
@@ -54,7 +95,7 @@ export function principalConcerns(report: DecisionReport): Concern[] {
     out.push(c);
   };
 
-  const { concern } = decisionSummary(report);
+  const { concern } = reportSummary(report);
   if (concern) {
     const id =
       KIND_FLAG[concern.kind] ??
@@ -86,7 +127,7 @@ export function principalConcerns(report: DecisionReport): Concern[] {
 
   const gap = worstGapScenario(report);
   if (gap) {
-    const claim = report.claims.find((c) => c.type === "scenario_outcome" && c.values?.scenario_id === gap.scenario_id && c.text);
+    const claim = scenarioClaimFor(report, gap.scenario_id, "with_offer");
     if (claim?.text) {
       push({
         id: `gap:${gap.scenario_id}`,
@@ -100,7 +141,9 @@ export function principalConcerns(report: DecisionReport): Concern[] {
     }
   }
 
-  if (runningCostsMissing(report)) {
+  // Running costs not included: always disclosed under Financial impact and Next actions; listed here only
+  // when nothing else is a concern, so the report doesn't repeat it three times.
+  if (out.length === 0 && runningCostsMissing(report)) {
     push({
       id: "running_costs",
       title: "Running costs not included",
