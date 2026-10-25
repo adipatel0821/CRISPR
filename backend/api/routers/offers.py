@@ -83,9 +83,15 @@ def post_manual_offer(body: ManualOfferRequest, row: SessionRow = Depends(sessio
 
 
 def _persist_llm_calls(db: Session, session_id: str, llm) -> None:
-    """Audit log (system_architecture §13): persist the LLM client's call records if it exposes them as
-    `call_log` (items with prompt_hash, latency_ms, outcome — never prompt text). Committed with the request."""
-    log_items = getattr(llm, "call_log", None)
+    """Audit log (system_architecture §5/§13): persist the LLM client's call records to llm_calls.
+
+    The real `llm.client.LLMClient` keeps them in `calls` (list[CallRecord]: one record per generate_json call,
+    retries folded into `outcome`/`attempts`). `call_log` is accepted only as a legacy fallback. Only
+    prompt_hash, latency_ms and outcome are stored — never prompt, response or document text. The list is
+    cleared afterwards so the same records are never written twice. Committed with the request (D2-001)."""
+    log_items = getattr(llm, "calls", None)
+    if log_items is None:
+        log_items = getattr(llm, "call_log", None)
     if not log_items:
         return
     for item in list(log_items):
