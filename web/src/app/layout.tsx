@@ -1,11 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/app-context";
 import { SiteHeader } from "@/components/site-header";
-import { DeleteDataButton } from "@/components/delete-data";
+import { ToastProvider } from "@/components/system/toast";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 
 export const metadata: Metadata = {
   title: "DecisionTwin: car loan check",
@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={geist.variable}>
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"
@@ -29,17 +29,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         <AppProvider>
-          <SiteHeader />
-          {/* One narrow centred column for every screen (about 640 px of content). */}
-          <main id="main" className="dt-column flex-1 pb-20 pt-8 sm:pt-14">
-            {children}
-          </main>
-          <footer data-site-footer className="no-print">
-            <div className="dt-column flex flex-col gap-2 border-t border-line py-6 text-sm text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-              <p>These are calculations from your figures, not predictions or financial advice.</p>
-              <DeleteDataButton />
-            </div>
-          </footer>
+          <ToastProvider>
+            <SiteHeader />
+            {/* One narrow centred column for every screen. Bottom room on phones for the docked primary action. */}
+            <main id="main" className="dt-column flex-1 pb-28 pt-8 sm:pb-20 sm:pt-14">
+              {children}
+            </main>
+          </ToastProvider>
         </AppProvider>
       </body>
     </html>

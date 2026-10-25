@@ -162,7 +162,7 @@ export function KeyFigure({ label, value, before, after, caption, source, size =
 
 /* ------------------------------------------------------------------------------------------------
  * PrimaryAction: the ONE primary button or link on a screen state. Always carries data-primary-action
- * (tests and the density script count it). Charcoal, 48 px tall, full width on phones.
+ * (tests and the density script count it). Charcoal, 48 px tall. On phones it docks in a bottom bar.
  * ---------------------------------------------------------------------------------------------- */
 export interface PrimaryActionProps {
   children: React.ReactNode;
@@ -182,6 +182,11 @@ export interface PrimaryActionProps {
   id?: string;
   /** Associates a submit button with a form elsewhere on the page. */
   form?: string;
+  /**
+   * Phones (under 640 px): dock the action in a bar at the bottom of the viewport (default true). The element
+   * stays where it is in the DOM (inside its form), so submit and Enter keep working; wider screens are unchanged.
+   */
+  dock?: boolean;
   className?: string;
   "aria-describedby"?: string;
   "aria-label"?: string;
@@ -200,6 +205,7 @@ export function PrimaryAction({
   block = true,
   id,
   form,
+  dock = true,
   className,
   ...aria
 }: PrimaryActionProps) {
@@ -210,30 +216,35 @@ export function PrimaryAction({
       {arrow && <ArrowRight aria-hidden />}
     </>
   );
-  if (href && !disabled && !pending) {
-    return (
+  const action =
+    href && !disabled && !pending ? (
       <Button asChild size={size} className={cls}>
         <Link href={href} id={id} data-primary-action="" onClick={onClick as React.MouseEventHandler<HTMLAnchorElement>} {...aria}>
           {inner}
         </Link>
       </Button>
+    ) : (
+      <Button
+        type={type}
+        size={size}
+        className={cls}
+        id={id}
+        form={form}
+        data-primary-action=""
+        onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+        disabled={disabled || pending}
+        aria-busy={pending || undefined}
+        {...aria}
+      >
+        {inner}
+      </Button>
     );
-  }
+  if (!dock) return action;
+  // display: contents on wide screens (layout-neutral); a fixed bottom bar on phones (globals.css .dt-dock)
   return (
-    <Button
-      type={type}
-      size={size}
-      className={cls}
-      id={id}
-      form={form}
-      data-primary-action=""
-      onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
-      disabled={disabled || pending}
-      aria-busy={pending || undefined}
-      {...aria}
-    >
-      {inner}
-    </Button>
+    <div className="dt-dock" data-dock="">
+      {action}
+    </div>
   );
 }
 

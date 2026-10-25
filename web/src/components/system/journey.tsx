@@ -9,19 +9,18 @@ export interface JourneyStep {
   label: string;
 }
 
-/** Results sections, shown as quiet text links in the header: Understand, Vulnerabilities, Alternatives, Decide. */
+/** Results tabs in the app bar. */
 export const RESULTS_JOURNEY: readonly JourneyStep[] = [
-  { href: "/dashboard", label: "Understand" },
-  { href: "/stress", label: "Vulnerabilities" },
-  { href: "/alternatives", label: "Alternatives" },
-  { href: "/report", label: "Decide" },
+  { href: "/dashboard", label: "Summary" },
+  { href: "/stress", label: "Stress test" },
+  { href: "/alternatives", label: "Options" },
+  { href: "/report", label: "Report" },
 ];
 
-/** The three steps of the whole flow, shown as a plain-text step indicator on the setup screens. */
+/** Setup steps in the app bar: the loan first, then the household's money. */
 export const SETUP_STEPS: readonly JourneyStep[] = [
-  { href: "/intake", label: "Your finances" },
-  { href: "/offer", label: "Loan offer" },
-  { href: "/dashboard", label: "Results" },
+  { href: "/offer", label: "Your loan" },
+  { href: "/intake", label: "Your money" },
 ];
 
 function stepIndex(steps: readonly JourneyStep[], pathname: string): number {
@@ -32,31 +31,33 @@ export function isResultsPath(pathname: string): boolean {
   return stepIndex(RESULTS_JOURNEY, pathname) >= 0;
 }
 
+export function isSetupPath(pathname: string): boolean {
+  return stepIndex(SETUP_STEPS, pathname) >= 0;
+}
+
+/** One quiet tab: ink when current, with a 2 px accent bar on the app bar's bottom edge. */
+const TAB =
+  "relative inline-flex min-h-11 items-center whitespace-nowrap rounded-sm text-sm transition-colors duration-150 lg:min-h-14";
+const TAB_CURRENT =
+  "font-medium text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:rounded-full after:bg-accent";
+const TAB_IDLE = "text-ink-subtle hover:text-ink";
+
 /**
- * Results navigation: four quiet text links. The current section is ink with a thin accent underline
- * (the progress indicator) and aria-current="page". Wraps instead of scrolling at 360 px.
+ * Results navigation: four quiet tabs (Summary, Stress test, Options, Report). The current one has
+ * aria-current="page", ink text and the accent bar (colour is not the only signal: weight changes too).
  */
 export function JourneyIndicator({ className }: { className?: string }) {
   const pathname = usePathname() ?? "";
   const active = stepIndex(RESULTS_JOURNEY, pathname);
   if (active < 0) return null;
   return (
-    <nav data-journey aria-label="Your results" className={cn("no-print", className)}>
-      <ol className="flex flex-wrap items-center gap-x-5 gap-y-1">
+    <nav data-journey aria-label="Your results" className={cn("no-print min-w-0", className)}>
+      <ol className="flex items-center gap-x-5 sm:gap-x-6">
         {RESULTS_JOURNEY.map((s, i) => {
           const current = i === active;
           return (
             <li key={s.href}>
-              <Link
-                href={s.href}
-                aria-current={current ? "page" : undefined}
-                className={cn(
-                  "inline-flex min-h-9 items-center rounded-sm text-sm underline-offset-[7px] transition-colors duration-150",
-                  current
-                    ? "font-medium text-ink underline decoration-accent decoration-2"
-                    : "text-ink-subtle hover:text-ink",
-                )}
-              >
+              <Link href={s.href} aria-current={current ? "page" : undefined} className={cn(TAB, current ? TAB_CURRENT : TAB_IDLE)}>
                 {s.label}
               </Link>
             </li>
@@ -68,32 +69,28 @@ export function JourneyIndicator({ className }: { className?: string }) {
 }
 
 /**
- * Plain-text step indicator for the setup screens: "Your finances  Loan offer  Results".
- * Phones show only the current step with its position ("1 of 3").
+ * Setup steps: "Your loan", then "Your money". The current step has aria-current="step"; the other is a link.
  */
 export function SetupProgress({ className }: { className?: string }) {
   const pathname = usePathname() ?? "/";
   const active = stepIndex(SETUP_STEPS, pathname);
   if (active < 0 || isResultsPath(pathname)) return null;
   return (
-    <nav aria-label="Progress" className={cn("no-print", className)}>
-      <ol className="flex items-center gap-x-4 text-sm">
+    <nav aria-label="Progress" className={cn("no-print min-w-0", className)}>
+      <ol className="flex items-center gap-x-5 sm:gap-x-6">
         {SETUP_STEPS.map((s, i) => {
           const current = i === active;
           return (
-            <li key={s.href} className={cn(current ? "flex items-center gap-1.5" : "hidden sm:block")}>
+            <li key={s.href}>
               {current ? (
-                <>
-                  <span className="tabular text-ink-subtle sm:hidden">
-                    {i + 1} of {SETUP_STEPS.length}
-                    <span className="sr-only">:</span>
+                <span aria-current="step" className={cn(TAB, TAB_CURRENT)}>
+                  <span className="sr-only">
+                    Step {i + 1} of {SETUP_STEPS.length}:{" "}
                   </span>
-                  <span aria-current="step" className="font-medium text-ink underline decoration-accent decoration-2 underline-offset-[7px]">
-                    {s.label}
-                  </span>
-                </>
+                  {s.label}
+                </span>
               ) : (
-                <Link href={s.href} className="rounded-sm text-ink-subtle transition-colors duration-150 hover:text-ink">
+                <Link href={s.href} className={cn(TAB, TAB_IDLE)}>
                   {s.label}
                 </Link>
               )}

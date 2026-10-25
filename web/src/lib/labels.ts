@@ -29,7 +29,7 @@ const DEBT_FIELD: Record<string, string> = {
 export function factLabel(key: string): string {
   if (FACT_LABELS[key]) return FACT_LABELS[key];
   const m = /^debts\[([^\]]+)\]\.([a-z_]+)$/.exec(key);
-  if (m) return `Debt ${m[1].replace(/^d/, "")} — ${DEBT_FIELD[m[2]] ?? humanizeKey(m[2])}`;
+  if (m) return `Debt ${m[1].replace(/^d/, "")}: ${DEBT_FIELD[m[2]] ?? humanizeKey(m[2])}`;
   if (key.startsWith("debts.*")) return "Monthly payment on each debt";
   return humanizeKey(key);
 }
@@ -52,7 +52,7 @@ export function choiceLabel(v: string): string {
 
 /** Display a stored fact value by its value_type (formatting only). */
 export function factValueText(value: string | null, valueType: string, key: string): string {
-  if (value === null) return "—";
+  if (value === null) return "Not known";
   if (valueType === "currency" || /(_monthly|\.total|\.liquid|monthly_payment|balance)$/.test(key)) {
     const f = formatMoney(value);
     return f === "Not known" ? value : f;

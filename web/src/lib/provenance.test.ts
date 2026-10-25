@@ -24,15 +24,15 @@ test("no source/verification combination produces the word 'verified', a dash or
 test("user confirmation is labelled as such, never as independent evidence", () => {
   assert.equal(sourceChip("user_input", "user_confirmed").label, "You confirmed");
   assert.equal(sourceChip("user_input", "none").label, "You told us");
-  assert.equal(sourceChip("document", "evidence_matched_user_confirmed", { page: 1 }).label, "From your document, page 1");
-  assert.equal(sourceChip("document", "user_confirmed", { page: 2 }).label, "From your document, page 2");
-  assert.equal(sourceChip("document", "none").label, "From your document");
+  assert.equal(sourceChip("document", "evidence_matched_user_confirmed", { page: 1 }).label, "From your contract, page 1");
+  assert.equal(sourceChip("document", "user_confirmed", { page: 2 }).label, "From your contract, page 2");
+  assert.equal(sourceChip("document", "none").label, "From your contract");
   assert.equal(sourceChip("calculation", "none").label, "Calculated");
   assert.equal(sourceChip("assumption", "none").label, "Assumption");
   assert.equal(sourceChip("user_input", "none", { status: "estimated" }).label, "Estimate");
   // how far it was checked is a separate sentence
-  assert.equal(verificationText("evidence_matched_user_confirmed"), "It matches the text in your document, and you confirmed it.");
-  assert.equal(verificationText("evidence_matched"), "It matches the text in your document.");
+  assert.equal(verificationText("evidence_matched_user_confirmed"), "It matches the text in your contract, and you confirmed it.");
+  assert.equal(verificationText("evidence_matched"), "It matches the text in your contract.");
   assert.equal(verificationText("user_confirmed"), "You confirmed it.");
   assert.equal(verificationText("none"), null);
 });

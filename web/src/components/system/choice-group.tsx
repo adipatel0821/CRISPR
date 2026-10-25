@@ -98,7 +98,7 @@ export function ChoiceGroup({
               className={cn(
                 "group/choice relative flex min-h-13 cursor-pointer items-center gap-3 rounded-control border bg-surface px-4 py-3 transition-colors duration-150",
                 "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent",
-                checked ? "border-ink bg-canvas" : "border-line-strong hover:border-field-line hover:bg-canvas",
+                checked ? "border-accent bg-accent-soft" : "border-line-strong hover:border-field-line hover:bg-canvas",
                 invalid && !checked && "border-deficit-line",
                 o.disabled && "cursor-not-allowed opacity-50",
               )}
@@ -119,10 +119,10 @@ export function ChoiceGroup({
                 aria-hidden
                 className={cn(
                   "flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors duration-150",
-                  checked ? "border-ink" : "border-field-line",
+                  checked ? "border-accent" : "border-field-line",
                 )}
               >
-                <span className={cn("size-2.5 rounded-full bg-ink transition-opacity duration-150", checked ? "opacity-100" : "opacity-0")} />
+                <span className={cn("size-2.5 rounded-full bg-accent transition-opacity duration-150", checked ? "opacity-100" : "opacity-0")} />
               </span>
               <span className="min-w-0">
                 <span className={cn("block text-base text-ink", checked && "font-medium")}>{o.label}</span>

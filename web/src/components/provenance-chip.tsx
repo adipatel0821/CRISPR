@@ -62,12 +62,7 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
         {spec.label}
       </p>
       {label && label !== spec.label && <p className="text-ink">{label}</p>}
-      {formula && (
-        <p className="text-sm text-ink-muted">
-          {FORMULA_NAMES[formula] ?? "Calculation"} formula{" "}
-          <span className="text-ink-subtle">({formula})</span>
-        </p>
-      )}
+      {formula && <p className="text-sm text-ink-muted">Formula: {plain(FORMULA_NAMES[formula] ?? "calculation")}</p>}
       {quote && (
         <blockquote className="border-l-2 border-accent-line pl-2 text-sm text-ink-muted">
           “{quote}”{page ? `, page ${page}` : ""}
@@ -88,7 +83,7 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
 export function EvidenceList({ evidence, label }: { evidence: ExplanationEvidence[]; label?: string }) {
   return (
     <>
-      <p className="mb-3 text-sm font-medium text-ink">{label ?? "Where this comes from"}</p>
+      <p className="mb-3 text-sm font-medium text-ink">{label ?? "How we got this"}</p>
       <ul className="space-y-3">
         {evidence.map((e) => (
           <EvidenceDetail key={e.evidence_id} e={e} />
@@ -130,7 +125,7 @@ export function ProvenanceChip({
         className={cn("group rounded-control align-middle focus-visible:outline-2 focus-visible:outline-accent no-print [&:hover>span]:bg-subtle", className)}
         aria-label={sourceAriaLabel(evidence, label)}
       >
-        <Chip spec={evidence.length > 1 ? { ...spec, label: `${spec.label}, ${evidence.length} sources` } : spec} kind={primary.kind} />
+        <Chip spec={spec} kind={primary.kind} />
       </PopoverTrigger>
       <PopoverContent>
         <EvidenceList evidence={evidence} label={label} />

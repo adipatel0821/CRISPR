@@ -17,6 +17,7 @@ import type {
 } from "./contracts.ts";
 import { formatMoney } from "./format.ts";
 import { ASSUMPTION_FLAG_TEXT, FLAG_TEXT } from "./report.ts";
+import { altFlagNote, assumptionTitle, flagTitle, plain, scenarioQuestion, scenarioTitle } from "./copy.ts";
 
 /* ------------------------------------------------------------------------------------------------ */
 /* Comparison helpers (parse for comparison only)                                                    */
@@ -89,8 +90,9 @@ function keyPointFirst(report: DecisionReport, claims: Claim[]): Claim[] {
   return [...claims].sort((a, b) => Number(kp.has(b.claim_id)) - Number(kp.has(a.claim_id)));
 }
 
+/** A claim's text through the display normaliser (punctuation only), or null when it has none. */
 function claimText(c: Claim | undefined): string | null {
-  return c?.text && c.text.trim() ? c.text : null;
+  return c?.text && c.text.trim() ? plain(c.text) : null;
 }
 
 function triggered(run: CalculationResult | null | undefined): Flag[] {
@@ -120,7 +122,7 @@ function changePiece(report: DecisionReport): SummaryPiece | null {
     return {
       kind: "cashflow_change",
       title: "Your month",
-      text: cash.text as string,
+      text: claimText(cash) as string,
       tone: "neutral",
       claimIds: [cash.claim_id],
       evidenceIds: [...cash.evidence_ids],
@@ -136,7 +138,7 @@ function changePiece(report: DecisionReport): SummaryPiece | null {
     return {
       kind: "cashflow_change",
       title: "Your month",
-      text: `In a typical month, what you have left after expenses goes from ${formatMoney(before)} to ${formatMoney(after)}.`,
+      text: `What you have left each month goes from ${formatMoney(before)} to ${formatMoney(after)}.`,
       tone: "neutral",
       claimIds: [],
       evidenceIds: ["ev_calc_F08", "ev_calc_F09"].filter((id) => report.evidence.some((e) => e.evidence_id === id)),
@@ -150,7 +152,7 @@ function changePiece(report: DecisionReport): SummaryPiece | null {
     return {
       kind: "savings_change",
       title: "Your savings",
-      text: sav.text as string,
+      text: claimText(sav) as string,
       tone: "neutral",
       claimIds: [sav.claim_id],
       evidenceIds: [...sav.evidence_ids],
@@ -175,11 +177,11 @@ function flagPiece(
   const f = findFlag(report, flagId);
   if (!f) return null;
   const c = flagClaim(report, flagId);
-  const text = claimText(c) ?? (f.detail && f.detail.trim() ? f.detail : null) ?? FLAG_TEXT[flagId]?.body ?? null;
+  const text = claimText(c) ?? (f.detail && f.detail.trim() ? plain(f.detail) : null) ?? FLAG_TEXT[flagId]?.body ?? null;
   if (!text) return null;
   return {
     kind,
-    title: FLAG_TEXT[flagId]?.title ?? flagId,
+    title: flagTitle(flagId, FLAG_TEXT[flagId]?.title),
     text,
     tone,
     claimIds: c ? [c.claim_id] : [],
@@ -226,12 +228,12 @@ function gapPiece(report: DecisionReport): SummaryPiece | null {
   const s = worstGapScenario(report);
   if (!s) return null;
   const c = scenarioClaim(report, s.scenario_id);
-  const name = s.name ?? s.scenario_id;
+  const name = scenarioTitle(s);
   const text =
     claimText(c) ??
     (s.first_shortfall_month !== null && s.first_shortfall_month !== undefined
-      ? `In the illustrative scenario “${name}”, with this loan your savings run out in month ${s.first_shortfall_month} and the unfunded gap reaches ${formatMoney(s.max_unfunded_gap)}.`
-      : `In the illustrative scenario “${name}”, with this loan the unfunded gap reaches ${formatMoney(s.max_unfunded_gap)}.`);
+      ? `${scenarioQuestion(s)} With this loan, your savings run out in month ${s.first_shortfall_month} and the shortfall reaches ${formatMoney(s.max_unfunded_gap)}.`
+      : `${scenarioQuestion(s)} With this loan, the shortfall reaches ${formatMoney(s.max_unfunded_gap)}.`);
   return {
     kind: "unfunded_gap",
     title: name,
@@ -255,7 +257,7 @@ export function runningCostsMissing(report: DecisionReport): boolean {
 }
 
 export const RUNNING_COSTS_TEXT =
-  "New-car running costs (insurance, fuel, maintenance) aren't included — add them for a fuller picture.";
+  "New-car running costs (insurance, fuel, maintenance) aren't included. Add them for a fuller picture.";
 export const RUNNING_COSTS_HREF = "/intake";
 
 function runningCostsPiece(report: DecisionReport): SummaryPiece | null {
@@ -302,9 +304,14 @@ export function alternativeSentence(alt: Alternative): string {
       `leaves ${formatMoney((alt.deltas_vs_base.savings_after_purchase as string).replace(/^-/, ""))} ${sav < 0 ? "less" : "more"} in savings`,
     );
   }
-  const body = parts.length ? parts.join(", ") : "keeps the payment and finance charge the same";
-  const same = alt.assumption_flags?.includes("same_rate_assumed") ? " (same rate assumed — ask the lender)" : "";
-  return `“${alt.label}” ${body}${same}.`;
+  const body = parts.length ? joinPhrases(parts) : "keeps the payment and finance charge the same";
+  const same = alt.assumption_flags?.includes("same_rate_assumed") ? " It assumes the same rate, so check it with the lender." : "";
+  return `“${plain(alt.label)}” ${body}.${same}`;
+}
+
+/** "a", "a and b", "a, b and c". */
+function joinPhrases(parts: string[]): string {
+  return parts.length <= 1 ? (parts[0] ?? "") : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
 }
 
 function nextPiece(report: DecisionReport, concern: SummaryPiece | null): SummaryPiece | null {
@@ -317,8 +324,8 @@ function nextPiece(report: DecisionReport, concern: SummaryPiece | null): Summar
     if (!alt) continue;
     return {
       kind: "alternative",
-      title: alt.label,
-      text: c.text as string,
+      title: plain(alt.label),
+      text: claimText(c) as string,
       tone: "neutral",
       claimIds: [c.claim_id],
       evidenceIds: [...c.evidence_ids],
@@ -351,8 +358,8 @@ function nextPiece(report: DecisionReport, concern: SummaryPiece | null): Summar
     const c = scenarioClaim(report, s.scenario_id);
     return {
       kind: "stress_scenario",
-      title: s.name ?? s.scenario_id,
-      text: claimText(c) ?? `See how your plan holds up in the illustrative scenario “${s.name ?? s.scenario_id}”.`,
+      title: scenarioTitle(s),
+      text: claimText(c) ?? `See how your plan holds up in this example: ${scenarioQuestion(s)}`,
       tone: "neutral",
       claimIds: c ? [c.claim_id] : [],
       evidenceIds: c ? [...c.evidence_ids] : [],
@@ -474,13 +481,13 @@ export function highlightAlternatives(
     const flags = [...(best.assumption_flags ?? [])];
     out.push({
       altId: best.alt_id,
-      label: best.label,
+      label: plain(best.label),
       slots: [rule.slot],
       slotLabels: [HIGHLIGHT_LABELS[rule.slot]],
       metrics: best.metrics,
       deltas: best.deltas_vs_base ?? {},
       assumptionFlags: flags,
-      assumptionNotes: flags.map((f) => ASSUMPTION_FLAG_TEXT[f] ?? f.replace(/_/g, " ")),
+      assumptionNotes: flags.map((f) => altFlagNote(f, ASSUMPTION_FLAG_TEXT[f])),
       sameRateAssumed: flags.includes("same_rate_assumed"),
       alternative: best,
     });
@@ -567,7 +574,7 @@ export function limitations(report: DecisionReport): Limitation[] {
         continue;
       }
       const a = report.assumptions?.find((x) => x.assumption_id === id);
-      if (a?.text) push({ id, kind: "assumption", title: "Assumption", text: a.text });
+      if (a?.text) push({ id, kind: "assumption", title: assumptionTitle(id), text: plain(a.text) });
     }
   }
   // Corrected engine: running costs flagged only through derived/metric status.
@@ -598,7 +605,7 @@ export function limitations(report: DecisionReport): Limitation[] {
       id: `missing:${m.fact_key}`,
       kind: "missing",
       title: MISSING_TITLES[m.fact_key] ?? humanize(m.fact_key),
-      text: m.why_it_matters,
+      text: plain(m.why_it_matters),
       ...(m.ask_the_lender ? { actionLabel: "Ask the lender" } : {}),
     });
   }

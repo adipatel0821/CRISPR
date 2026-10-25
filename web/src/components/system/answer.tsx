@@ -17,7 +17,7 @@ export interface AnswerProps {
   source?: React.ReactNode;
   /** Optional one-line limitation under everything (e.g. a <Note>). */
   note?: React.ReactNode;
-  /** "lg" (default): the screen's key figure, 36 px. "md": 28 px, for a secondary answer. */
+  /** "lg" (default): the screen's key figure, 44 px (34 px on phones). "md": 32 px (26 px), for a secondary answer. */
   size?: "lg" | "md";
   /** Heading level for the label when it should be a heading (default: plain <p>). */
   labelAs?: "p" | "h2" | "h3";
@@ -45,24 +45,31 @@ export function Answer({
   className,
 }: AnswerProps) {
   const hasChange = before !== undefined && before !== null && after !== undefined && after !== null;
-  const big = size === "lg" ? "text-[2rem] sm:text-figure" : "text-2xl sm:text-[1.75rem]";
+  const big = size === "lg" ? "text-[2.125rem] sm:text-figure" : "text-[1.625rem] sm:text-[2rem]";
+  // a new value replays a short fade (reduced motion: instant)
+  const shown = hasChange ? after : value;
+  const valueKey = typeof shown === "string" || typeof shown === "number" ? String(shown) : undefined;
   return (
     <div id={id} data-answer="" className={cn("min-w-0 space-y-2", className)}>
       {label && <LabelTag className="text-[15px] font-medium text-ink-muted">{label}</LabelTag>}
       {(hasChange || value !== undefined) && (
-        <p className={cn("figure flex flex-wrap items-baseline gap-x-2.5 font-semibold tracking-tight text-ink", big)} data-figure="">
+        <p className={cn("figure flex flex-wrap items-baseline gap-x-2.5 font-semibold tracking-[-0.035em] text-ink", big)} data-figure="">
           {hasChange ? (
             <>
               <span className="sr-only">From </span>
-              <span className="text-[0.6em] font-medium text-ink-subtle">{before}</span>
-              <span aria-hidden className="text-[0.6em] font-normal text-ink-subtle">
+              <span className="text-[0.55em] font-medium tracking-[-0.02em] text-ink-subtle">{before}</span>
+              <span aria-hidden className="text-[0.55em] font-normal text-ink-subtle">
                 →
               </span>
               <span className="sr-only"> to </span>
-              <span>{after}</span>
+              <span key={valueKey} className="dt-value-in">
+                {after}
+              </span>
             </>
           ) : (
-            <span>{value}</span>
+            <span key={valueKey} className="dt-value-in">
+              {value}
+            </span>
           )}
           {unit && <span className="text-[0.5em] font-normal tracking-normal text-ink-muted">{unit}</span>}
         </p>

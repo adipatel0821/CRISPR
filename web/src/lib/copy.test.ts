@@ -6,6 +6,8 @@ import { readFileSync } from "node:fs";
 import {
   altFlagNote,
   assumptionText,
+  assumptionTitle,
+  loanChip,
   copyIssues,
   countWord,
   flagSentence,
@@ -135,6 +137,29 @@ test("metricName, flagTitle, flagSentence, assumptionText, altFlagNote: human wo
     assert.doesNotMatch(flagTitle(id) + flagSentence(id), /[–—!]|_/);
     assert.deepEqual(copyIssues(flagSentence(id)).banned, []);
   }
+});
+
+test("loanChip formats the offer's own terms and never computes", () => {
+  assert.deepEqual(loanChip(FIXTURE.offer), {
+    text: "$20,000 · 60 mo · 4.75%",
+    spoken: "Your loan: $20,000 over 60 months at 4.75% interest",
+  });
+  // APR stands in only when there is no contract rate, and says so
+  assert.deepEqual(
+    loanChip({ terms: { amount_financed: { value: "19500.00" }, term_months: { value: "72" }, apr: { value: "0.05796" } } }),
+    { text: "$19,500 · 72 mo · 5.796% APR", spoken: "Your loan: $19,500 over 72 months at 5.796% APR" },
+  );
+  assert.deepEqual(loanChip({ terms: { principal: { value: "20000.50" } } }), { text: "$20,000.50", spoken: "Your loan: $20,000.50" });
+  assert.equal(loanChip({ terms: { contract_rate: { value: "0.0475" } } }), null);
+  assert.equal(loanChip({ terms: { principal: { value: null }, term_months: { value: "sixty" } } }), null);
+  assert.equal(loanChip(null), null);
+  assert.equal(loanChip({ terms: null }), null);
+});
+
+test("assumptionTitle names an assumption in a few words and never shows the id", () => {
+  assert.equal(assumptionTitle("a_no_running_costs"), "Running costs not included");
+  assert.equal(assumptionTitle("a_pfc_zero"), "Prepaid finance charges assumed $0");
+  assert.equal(assumptionTitle("a_brand_new"), "Assumption");
 });
 
 test("copyIssues finds dashes, banned phrases and exclamation marks, and ignores the minus sign", () => {

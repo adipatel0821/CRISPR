@@ -1,24 +1,25 @@
 @import "tailwindcss";
 
 /*
- * DecisionTwin design tokens (UX2): calm, warm, quiet.
+ * DecisionTwin design tokens (UX2): a calm product, not a policy document.
  *
- * Page: warm off-white. Plain white only where a surface is needed (inputs, popovers, dialogs).
+ * Page: warm off-white. Plain white only where a surface is needed (inputs, menus, dialogs).
  * Ink: charcoal. Secondary text: soft gray that still passes WCAG AA on the page and on soft surfaces.
- * ONE understated accent (muted teal) for links, focus and the progress indicator. Nothing else uses it.
- * Amber (attention) and rose (deficit, shortfall) are for findings only.
- * Radius: 8 px controls, 10 px panels. Hairlines used sparingly. No gradients, no nested cards, no drop
- * shadows on the page (floating layers get one soft elevation so they read as "on top").
- * Type: Inter, 16 px body at 1.6, h1 28 to 30 px, secondary text never below 14 px (text-xs is lifted to 14 px).
+ * ONE understated accent (muted iris) for focus, selection, links and progress. Nothing else uses it.
+ * Primary buttons are charcoal. Amber (attention) and rose (deficit, shortfall) are for findings only.
+ * Radius: 8 px controls, 10 px panels. Hairlines used sparingly. No gradients and no shadows on the page
+ * (floating layers such as menus and dialogs get one soft elevation so they read as "on top").
+ * Type: Geist (system sans as fallback), 16 px body at 1.6, tabular numerals for figures, headings with slight
+ * negative tracking, secondary text never below 14 px (text-xs is lifted to 14 px).
  * Token names from earlier versions (canvas, surface, ink, line, accent, info, deficit ...) are kept so every
  * call site keeps working.
  */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-geist, ui-sans-serif), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Surfaces */
   --color-page: #faf9f7;           /* warm off-white page */
-  --color-surface: #ffffff;        /* inputs, popovers, dialogs */
+  --color-surface: #ffffff;        /* inputs, menus, dialogs */
   --color-canvas: #f3f2ef;         /* soft inset (quiet panels, selected rows) */
   --color-subtle: #ebe9e5;         /* tracks, skeletons, hover on canvas */
 
@@ -37,11 +38,11 @@
   --color-primary-hover: #3a3936;
   --color-primary-ink: #ffffff;
 
-  /* The one accent: muted teal (links, focus, progress) */
-  --color-accent: #2d6b66;         /* 5.9:1 on page */
-  --color-accent-strong: #24564f;  /* link text, 7.9:1 on page */
-  --color-accent-soft: #edf3f1;
-  --color-accent-line: #c9dcd7;
+  /* The one accent: muted iris (focus, selection, links, progress) */
+  --color-accent: #5b5bd6;         /* 5.1:1 on page, 5.4:1 on white: focus rings, progress, selection */
+  --color-accent-strong: #4646c0;  /* link text, 6.9:1 on page */
+  --color-accent-soft: #efeffc;    /* selected backgrounds */
+  --color-accent-line: #cbcbf2;    /* link underline, selection */
 
   /* Findings only: amber = attention */
   --color-info: #8a4a0b;           /* 6.2:1 on info-soft */
@@ -62,23 +63,23 @@
   --text-base--line-height: 1.6;
   --text-lede: 1.0625rem;
   --text-lede--line-height: 1.6;
-  --text-title: 1.875rem;          /* h1, 30 px (28 px on phones via Screen) */
-  --text-title--line-height: 1.2;
-  --text-title--letter-spacing: -0.02em;
-  --text-display: 1.875rem;        /* legacy alias of title */
-  --text-display--line-height: 1.2;
-  --text-display--letter-spacing: -0.02em;
-  --text-figure: 2.25rem;          /* the one key figure on a screen */
-  --text-figure--line-height: 1.1;
-  --text-figure--letter-spacing: -0.02em;
+  --text-title: 2rem;              /* h1, 32 px (28 px on phones via Screen) */
+  --text-title--line-height: 1.15;
+  --text-title--letter-spacing: -0.025em;
+  --text-display: 2rem;            /* legacy alias of title */
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.025em;
+  --text-figure: 2.75rem;          /* the one key figure on a screen, 44 px (34 px on phones) */
+  --text-figure--line-height: 1.05;
+  --text-figure--letter-spacing: -0.035em;
 
   /* Radius: 8 px controls, 10 px panels */
   --radius-card: 0.625rem;
   --radius-control: 0.5rem;
 
-  /* No drop shadows on the page. "soft" is a hairline ring; "overlay" lifts popovers and dialogs only. */
+  /* No drop shadows on the page. "soft" is a hairline ring; "overlay" lifts menus and dialogs only. */
   --shadow-soft: 0 0 0 1px var(--color-line);
-  --shadow-overlay: 0 0 0 1px rgb(31 31 30 / 0.06), 0 10px 30px rgb(31 31 30 / 0.1);
+  --shadow-overlay: 0 0 0 1px rgb(31 31 30 / 0.06), 0 12px 32px rgb(31 31 30 / 0.12);
 
   /* Motion: short fades only */
   --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -94,6 +95,15 @@
       transform: none;
     }
   }
+  --animate-value-in: dt-value-in 220ms var(--ease-calm) both;
+  @keyframes dt-value-in {
+    from {
+      opacity: 0.35;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 :root {
@@ -103,6 +113,7 @@
   --motion-slow: 200ms;
   /* One reading column for every screen (content width), plus the side gutter. */
   --width-column: 40rem; /* 640 px */
+  --width-bar: 72rem; /* the app bar spans wider than the column */
   --gutter: 1rem;
   /* Legacy widths now resolve to the same single column. */
   --width-reading: 40rem;
@@ -119,6 +130,7 @@ html {
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
   interpolate-size: allow-keywords; /* lets <details> animate to height:auto where supported */
+  scroll-padding-bottom: 6rem; /* focused fields are never hidden behind the docked action on phones */
 }
 
 body {
@@ -127,10 +139,15 @@ body {
   background: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
   font-size: 1rem;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: -0.015em;
 }
 
 ::selection {
@@ -138,10 +155,18 @@ body {
   color: var(--color-ink);
 }
 
-/* The single centred column used by the header, every screen and the footer. */
+/* The single centred column used by every screen. */
 .dt-column {
   width: 100%;
   max-width: calc(var(--width-column) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+/* The app bar: wider than the reading column, same gutter. */
+.dt-bar {
+  width: 100%;
+  max-width: calc(var(--width-bar) + 2 * var(--gutter));
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
@@ -155,7 +180,12 @@ input,
   font-variant-numeric: tabular-nums;
 }
 
-/* Quiet inline link in running text (accent is reserved for links, focus and progress). */
+/* A figure that just changed fades in briefly (reduced motion: instant). */
+.dt-value-in {
+  animation: var(--animate-value-in);
+}
+
+/* Quiet inline link in running text (accent is reserved for links, focus, selection and progress). */
 .dt-link {
   color: var(--color-accent-strong);
   text-decoration-line: underline;
@@ -172,6 +202,30 @@ input,
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 6px;
+}
+
+/* ---------- Docked primary action (PrimaryAction) ----------
+ * Wide screens: the wrapper is layout-neutral and the button sits where the screen put it.
+ * Phones: the same element docks in a bar at the bottom of the viewport (still one element, still inside its
+ * form, so Enter and submit keep working). <main> reserves room for it.
+ */
+.dt-dock {
+  display: contents;
+}
+@media (max-width: 39.999rem) {
+  .dt-dock {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: var(--color-page);
+    border-top: 1px solid var(--color-line);
+  }
+  .dt-dock > * {
+    width: 100%;
+  }
 }
 
 /* ---------- Disclosures (<details>): Disclosure and Reveal ---------- */
@@ -214,6 +268,22 @@ input,
   animation: dt-fade-in var(--motion-base) var(--ease-calm) both;
 }
 
+/* Skeleton shimmer: a slow opacity pulse (reduced motion: static). */
+.dt-skeleton {
+  background: var(--color-subtle);
+  border-radius: var(--radius-control);
+  animation: dt-skeleton 1.4s ease-in-out infinite;
+}
+@keyframes dt-skeleton {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -239,8 +309,13 @@ input,
   header[data-site-header],
   footer[data-site-footer],
   nav[data-journey],
-  [data-banner] {
+  [data-banner],
+  [data-toast] {
     display: none !important;
+  }
+  .dt-dock {
+    display: contents !important;
+    position: static !important;
   }
   .print-only {
     display: block !important;

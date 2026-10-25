@@ -10,17 +10,17 @@ export interface SourceLinkProps {
   evidence: ExplanationEvidence[];
   /** What the figure is, e.g. "Monthly payment". Used for the accessible name and the popover heading. */
   label?: string;
-  /** Visible text (default "Source"). */
+  /** Visible text (default "How we got this"). */
   text?: string;
   className?: string;
 }
 
 /**
- * Quiet "Source" text button next to a figure. One click opens the provenance popover (every evidence item:
- * your answer, the document quote and page, the calculation, the assumption). Accessible name:
+ * Quiet "How we got this" text button under a figure or section. One click opens the provenance popover (every
+ * evidence item: your answer, the contract quote and page, the calculation, the assumption). Accessible name:
  * "Source for {label}: {source}. Show details". With no evidence it says "Source not stated" as plain text.
  */
-export function SourceLink({ evidence, label, text = "Source", className }: SourceLinkProps) {
+export function SourceLink({ evidence, label, text = "How we got this", className }: SourceLinkProps) {
   if (evidence.length === 0) {
     return <span className={cn("text-sm text-ink-subtle", className)}>Source not stated</span>;
   }

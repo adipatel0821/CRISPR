@@ -1,6 +1,6 @@
 /**
  * Provenance wording (Stage 6 FR1, A-42). Short and honest: the label names the SOURCE only
- * ("Calculated", "You told us", "From your document, page 1"); how far it was checked is a separate
+ * ("Calculated", "You told us", "From your contract, page 1"); how far it was checked is a separate
  * sentence (verificationText) shown in the source popover. The word "verified" is never used.
  * Dependency-free so it can be unit-tested with `node --test`.
  */
@@ -33,9 +33,9 @@ export function honestLabel(label: string): string {
 export function verificationText(v: Verification | string | null | undefined): string | null {
   switch (v) {
     case "evidence_matched_user_confirmed":
-      return "It matches the text in your document, and you confirmed it.";
+      return "It matches the text in your contract, and you confirmed it.";
     case "evidence_matched":
-      return "It matches the text in your document.";
+      return "It matches the text in your contract.";
     case "user_confirmed":
       return "You confirmed it.";
     default:
@@ -57,7 +57,7 @@ export function sourceChip(
         ? { label: "You confirmed", tone: "outline" }
         : { label: "You told us", tone: "outline" };
     case "document":
-      return { label: opts.page ? `From your document, page ${opts.page}` : "From your document", tone: "accent" };
+      return { label: opts.page ? `From your contract, page ${opts.page}` : "From your contract", tone: "accent" };
     case "calculation":
       return { label: "Calculated", tone: "neutral" };
     case "assumption":

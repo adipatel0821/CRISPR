@@ -121,7 +121,7 @@ test("change falls back to metrics template, then savings claim; null when absen
   const r = clone();
   r.claims = r.claims.filter((c) => c.claim_id !== "cl_cashflow_change");
   const ch = decisionSummary(r).change!;
-  assert.equal(ch.text, "In a typical month, what you have left after expenses goes from $900.00 to $474.86.");
+  assert.equal(ch.text, "What you have left each month goes from $900.00 to $474.86.");
   assert.deepEqual(ch.claimIds, []);
   onlyBackendNumbers(ch.text, r);
 
@@ -149,7 +149,7 @@ test("next without a comparison claim uses highlights (template only from backen
   assert.equal(n.kind, "alternative");
   // concern is a gap (cash flow) -> prefer keep-savings (none improve) then lower payment = 72 months
   assert.equal(n.altId, "alt_t72");
-  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36, raises the finance charge by $516.25 (same rate assumed — ask the lender).");
+  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36 and raises the finance charge by $516.25. It assumes the same rate, so check it with the lender.");
   onlyBackendNumbers(n.text, r);
 });
 
@@ -171,7 +171,7 @@ test("highlightAlternatives on the fixture: skips savings (none improve), lower 
   ]);
   assert.equal(h[0].deltas.monthly_payment, "-55.36");
   assert.equal(h[0].sameRateAssumed, true);
-  assert.deepEqual(h[0].assumptionNotes, ["Same rate assumed — ask the lender", "Term over 60 months"]);
+  assert.deepEqual(h[0].assumptionNotes, ["Assumes the same rate. Ask the lender.", "Longer than 60 months"]);
   assert.equal(h[1].metrics.finance_charge, "1998.32");
   // never the base, never infeasible
   assert.ok(h.every((x) => x.altId !== "alt_base" && x.altId !== "alt_d3000"));
@@ -211,7 +211,7 @@ test("highlightAlternatives: ties keep backend order; equal-to-base skipped; bas
 test("alternativeSentence only rephrases backend delta strings", () => {
   const a = FIXTURE.counterfactual!.alternatives.find((x) => x.alt_id === "alt_d1000")!;
   const s = alternativeSentence(a);
-  assert.equal(s, "“+$1,000 down” lowers the monthly payment by $18.76, lowers the finance charge by $125.36, leaves $1,000.00 less in savings.");
+  assert.equal(s, "“+$1,000 down” lowers the monthly payment by $18.76, lowers the finance charge by $125.36 and leaves $1,000.00 less in savings.");
   onlyBackendNumbers(s.replace("+$1,000 down", ""), FIXTURE);
 });
 

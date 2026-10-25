@@ -1,14 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { AlertDialog as AD, Checkbox as CB, Switch as SW, Tabs as T } from "radix-ui";
-import { Check } from "lucide-react";
+import { AlertDialog as AD, Checkbox as CB, Dialog as DG, Switch as SW, Tabs as T } from "radix-ui";
+import { Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./button";
 
 /* ---------------- Skeleton ---------------- */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div aria-hidden className={cn("animate-pulse rounded-control bg-subtle motion-reduce:animate-none", className)} {...props} />;
+  return <div aria-hidden className={cn("dt-skeleton", className)} {...props} />;
 }
 
 /* ---------------- Checkbox ---------------- */
@@ -17,7 +17,7 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof CB
     <CB.Root
       className={cn(
         "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[5px] border border-field-line bg-surface transition-colors duration-150",
-        "data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-white",
+        "data-[state=checked]:border-ink data-[state=checked]:bg-ink data-[state=checked]:text-white",
         className,
       )}
       {...props}
@@ -65,40 +65,95 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
 export const TabsContent = T.Content;
 
 /* ---------------- Confirm dialog ---------------- */
+/**
+ * Confirmation for a consequential action. Uncontrolled with a `trigger`, or controlled with
+ * `open` + `onOpenChange` (for example opened from a menu item).
+ */
 export function ConfirmDialog({
   trigger,
   title,
   description,
   confirmLabel,
+  cancelLabel = "Cancel",
   onConfirm,
   danger = false,
+  open,
+  onOpenChange,
 }: {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   title: string;
   description: React.ReactNode;
   confirmLabel: string;
+  cancelLabel?: string;
   onConfirm: () => void | Promise<void>;
   danger?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
+  const controlled = open !== undefined;
   return (
-    <AD.Root>
-      <AD.Trigger asChild>{trigger}</AD.Trigger>
+    <AD.Root {...(controlled ? { open, onOpenChange } : {})}>
+      {trigger && <AD.Trigger asChild>{trigger}</AD.Trigger>}
       <AD.Portal>
-        <AD.Overlay className="fixed inset-0 z-50 bg-ink/30" />
+        <AD.Overlay className="fixed inset-0 z-50 bg-ink/30 data-[state=open]:animate-fade-in" />
         <AD.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-card bg-surface p-6 shadow-overlay data-[state=open]:animate-fade-in">
           <AD.Title className="text-lg font-semibold tracking-tight text-ink">{title}</AD.Title>
           <AD.Description className="mt-2 text-base leading-relaxed text-ink-muted">{description}</AD.Description>
           <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <AD.Cancel className={buttonVariants({ variant: "secondary" })}>Cancel</AD.Cancel>
-            <AD.Action
-              className={buttonVariants({ variant: danger ? "danger" : "primary" })}
-              onClick={() => void onConfirm()}
-            >
+            <AD.Cancel className={buttonVariants({ variant: "secondary" })}>{cancelLabel}</AD.Cancel>
+            <AD.Action className={buttonVariants({ variant: danger ? "danger" : "primary" })} onClick={() => void onConfirm()}>
               {confirmLabel}
             </AD.Action>
           </div>
         </AD.Content>
       </AD.Portal>
     </AD.Root>
+  );
+}
+
+/* ---------------- Dialog (information) ---------------- */
+/**
+ * A calm modal panel for reading (for example "About this analysis"). Focus is trapped while open, Escape
+ * closes it, and focus returns to whatever opened it. Controlled.
+ */
+export function InfoDialog({
+  open,
+  onOpenChange,
+  title,
+  description,
+  children,
+  closeLabel = "Close",
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  /** One short sentence under the title (also the dialog's accessible description). */
+  description?: React.ReactNode;
+  children: React.ReactNode;
+  closeLabel?: string;
+}) {
+  return (
+    <DG.Root open={open} onOpenChange={onOpenChange}>
+      <DG.Portal>
+        <DG.Overlay className="fixed inset-0 z-50 bg-ink/30 data-[state=open]:animate-fade-in" />
+        <DG.Content className="fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[min(32rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card bg-surface p-6 shadow-overlay data-[state=open]:animate-fade-in">
+          <div className="flex items-start justify-between gap-4">
+            <DG.Title className="text-lg font-semibold tracking-tight text-ink">{title}</DG.Title>
+            <DG.Close
+              aria-label={closeLabel}
+              className="-mr-2 -mt-1 inline-flex size-9 shrink-0 items-center justify-center rounded-control text-ink-subtle transition-colors duration-150 hover:bg-canvas hover:text-ink"
+            >
+              <X aria-hidden className="size-4" />
+            </DG.Close>
+          </div>
+          {description ? (
+            <DG.Description className="mt-1.5 text-base leading-relaxed text-ink-muted">{description}</DG.Description>
+          ) : (
+            <DG.Description className="sr-only">{title}</DG.Description>
+          )}
+          <div className="mt-5 text-[15px] leading-relaxed text-ink-muted">{children}</div>
+        </DG.Content>
+      </DG.Portal>
+    </DG.Root>
   );
 }

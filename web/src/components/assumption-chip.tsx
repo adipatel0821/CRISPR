@@ -3,13 +3,14 @@
 import { Lightbulb } from "lucide-react";
 import type { DecisionReport } from "@/lib/contracts";
 import { metricCaveat } from "@/lib/assumptions";
+import { assumptionText, assumptionTitle } from "@/lib/copy";
 import { cn } from "@/lib/utils";
 import { Chip } from "@/components/provenance-chip";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 /**
  * "Includes an assumption" / "Estimate" chip next to a figure whose value rests on an assumption or an estimate
- * (audit D1-001). Opens the assumption text and links to the full Assumptions list. Renders nothing otherwise.
+ * (audit D1-001). Opens the assumption in plain words and links to the full list. Renders nothing otherwise.
  */
 export function AssumptionChip({
   report,
@@ -24,7 +25,7 @@ export function AssumptionChip({
 }) {
   const c = metricCaveat(report, metricKey);
   if (!c) return null;
-  const what = label ?? "this number";
+  const what = label ?? "this figure";
   return (
     <Popover>
       <PopoverTrigger
@@ -35,22 +36,19 @@ export function AssumptionChip({
         <Chip spec={{ label: c.label, tone: "info" }} kind="assumption" />
       </PopoverTrigger>
       <PopoverContent>
-        <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-ink-subtle">
-          <Lightbulb aria-hidden className="size-3.5" /> Why “{what}” is not exact
+        <p className="mb-2 flex items-center gap-1.5 text-sm font-medium text-ink-muted">
+          <Lightbulb aria-hidden className="size-3.5" /> Why {what} isn&apos;t exact
         </p>
         <ul className="space-y-2">
           {c.estimated && <li className="text-ink">It uses a value you gave as an estimate.</li>}
           {c.assumptions.map((a) => (
-            <li key={a.id} className="space-y-0.5">
-              <p className="text-ink">{a.text}</p>
-              <p className="text-xs text-ink-subtle">Assumption id: {a.id}</p>
+            <li key={a.id} className="text-ink">
+              {assumptionText(a.id, a.text)}
             </li>
           ))}
-          {!c.estimated && c.assumptions.length === 0 && (
-            <li className="text-ink">The calculation reports that this figure rests on an assumption.</li>
-          )}
+          {!c.estimated && c.assumptions.length === 0 && <li className="text-ink">This figure rests on an assumption.</li>}
         </ul>
-        <a href="#assumptions" className="mt-3 inline-block text-xs font-medium text-accent-strong underline underline-offset-2">
+        <a href="#assumptions" className="mt-3 inline-block text-sm font-medium text-accent-strong underline underline-offset-2">
           See all assumptions
         </a>
       </PopoverContent>
@@ -58,14 +56,14 @@ export function AssumptionChip({
   );
 }
 
-/** Print-friendly text marker for the same caveat (report table). */
+/** Print-friendly text marker for the same caveat (report table): the label and the assumptions by name. */
 export function AssumptionNote({ report, metricKey }: { report: DecisionReport; metricKey: string }) {
   const c = metricCaveat(report, metricKey);
   if (!c) return null;
   return (
-    <span className="block text-[11px] text-info">
+    <span className="block text-sm text-info">
       {c.label}
-      {c.assumptions.length ? `: ${c.assumptions.map((a) => a.id).join(", ")}` : ""}
+      {c.assumptions.length ? `. ${c.assumptions.map((a) => assumptionTitle(a.id)).join(". ")}` : ""}
     </span>
   );
 }

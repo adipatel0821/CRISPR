@@ -6,17 +6,19 @@
  *  scenarioQuestion() the same scenario as a question ("What if your income stopped for two months?").
  *  metricName(), flagTitle(), flagSentence(), assumptionText(), altFlagNote()
  *                     concise human wording keyed by id, falling back to plain(backend text). No ids on screen.
+ *  assumptionTitle()  a few words naming an assumption ("Running costs not included").
+ *  loanChip()         the app bar's loan summary ("$20,000 · 60 mo · 4.75%") from offer terms (formatting only).
  *  copyIssues()       dashes, banned phrases and exclamation marks in a string (same list as e2e/lib/density.mjs).
  *
  * No arithmetic on money: numbers are read from backend data, counted, compared or formatted, never derived.
  */
-import { formatMoney } from "./format.ts";
+import { formatMoney, formatRate } from "./format.ts";
 
 /* ------------------------------------------------------------------------------------------------ */
 /* plain(): display normaliser                                                                       */
 /* ------------------------------------------------------------------------------------------------ */
 
-const DASH = "–—"; // en dash, em dash (U+2212 minus and "-" are never touched)
+const DASH = "\u2013\u2014"; // en dash, em dash (U+2212 minus and "-" are never touched)
 
 function tidy(s: string): string {
   return s
@@ -303,6 +305,26 @@ export function assumptionText(id: string, backendText?: string | null): string 
   return "This figure rests on an assumption.";
 }
 
+const ASSUMPTION_TITLES: Record<string, string> = {
+  a_no_running_costs: "Running costs not included",
+  a_not_replacing: "Current car costs not subtracted",
+  a_pfc_zero: "Prepaid finance charges assumed $0",
+  a_rate_from_apr: "APR used as the interest rate",
+  a_illustrative_scenarios: "Scenarios are examples",
+  a_gap_no_interest: "No interest on a shortfall",
+  a_same_rate_assumed: "Same rate assumed",
+  a_no_job_benefits: "No benefits while income stops",
+  a_job_loss_no_benefits: "No benefits while income stops",
+  a_scenario_before_discretionary: "Before flexible spending",
+  a_extra_down_from_savings: "Extra down payment from savings",
+  a_flexible_constant: "Flexible spending stays the same",
+};
+
+/** A few words naming an assumption (for a list or a printed table). Never the id. */
+export function assumptionTitle(id: string): string {
+  return ASSUMPTION_TITLES[id] ?? "Assumption";
+}
+
 const ALT_FLAG_NOTES: Record<string, string> = {
   same_rate_assumed: "Assumes the same rate. Ask the lender.",
   same_lender_assumed: "Assumes the same lender agrees.",
@@ -318,17 +340,68 @@ export function altFlagNote(flag: string, backendText?: string | null): string {
 }
 
 /* ------------------------------------------------------------------------------------------------ */
+/* Loan chip                                                                                         */
+/* ------------------------------------------------------------------------------------------------ */
+
+export interface OfferTermsLike {
+  terms?: Record<string, { value?: string | null } | null | undefined> | null;
+}
+
+export interface LoanChipText {
+  /** Compact visible text, e.g. "$20,000 · 60 mo · 4.75%". */
+  text: string;
+  /** Full sentence for assistive tech, e.g. "Your loan: $20,000 over 60 months at 4.75% interest". */
+  spoken: string;
+}
+
+const DECIMAL = /^\d+(\.\d+)?$/;
+
+/**
+ * The app bar's loan summary, built only from the offer's own terms: principal (or amount financed), term in
+ * months and the contract rate (or the APR, labelled as such). Formatting only. Returns null when the offer has
+ * neither an amount nor a term.
+ */
+export function loanChip(offer: OfferTermsLike | null | undefined): LoanChipText | null {
+  const t = offer?.terms ?? {};
+  const amount = t.principal?.value ?? t.amount_financed?.value ?? null;
+  const term = t.term_months?.value ?? null;
+  const rate = t.contract_rate?.value ?? null;
+  const apr = t.apr?.value ?? null;
+  const shown: string[] = [];
+  const said: string[] = [];
+  if (typeof amount === "string" && DECIMAL.test(amount)) {
+    shown.push(moneyText(amount));
+    said.push(moneyText(amount));
+  }
+  if (typeof term === "string" && /^\d+$/.test(term)) {
+    shown.push(`${term} mo`);
+    said.push(`over ${term} months`);
+  }
+  if (shown.length === 0) return null;
+  if (typeof rate === "string" && DECIMAL.test(rate)) {
+    shown.push(formatRate(rate));
+    said.push(`at ${formatRate(rate)} interest`);
+  } else if (typeof apr === "string" && DECIMAL.test(apr)) {
+    shown.push(`${formatRate(apr)} APR`);
+    said.push(`at ${formatRate(apr)} APR`);
+  }
+  return { text: shown.join(" · "), spoken: `Your loan: ${said.join(" ")}` };
+}
+
+/* ------------------------------------------------------------------------------------------------ */
 /* copyIssues(): editorial checks                                                                     */
 /* ------------------------------------------------------------------------------------------------ */
 
 /** Keep in sync with web/e2e/lib/density.mjs (BANNED_PHRASES) and the directive's list. */
 export const BANNED_PHRASES: readonly string[] = [
+  // copy-lint-disable (the list itself is not copy)
   "delve", "leverage", "unlock", "empower", "seamless", "robust", "cutting-edge", "cutting edge", "revolutionary",
   "transformative", "comprehensive insights", "navigate with confidence", "financial journey", "actionable insights",
   "tailored to your needs", "data-driven", "in today's world", "it's important to note", "it is important to note",
   "at the end of the day", "let's explore", "here's what you need to know", "whether you're", "not just",
   "game-changer", "game changer", "peace of mind", "rest assured", "elevate", "harness", "unleash", "supercharge",
   "intelligent", "ai-powered", "powered by ai", "effortless", "dive into", "deep dive",
+  // copy-lint-enable
 ];
 
 export interface CopyIssues {
@@ -350,7 +423,7 @@ export function copyIssues(text: string): CopyIssues {
   const dashes: string[] = [];
   const exclamations: string[] = [];
   for (let i = 0; i < s.length; i++) {
-    if (s[i] === "–" || s[i] === "—") dashes.push(around(s, i));
+    if (s[i] === "\u2013" || s[i] === "\u2014") dashes.push(around(s, i));
     else if (s[i] === "!") exclamations.push(around(s, i));
   }
   const lower = s.toLowerCase().replace(/’/g, "'");
