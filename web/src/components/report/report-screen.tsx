@@ -34,7 +34,7 @@ export function ReportScreen({ report }: { report: DecisionReport }) {
         )}
 
         {/* Hero: what this is, and the one action (print). */}
-        <header className="grid gap-8 border-b border-line pb-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-14 print:block print:pb-3">
+        <header className="grid grid-cols-1 gap-8 border-b border-line pb-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-14 print:block print:pb-3">
           <div className="min-w-0 space-y-4 print:space-y-1">
             <p className="flex flex-wrap items-center gap-x-2 text-[15px] font-semibold text-ink-2 print:text-[8.5pt]">
               <CalendarDays aria-hidden className="size-4 text-ink-3 print:hidden" />

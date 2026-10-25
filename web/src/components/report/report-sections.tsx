@@ -22,7 +22,7 @@ import { evidenceForClaim, evidenceForMetric, evidenceMap, metric } from "@/lib/
 import { plain, scenarioTitle } from "@/lib/copy";
 import { DATA_MODE_TEXT } from "@/components/banners";
 import { AssumptionChip } from "@/components/assumption-chip";
-import { Disclosure, SourceLink } from "@/components/system";
+import { Disclosure, SourceLink, TrustLine } from "@/components/system";
 import { CaveatChip, FromTo, IconBadge } from "@/components/visual";
 import { cn } from "@/lib/utils";
 import {
@@ -343,10 +343,15 @@ export function ConcernSection({ report }: { report: DecisionReport }) {
               <IconBadge icon={main.tone === "gap" ? TriangleAlert : Info} tone={main.tone === "gap" ? "shortfall" : "caution"} size="lg" />
             </span>
             <div className="min-w-0 max-w-[48rem] space-y-2">
-              <p className="text-sm font-bold uppercase tracking-[0.08em] text-ink-2 print:text-[8pt]">
-                {TONE_WORD[main.tone]}
-                {sc ? " · Illustrative scenario, not a prediction" : ""}
-              </p>
+              {/* The tone word, then the same soft badge line as the stress test's "Illustrative" label. */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 print:gap-x-2">
+                <p className="text-sm font-bold uppercase tracking-[0.08em] text-ink-2 print:text-[8pt]">{TONE_WORD[main.tone]}</p>
+                {sc && (
+                  <TrustLine icon={Info} className="print:text-[8pt] print:font-normal">
+                    Illustrative scenario, not a prediction
+                  </TrustLine>
+                )}
+              </div>
               <h3 className="text-[length:clamp(1.375rem,2vw,1.75rem)] font-extrabold leading-snug tracking-[-0.01em] text-ink print:text-[12pt]">
                 {sc ? scenarioTitle(sc) : plain(main.title)}
               </h3>

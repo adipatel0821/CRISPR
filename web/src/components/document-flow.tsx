@@ -133,7 +133,7 @@ function TermRow({
       </div>
 
       {!readOnly && t.alternatives_found.length > 0 && (
-        <fieldset className="space-y-2">
+        <fieldset className="min-w-0 space-y-2">
           <legend className="text-sm font-semibold text-deficit">Two readings disagree. Choose the one on your document.</legend>
           {t.alternatives_found.map((c, i) => (
             <label
@@ -228,7 +228,8 @@ function FileLine({ doc }: { doc: DocumentStatus }) {
   return (
     <p className="flex min-w-0 items-center gap-2 text-[13px] text-ink-muted">
       <FileText aria-hidden className="size-4 shrink-0 text-ink-subtle" />
-      <span className="truncate">
+      {/* Wraps on phones instead of cutting off "bundled synthetic sample" (a data-mode note). */}
+      <span className="min-w-0 [overflow-wrap:anywhere]">
         {doc.filename}
         {doc.is_fixture ? " · bundled synthetic sample" : ""}
       </span>
@@ -424,7 +425,9 @@ export function DocumentFlow({
 
       {doc && doc.status === "needs_choice" && (
         <FadeIn>
-          <fieldset className="space-y-3">
+          {/* min-w-0: a fieldset is at least as wide as its content by default, so on phones the file name pushed
+              the whole chooser past the screen edge. */}
+          <fieldset className="min-w-0 space-y-3">
             <legend className="mb-1 text-[length:var(--text-title)] font-extrabold leading-tight tracking-[-0.015em] text-ink">
               This document has {doc.offers_found} offers. Which one are you considering?
             </legend>
