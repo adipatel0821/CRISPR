@@ -425,7 +425,12 @@ export function OptionsSection({ report }: { report: DecisionReport }) {
         What-if calculations under stated assumptions. They are not offers or recommendations.
       </p>
       {plan.cards.length > 0 && (
-        <ul className="grid gap-x-10 gap-y-8 md:grid-cols-2 xl:grid-cols-3 print:grid-cols-3 print:gap-x-5 print:gap-y-2">
+        <ul
+          className={cn(
+            "grid gap-x-10 gap-y-8 md:grid-cols-2 print:gap-x-5 print:gap-y-2",
+            plan.cards.length >= 3 ? "xl:grid-cols-3 print:grid-cols-3" : "max-w-[60rem] print:grid-cols-2",
+          )}
+        >
           {plan.cards.map((c) => {
             const alt = cf.alternatives.find((a) => a.alt_id === c.highlight.altId) ?? c.highlight.alternative;
             const badges = assumptionBadges(alt).map(plain);
@@ -490,7 +495,7 @@ export function BeforeYouSign({ report }: { report: DecisionReport }) {
             <li key={a.id} className="flex min-w-0 gap-4 break-inside-avoid" data-action={a.id} data-kind={a.kind}>
               <span
                 aria-hidden
-                className="figure inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-tint text-[15px] font-extrabold text-brand-strong print:size-auto print:text-[9pt]"
+                className="figure inline-flex size-9 shrink-0 items-center justify-center self-start rounded-full bg-brand-tint text-[15px] font-extrabold text-brand-strong print:size-auto print:text-[9pt]"
               >
                 {i + 1}
               </span>

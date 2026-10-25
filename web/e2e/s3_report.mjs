@@ -123,7 +123,10 @@ try {
     // main concern: the with-loan income shock (savings run out in month 2, shortfall 3,625.42)
     const concern = await page.locator("[data-report-section=concerns]").textContent();
     check("main concern names the shortfall 3,625.42", concern.includes("3,625.42"), concern.slice(0, 160));
-    check("main concern says month 2", /month 2\b/.test(concern));
+    check("main concern says month 2", /month 2\b/i.test(concern));
+    const figs = await page.locator("[data-concern-figures]").textContent().catch(() => "");
+    check("main concern figures: savings run out in Month 2, shortfall $3,625.42", /Savings run out\s*Month 2/.test(figs) && figs.includes("$3,625.42"), figs);
+    check("main concern is labelled illustrative", /Illustrative scenario, not a prediction/.test(concern));
     const disclaimers = await page.locator("[data-report-section=about]").textContent();
     check("disclaimers shown once", (main.match(/not financial advice/gi) || []).length <= 1, String((main.match(/not financial advice/gi) || []).length));
     check("data mode stated", /synthetic/i.test(disclaimers));
@@ -237,6 +240,21 @@ try {
       const ci = await copyIssues(page);
       check(`${w}: copy clean`, copyClean(ci));
     }
+    await ctx.close();
+  }
+
+  // ---------------- no session: the gate's empty state ----------------
+  {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+    const page = await ctx.newPage();
+    await page.goto(WEB + "/report", { waitUntil: "networkidle" });
+    await page.locator("h1").first().waitFor({ timeout: 15000 });
+    check("empty: one h1 'No results yet'", (await page.locator("h1").count()) === 1 && /No results yet/.test(await page.locator("h1").textContent()));
+    const pa = await primaryActions(page);
+    check("empty: one primary action to the loan offer", pa.visible === 1 && (await page.locator("[data-primary-action]").getAttribute("href")) === "/offer", JSON.stringify(pa));
+    const ax = await axe(page, AXE);
+    check("empty: axe 0 serious/critical", ax.serious.length === 0, JSON.stringify(ax.serious.map((v) => v.id)));
+    await page.screenshot({ path: `${OUT}/report_empty_1440.png` });
     await ctx.close();
   }
 
