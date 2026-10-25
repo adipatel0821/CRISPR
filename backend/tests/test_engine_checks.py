@@ -13,6 +13,15 @@ def test_reference_offer_all_checks_pass():
     assert rep.unsupported_features == []
 
 
+def test_itemization_not_checked_when_pfc_cash_disputed():
+    # itemized 22,000 + 1,500 − 4,000 = 19,500 vs principal − financed PFC; financed PFC is unknown when the
+    # PFC-paid-in-cash term is conflicting, so no pass/warn is claimed (CP1 audit finding 2).
+    o = reference_offer(pfc_paid_in_cash="500.00")
+    o.terms["pfc_paid_in_cash"] = o.terms["pfc_paid_in_cash"].model_copy(update={"status": "conflicting"})
+    assert offer_checks(o).itemization == "not_applicable"
+    assert offer_checks(reference_offer(pfc_paid_in_cash="0.00")).itemization == "pass"
+
+
 def test_a27_manual_typo_payment_mismatch_warns():
     rep = offer_checks(reference_offer(monthly_payment="3751.40"))
     assert rep.computed_payment == Decimal("375.14")

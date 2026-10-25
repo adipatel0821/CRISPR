@@ -77,24 +77,33 @@ def debts_total(inputs: EngineInputs, *, after: bool, month: int | None = None) 
 
 
 def savings_after_purchase(inputs: EngineInputs) -> Derived:
-    """F13 = savings − (cash down if source = savings) − (PFC paid in cash if source = savings)."""
+    """F13 = savings − (cash down if source = savings) − (PFC paid in cash if source = savings).
+
+    A pfc_paid_in_cash term that is present but not computable is unknown (never $0): F13 is missing with
+    offer.pfc_paid_in_cash whenever it would be subtracted (source = savings, or source unknown).
+    """
     loan = inputs.loan
     if loan is None:
         return missing(OFFER_MIN)
     sav = inputs.savings
     src = inputs.down_source
     cd_in = _loan_term_input(inputs, "cash_down")
+    pfc_in = _loan_term_input(inputs, "pfc_paid_in_cash")
+    pfc_miss = [PFC_CASH] if loan.pfc_paid_in_cash_unknown else []
     if not sav.known:
         return combine(None, [sav])
     if src.known:
         if src.text == "savings":
-            if loan.cash_down is None:
-                return combine(None, [sav, src], extra_missing=["offer.cash_down"])
+            miss = (["offer.cash_down"] if loan.cash_down is None else []) + pfc_miss
+            if miss:
+                return combine(None, [sav, src], extra_missing=miss)
             value = sav.dec - loan.cash_down - loan.pfc_paid_in_cash
-            return combine(value, [sav, src] + ([cd_in] if cd_in else []))
+            return combine(value, [sav, src] + [i for i in (cd_in, pfc_in) if i])
         return combine(sav.dec, [sav, src])
+    if pfc_miss:
+        return combine(None, [sav, src], extra_missing=pfc_miss)
     if loan.cash_down is not None and loan.cash_down == 0 and loan.pfc_paid_in_cash == 0:
-        return combine(sav.dec, [sav] + ([cd_in] if cd_in else []))
+        return combine(sav.dec, [sav] + [i for i in (cd_in, pfc_in) if i])
     return combine(None, [sav, src])
 
 

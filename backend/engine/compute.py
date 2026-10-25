@@ -124,6 +124,8 @@ def compute_from_inputs(inputs: EngineInputs, cfg: EngineConfig, *, profile_vers
         eq = loan.trade_in_equity
         if eq is None:
             miss.append("offer.trade_in_payoff" if loan.trade_in_payoff is None else "offer.trade_in_value")
+        if loan.pfc_paid_in_cash_unknown:            # present but disputed/unconfirmed: unknown, never $0
+            miss.append("offer.pfc_paid_in_cash")
         if miss:
             put("total_paid_through_deal", combine(None, [ab], extra_missing=miss))
         else:

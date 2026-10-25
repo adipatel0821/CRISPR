@@ -278,3 +278,58 @@ def test_down_payment_source_other_keeps_savings():
 def test_fixture_dict_facts_without_status_are_provided():
     inp = build_inputs([{"key": "income.take_home_monthly", "value": "4200.00"}], None)
     assert inp.take_home.known and inp.take_home.status == "provided"
+
+
+# ---------------------------------------------------------------- CP1 audit finding 2: disputed PFC paid in cash
+def _offer_with_pfc_cash(status, value="500.00", **over):
+    o = reference_offer(pfc_paid_in_cash=value if value is not None else "0.00", **over)
+    upd = {"status": status} if value is not None else {"status": status, "value": None}
+    o.terms["pfc_paid_in_cash"] = o.terms["pfc_paid_in_cash"].model_copy(update=upd)
+    return o
+
+
+def test_pfc_cash_absent_is_zero_per_f00():
+    # Reference: TOP 22,508.29 (finance charge 3,008.29 + AF 19,500); F04 = TOP + cash down 4,000 + 0
+    r = compute(household(), reference_offer())
+    assert m(r, "total_paid_through_deal") == "26508.29"
+    assert m(r, "savings_after_purchase") == "2000.00"      # 6,000 − 4,000 − 0
+
+
+def test_pfc_cash_provided_is_subtracted():
+    r = compute(household(), _offer_with_pfc_cash("provided"))
+    assert m(r, "total_paid_through_deal") == "27008.29"    # 22,508.29 + 4,000 + 500
+    assert m(r, "savings_after_purchase") == "1500.00"      # 6,000 − 4,000 − 500
+    assert m(r, "reserve_months_after") == "0.45"           # 1,500 / (2,900 + 375.14 + 50) = 0.4511
+
+
+def test_pfc_cash_present_but_not_computable_is_unknown_never_zero():
+    for status, value in (("conflicting", "500.00"), ("missing", None), ("declined", None)):
+        r = compute(household(), _offer_with_pfc_cash(status, value))
+        for name in ("total_paid_through_deal", "savings_after_purchase"):
+            mt = r.metrics[name]
+            assert mt.value is None and mt.status == "missing", (status, name)
+            assert mt.missing_inputs == ["offer.pfc_paid_in_cash"], (status, name)
+        rma = r.metrics["reserve_months_after"]
+        assert rma.value is None and "offer.pfc_paid_in_cash" in rma.missing_inputs
+        smi = r.metrics["savings_months_of_income"]
+        assert smi.before == "1.43" and smi.after is None     # 6,000 / 4,200
+        assert "offer.pfc_paid_in_cash" in smi.missing_inputs
+        # loan math and monthly cash flow do not depend on it
+        assert m(r, "monthly_payment") == "375.14"
+        assert m(r, "monthly_left_after") == "474.86"         # 4,200 − 2,900 − 400 − 375.14 − 50
+
+
+def test_pfc_cash_unknown_with_unknown_source_lists_both():
+    hh = household(**{"loan.down_payment_source": None})
+    r = compute(hh, _offer_with_pfc_cash("conflicting", cash_down="0.00"))
+    f13 = r.metrics["savings_after_purchase"]
+    assert f13.value is None
+    assert set(f13.missing_inputs) == {"offer.pfc_paid_in_cash", "loan.down_payment_source"}
+
+
+def test_pfc_cash_unknown_not_subtracted_when_source_not_savings():
+    # F13 subtracts PFC paid in cash only when it comes out of savings; F04 (all cash through the deal) needs it.
+    hh = household(**{"loan.down_payment_source": "other"})
+    r = compute(hh, _offer_with_pfc_cash("conflicting"))
+    assert m(r, "savings_after_purchase") == "6000.00"
+    assert r.metrics["total_paid_through_deal"].missing_inputs == ["offer.pfc_paid_in_cash"]
