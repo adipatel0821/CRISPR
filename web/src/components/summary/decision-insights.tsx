@@ -4,7 +4,7 @@ import { Info } from "lucide-react";
 import type { DecisionReport, ExplanationEvidence } from "@/lib/contracts";
 import { decisionSummary, runningCostsMissing, RUNNING_COSTS_HREF, RUNNING_COSTS_TEXT, type SummaryPiece } from "@/lib/insights";
 import { ASSUMPTION_FLAG_TEXT, evidenceForMetric, evidenceMap } from "@/lib/report";
-import { FadeIn, Insight, SecondaryLink } from "@/components/system";
+import { Insight, SecondaryLink } from "@/components/system";
 import { ProvenanceChip } from "@/components/provenance-chip";
 import { AssumptionChip } from "@/components/assumption-chip";
 import { pieceAlternative, pieceFigure, pieceLink, resolvePiece } from "./select";
@@ -38,13 +38,11 @@ function PieceInsight({
   label,
   piece,
   concern,
-  step,
 }: {
   report: DecisionReport;
   label: string;
   piece: SummaryPiece;
   concern: SummaryPiece | null;
-  step: 0 | 1 | 2;
 }) {
   const fig = pieceFigure(report, piece, concern);
   const link = pieceLink(piece);
@@ -53,7 +51,7 @@ function PieceInsight({
   const alt = pieceAlternative(report, piece);
   const notes = (alt?.assumption_flags ?? []).map((f) => ASSUMPTION_FLAG_TEXT[f] ?? f.replace(/_/g, " "));
   return (
-    <FadeIn as="li" step={step}>
+    <li>
       <Insight
         label={label}
         labelAs="h2"
@@ -83,17 +81,17 @@ function PieceInsight({
       >
         <p>{piece.text}</p>
       </Insight>
-    </FadeIn>
+    </li>
   );
 }
 
-function EmptyInsight({ label, children, step }: { label: string; children: React.ReactNode; step: 0 | 1 | 2 }) {
+function EmptyInsight({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <FadeIn as="li" step={step}>
+    <li>
       <Insight label={label} labelAs="h2">
         <p className="text-ink-muted">{children}</p>
       </Insight>
-    </FadeIn>
+    </li>
   );
 }
 
@@ -121,23 +119,23 @@ export function DecisionInsights({ report }: { report: DecisionReport }) {
     <div className="space-y-3">
       <ol className="space-y-3" aria-label="Summary">
         {s.change ? (
-          <PieceInsight report={report} label="What changes financially" piece={s.change} concern={s.concern} step={0} />
+          <PieceInsight report={report} label="What changes financially" piece={s.change} concern={s.concern} />
         ) : (
-          <EmptyInsight label="What changes financially" step={0}>
+          <EmptyInsight label="What changes financially">
             We couldn&apos;t work out the change yet — some information it needs is missing.
           </EmptyInsight>
         )}
         {s.concern ? (
-          <PieceInsight report={report} label="The most important concern" piece={s.concern} concern={s.concern} step={1} />
+          <PieceInsight report={report} label="The most important concern" piece={s.concern} concern={s.concern} />
         ) : (
-          <EmptyInsight label="The most important concern" step={1}>
+          <EmptyInsight label="The most important concern">
             None of the checks we run were triggered for this offer.
           </EmptyInsight>
         )}
         {s.next ? (
-          <PieceInsight report={report} label="What to explore next" piece={s.next} concern={s.concern} step={2} />
+          <PieceInsight report={report} label="What to explore next" piece={s.next} concern={s.concern} />
         ) : (
-          <EmptyInsight label="What to explore next" step={2}>
+          <EmptyInsight label="What to explore next">
             See how a shorter term or a larger down payment would change the numbers on the alternatives page.
           </EmptyInsight>
         )}

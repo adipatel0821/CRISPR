@@ -17,12 +17,12 @@ const SEVERITY: Record<Severity, { wrap: string; icon: string; Icon: typeof Info
   gap: { wrap: "bg-deficit-soft", icon: "text-deficit", Icon: AlertCircle, label: "Shortfall beyond savings" },
 };
 
-function RunLine({ title, outcome, focus }: { title: string; outcome: RunOutcome; focus?: boolean }) {
+function RunLine({ title, outcome, focus, plain }: { title: string; outcome: RunOutcome; focus?: boolean; plain?: boolean }) {
   const short = outcome.state === "gap" || outcome.state === "depleted";
   return (
-    <div className={cn("min-w-0 rounded-control px-4 py-3", focus ? "bg-surface" : "bg-surface/60")}>
+    <div className={cn("min-w-0 rounded-control px-3 py-2.5 sm:px-4 sm:py-3", plain ? "bg-canvas" : focus ? "bg-surface" : "bg-surface/60")}>
       <dt className="text-[13px] font-medium text-ink-subtle">{title}</dt>
-      <dd className={cn("mt-0.5 text-[15px] font-medium", short ? "text-ink" : "text-ink-muted")}>{outcome.headline}</dd>
+      <dd className={cn("mt-0.5 text-sm font-medium sm:text-[15px]", short ? "text-ink" : "text-ink-muted")}>{outcome.headline}</dd>
       {outcome.detail && <dd className="figure text-[13px] text-ink-muted">{outcome.detail}</dd>}
     </div>
   );
@@ -91,9 +91,9 @@ export function ScenarioCard({ report, pair, headingLevel = "h2" }: { report: De
         </div>
       </div>
 
-      <dl className="mt-4 grid gap-2 sm:grid-cols-2">
-        <RunLine title="Without the loan" outcome={runOutcome(pair.without)} />
-        <RunLine title="With the loan" outcome={runOutcome(pair.with)} focus />
+      <dl className="mt-4 grid grid-cols-2 gap-2">
+        <RunLine title="Without the loan" outcome={runOutcome(pair.without)} plain={severity === "none"} />
+        <RunLine title="With the loan" outcome={runOutcome(pair.with)} focus plain={severity === "none"} />
       </dl>
 
       <div className="mt-2">

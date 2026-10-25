@@ -116,7 +116,7 @@ export function Commitment({ report }: { report: DecisionReport }) {
   const aprWarn = withOfferMetric(report, "apr_recomputed")?.check === "warn";
 
   return (
-    <Section id="commitment" title="The commitment" description="What this loan asks of you, recalculated from the loan terms.">
+    <Section id="commitment" title="The commitment" description="What the loan costs and what it asks of you, recalculated from the loan terms.">
       <div className="print-card rounded-card border border-line bg-surface">
         <div className="grid divide-y divide-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           <KeyFigure
