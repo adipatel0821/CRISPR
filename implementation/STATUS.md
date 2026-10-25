@@ -29,3 +29,8 @@ Prize tracks to consider (human decision): **FNB Challenge — Trust, Decisions 
 - 362 backend tests; web tsc/eslint/20 unit tests/build; live browser doc_flow 32/32, manual_flow 25/25, a11y 26/26; A-19 3/3 runs (66 s each); fresh-clone native startup verified.
 - Not executed: Docker Compose, live Gemini extraction, pip-audit/npm audit. Deferred: free-text parsing, LLM narration, Monte Carlo, scanned docs, price/delay levers.
 - Remaining work is human-owned: Devpost creation (by 23:30), video (≤ 5 min), team members, submit by Sun 12:00. Optional: merge to `main` via PR so the repo's default branch shows the app.
+
+## Submission freeze (2026-10-25 09:00 EDT)
+- The UX2 simplification / product-feel pass could not be completed safely before the 12:00 deadline (the session running it ended at about 04:40; at 08:55 only the design-system foundation existed). Per the release-buffer rule it is **not merged**. Work preserved on `feature/ux2-foundation` (725b0dc, 8b592d1, 27c7f88; pushed) with the directive (`implementation/UX2_DIRECTIVE.md`), product direction (`implementation/UX2_PRODUCT_DIRECTION.md`) and baseline evidence (`audit/evidence/ux2/before/`).
+- **Demo / submission build = the audited release:** web/ and backend/ identical to `d3275a4` (tag `ux-redesign-go`, Agent 5 GO). Re-verified 08:58 on the live demo servers (:3000/:8000): health ok, API walkthrough PASS, browser doc_flow 32/32, manual_flow 25/25.
+- Human-owned: Devpost entry (creation deadline 23:30 Sat passed; status unconfirmed), video ≤ 5 min, team members, submit by 12:00.
