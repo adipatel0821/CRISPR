@@ -16,27 +16,28 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f766e",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={inter.variable}>
-      <body className="min-h-dvh antialiased">
+      <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-surface focus:px-3 focus:py-2 focus:text-sm"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-ink"
         >
           Skip to content
         </a>
         <AppProvider>
           <SiteHeader />
-          <main id="main" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
+          {/* Results width (~960 px). Reading screens narrow themselves with <Container width="reading">. */}
+          <main id="main" className="mx-auto w-full max-w-[60rem] flex-1 px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
             {children}
           </main>
-          <footer data-site-footer className="border-t border-line bg-surface">
-            <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <p className="max-w-2xl">
+          <footer data-site-footer className="border-t border-line">
+            <div className="mx-auto flex w-full max-w-[60rem] flex-col gap-3 px-4 py-6 text-xs leading-relaxed text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:px-6">
+              <p className="max-w-xl">
                 DecisionTwin does arithmetic on the figures you provide and assumptions you can see. It is not a
                 prediction and not financial advice. Consider reviewing a decision like this with someone you trust.
               </p>
