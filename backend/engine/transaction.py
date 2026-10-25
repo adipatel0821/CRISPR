@@ -11,6 +11,8 @@ from .inputs import EngineInputs, Input
 from .money import ZERO
 
 OFFER_MIN = "offer.minimum_set"
+PFC_CASH = "offer.pfc_paid_in_cash"
+_ASSUMED = Derived(value=ZERO, statuses=("assumed",))   # provenance-only part: "this value rests on an assumption"
 
 
 def _loan_term_input(inputs: EngineInputs, term_key: str) -> Input | None:
@@ -99,16 +101,23 @@ def savings_after_purchase(inputs: EngineInputs) -> Derived:
 def incremental_vehicle_costs(inputs: EngineInputs, labels: dict[str, str] | None = None) -> Derived:
     """F14 = new ownership costs − (replaces current ? current-car costs : 0); may be negative.
 
-    Unknown new-car costs -> 0 with the label "new-car running costs not included" and assumption
-    a_no_running_costs (never silently claimed).
+    Unknown new-car costs -> 0 with assumption a_no_running_costs (never silently claimed). The label is
+    "new-car running costs not included", or, when the new car replaces the current one (whose running
+    costs stay in essentials), "assumes the new car costs the same to run as your current one".
+
+    Every assumption-substituted value carries status "assumed", so weakest-status propagation reaches
+    F14, F09, F10 and CalculationResult.derived_status (contracts §1.3, D1-001). Values are unchanged.
     """
     labels = labels or {}
     new = inputs.new_ownership_costs
-    if not new.known:
-        return Derived(value=ZERO, label=labels.get("incremental_costs_not_included",
-                                                     "new-car running costs not included"),
-                       assumptions=("a_no_running_costs",))
     rep = inputs.replaces_current
+    if not new.known:
+        if rep.known and rep.boolean:
+            label = labels.get("incremental_costs_same_as_current",
+                               "assumes the new car costs the same to run as your current one")
+        else:
+            label = labels.get("incremental_costs_not_included", "new-car running costs not included")
+        return Derived(value=ZERO, statuses=("assumed",), label=label, assumptions=("a_no_running_costs",))
     if rep.known and rep.boolean:
         cur = inputs.current_vehicle_costs
         if cur.known:
@@ -117,7 +126,8 @@ def incremental_vehicle_costs(inputs: EngineInputs, labels: dict[str, str] | Non
                        notes=["Current-car costs were not provided, so nothing was netted off."])
     if rep.known:
         return combine(new.dec, [new, rep])
-    return combine(new.dec, [new], assumptions=["a_not_replacing"])
+    # Replacement unknown: nothing netted off (a_not_replacing) -> the value rests on an assumption.
+    return combine(new.dec, [new, _ASSUMED], assumptions=["a_not_replacing"])
 
 
 def trade_in_rolled_in(inputs: EngineInputs) -> Decimal | None:

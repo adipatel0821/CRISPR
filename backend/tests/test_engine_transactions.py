@@ -139,12 +139,60 @@ def test_flexible_unknown_label_before_discretionary():
 
 
 def test_f14_unknown_new_costs_is_zero_with_label_and_assumption():
+    # D1-001: the reference household has vehicle.replaces_current = true, so the current car's costs stay in
+    # essentials and F14 = 0 really assumes the new car costs the same to run. The label changed for that
+    # reason (contract change required by D1-001); the value did not.
     hh = household(**{"vehicle.new_ownership_costs_monthly": None})
     r = compute(hh, reference_offer())
     f14 = r.metrics["incremental_vehicle_costs"]
-    assert f14.value == "0.00" and f14.label == "new-car running costs not included"
+    assert f14.value == "0.00"
+    assert f14.label == "assumes the new car costs the same to run as your current one"
     assert "a_no_running_costs" in r.assumptions_used
     assert m(r, "monthly_left_after") == "524.86"       # 900 − 375.14, nothing netted or added
+
+
+def test_f14_unknown_new_costs_not_replacing_keeps_not_included_label():
+    for rep in ("false", None):
+        hh = household(**{"vehicle.new_ownership_costs_monthly": None, "vehicle.replaces_current": rep})
+        r = compute(hh, reference_offer())
+        f14 = r.metrics["incremental_vehicle_costs"]
+        assert f14.value == "0.00" and f14.label == "new-car running costs not included"
+        assert f14.status == "assumed"
+        assert r.derived_status == "assumed"
+
+
+# ---------------------------------------------------------------- D1-001 assumption -> derived_status
+def test_d1_001_missing_new_costs_makes_result_assumed_without_changing_values():
+    hh = household(**{"vehicle.new_ownership_costs_monthly": None})
+    r = compute(hh, reference_offer())
+    assert r.derived_status == "assumed"
+    assert m(r, "incremental_vehicle_costs") == "0.00"
+    assert m(r, "monthly_left_after") == "524.86"       # 4200 − 2900 − 400 − 375.14 − 0
+    for name in ("incremental_vehicle_costs", "monthly_left_after", "reserve_months_after"):
+        assert r.metrics[name].status == "assumed", name
+    # F10 = F13 / (2900 + 375.14 + 0) = 2000 / 3275.14 = 0.6107 -> "0.61" (value unchanged by D1-001)
+    assert m(r, "reserve_months_after") == "0.61"
+    # metrics that do not depend on F14 keep their provided status
+    assert r.metrics["monthly_payment"].status is None
+    assert r.metrics["savings_after_purchase"].status is None
+
+
+def test_d1_001_full_reference_household_stays_provided():
+    r = compute(household(), reference_offer())
+    assert r.derived_status == "provided"
+    assert m(r, "incremental_vehicle_costs") == "50.00"  # 310 − 260
+    assert r.metrics["incremental_vehicle_costs"].status is None
+    assert "a_no_running_costs" not in r.assumptions_used
+
+
+def test_d1_001_new_costs_known_replacement_unknown_is_assumed():
+    hh = household(**{"vehicle.replaces_current": None})
+    r = compute(hh, reference_offer())
+    assert r.derived_status == "assumed"
+    assert m(r, "incremental_vehicle_costs") == "310.00"  # nothing netted off
+    assert r.metrics["incremental_vehicle_costs"].status == "assumed"
+    assert "a_not_replacing" in r.assumptions_used
+    assert m(r, "monthly_left_after") == "214.86"         # 4200 − 2900 − 400 − 375.14 − 310
 
 
 def test_debt_paid_off_by_transaction_excluded_after():
