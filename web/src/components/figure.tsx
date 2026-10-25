@@ -4,6 +4,7 @@ import type { DecisionReport } from "@/lib/contracts";
 import { evidenceForMetric, metric } from "@/lib/report";
 import { NOT_KNOWN } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { AssumptionChip } from "./assumption-chip";
 import { ProvenanceChip } from "./provenance-chip";
 
 /**
@@ -43,8 +44,9 @@ export function Figure({
         <p className="text-xs text-ink-subtle">Needs: {m.missing_inputs.join(", ")}</p>
       )}
       {note && <div className="text-xs text-ink-muted">{note}</div>}
-      <div className="mt-1">
+      <div className="mt-1 flex flex-wrap gap-1.5">
         <ProvenanceChip evidence={evidence} label={label} />
+        {!missing && <AssumptionChip report={report} metricKey={metricKey} label={label} />}
       </div>
     </div>
   );

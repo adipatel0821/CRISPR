@@ -7,6 +7,7 @@ import { DATA_MODE_TEXT, FixtureNotice } from "@/components/banners";
 import { DeleteDataButton } from "@/components/delete-data";
 import { OfferSummary } from "@/components/offer-summary";
 import { EvidenceFootnote } from "@/components/provenance-chip";
+import { AssumptionNote } from "@/components/assumption-chip";
 import { ReportGate } from "@/components/report-gate";
 import { AssumptionsPanel, ClaimLine, decisionTitle, Disclaimers, FlagsList, MissingInfoPanel, ReportMeta } from "@/components/report-parts";
 import { PathTable } from "@/components/charts";
@@ -101,6 +102,7 @@ function Report({ report }: { report: DecisionReport }) {
                     <td className="py-2 pr-3 text-right font-medium">{m.value === null ? "Not known" : r.fmt(m.value)}</td>
                     <td className="py-2">
                       <EvidenceFootnote evidence={evidenceForMetric(report, r.key)} />
+                      {m.value !== null && <AssumptionNote report={report} metricKey={r.key} />}
                     </td>
                   </tr>
                 );
