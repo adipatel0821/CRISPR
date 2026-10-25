@@ -4,4 +4,4 @@ Reported as measured. States: Passed · Failed · Blocked · Not run · Not impl
 
 | Run (ET) | Suite | Result |
 |---|---|---|
-| 20:40 | backend smoke (CP0) | 4 passed |
+| 20:08 | backend smoke (CP0): `python -m pytest` in backend/ | 4 passed |
