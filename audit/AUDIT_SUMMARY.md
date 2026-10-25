@@ -1,12 +1,12 @@
 # Audit Summary (Supervisor-maintained)
 
-Updated: 2026-10-24 22:23 EDT
+Updated: 2026-10-25 00:27 EDT
 
 | Field | Value |
 |---|---|
-| Current implementation commit | 96712e4 + audit commits (decisiontwin-implementation, pushed). Tags: `cp0-known-good`, `cp1-vertical-slice`, `cp3-documents-live` |
+| Current implementation commit | d3275a4 (decisiontwin-implementation, pushed). Tags: cp0-known-good, cp1-vertical-slice, cp3-documents-live, release-go, ux-redesign-go |
 | Current checkpoint | CP1–CP5 implemented and verified; release assessment GO |
-| Latest audited commit | 96712e4 — RELEASE_ASSESSMENT.md: **GO — READY FOR DEMONSTRATION** (addendum after D2-001) |
+| Latest audited commit | fa198d9 — UX_REDESIGN_AUDIT.md: **GO — NO CRITICAL REGRESSION** (addendum); d3275a4 = LOW wording fix from that audit (tests 79/79, live suites pass) |
 | Open directives | none |
 | Verified directives | D0-001, D0-002, D0-003, D0-004, D0-005, D1-001, D2-001 |
 | Critical blockers | none |

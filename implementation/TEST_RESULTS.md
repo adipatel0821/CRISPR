@@ -29,3 +29,7 @@ Reported as measured. States: Passed · Failed · Blocked · Not run · Not impl
 | 21:56 | live re-run on merged code (uvicorn :8000 fresh DB + next start :3000): cp1_browser 23/23 · doc_flow 32/32 · manual_flow 25/25 · a11y 26/26 · API walkthrough PASS · document_walkthrough PASS · demo_cases PASS | **all PASS** (audit/evidence/phase2) |
 | 22:18 | D2-001 fix (5b24df6) — Supervisor re-run | **362 passed**; Agent 5 re-audit: A-15 script 12/12, D2-001 VERIFIED, GO stands at 96712e4 |
 | 22:20 | **fresh clone @ 96712e4, native startup per README** (uvicorn --env-file ../.env :8000, next start :3000, default SQLite path) | health ok/synthetic_only; pytest 362 passed; API walkthrough PASS; browser doc_flow 32/32; manual_flow 25/25 (audit/evidence/fresh_clone) |
+| 23:5x | **UX redesign merged** (4 agents) + integration fixes (8ab1ed0) | web tests 76/76; live browser 226/226 (a11y 26, doc 32, manual 25, ux_a 58, ux_b 47, ux_c 38); backend unchanged 362 passed |
+| 00:10 | Agent 5 UX regression audit @ 7fd7233 | **GO — NO CRITICAL REGRESSION** (226/226 re-run, selectors 16/16, extra flows: deficit, decline, delete) |
+| 00:15 | constraint-aware alternative highlights (fa198d9) | web 78/78; live 226/226; Agent 5 re-check: GO stands, selectors 16/16 |
+| 00:24 | unknown-delta wording fix (d3275a4) | web 79/79; live ux_c 38/38, ux_b 47/47, manual 25/25 |

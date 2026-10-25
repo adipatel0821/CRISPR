@@ -8,18 +8,18 @@
 - [ ] Sanity: `cd backend && .venv/Scripts/python scripts/demo_walkthrough.py` → RESULT: PASS (then use a new browser session)
 - [ ] Synthetic contract to upload: `backend/fixtures/documents/contract_standard.pdf` (and `dealer_worksheet_two_options.pdf` for the chooser)
 
-## Script (target 4:30)
+## Script (target 4:30) — premium redesign (d3275a4)
 | t | Screen | Say / do | Verified by |
 |---|---|---|---|
-| 0:00 | Welcome | Problem: buyers are sold the monthly payment; the real cost, the hit to your month and your emergency savings are scattered. DecisionTwin turns a loan offer into consequences you can check. Point at the data-mode banner ("synthetic demo mode"). Tick consent → Start. | browser 23/23 |
-| 0:30 | Your finances | Adaptive questions: only what the selected analyses still need, each with "why we ask". Answer 4,200 · 2,900 · 0 · 6,000. Show the readiness panel filling in. Mention "I'd rather not say" never blocks the rest. | A-01r P1 = 5 questions |
-| 1:15 | Loan offer → Upload | Upload `contract_standard.pdf`. Show the verification table: each term with the verbatim quote, page, label-anchor and APR re-check (5.80% disclosed vs 5.796% recomputed — passes the 1/8-pt tolerance). Confirm terms. (Fallback: manual form with the same checks.) | API 25/25 · browser doc_flow 32/32 (live) |
-| 1:45 | Intake (2nd track) | The offer has $4,000 down → DecisionTwin now asks where it comes from → "My savings". | two-track intake |
-| 2:00 | Dashboard | Key points (3 claims). What it costs: $375.14/mo, $22,508.29 total of payments, $3,008.29 finance charge = $2,508.29 interest + $500 prepaid fees, $26,508.29 through the deal. Your month: leftover before → after. Savings $6,000 → $2,000; reserve months; informational flag with CFPB context. Click a source chip ("Calculated · F03", "You told us", "From your document, p.1 · matched · you confirmed"). | API 32/32, browser |
-| 3:00 | Stress tests | Same illustrative shock run with and without the loan; savings floored at $0, unfunded gap shown; "Illustrative — not a forecast". | scenarios tests A-09r/A-33/A-34 |
-| 3:30 | Alternatives | +$1,000 down lowers the payment AND your savings (both shown); 48 months labelled "same rate assumed — ask the lender"; no invented lower-APR offer; Pareto set highlighted. | A-36/A-37/A-38 |
-| 4:00 | Report | Printable report, every number footnoted to its source; "What we don't know" (buy rate — ask the dealer). Delete my data. | |
-| 4:20 | Close | Differentiation: deterministic, exact-to-the-cent math (CFPB reference vectors reproduced), provenance on every number, honest labels (never "verified" for self-reported data), AI only where it is bounded and checkable, private by default. | 306 backend tests |
+| 0:00 | Welcome | Problem: buyers are sold the monthly payment; the real cost, the hit to your month and your emergency savings are scattered. One calm sentence on what DecisionTwin does; point at the quiet "Synthetic demo mode" line. Tick consent → **Start**. | ux_a 58/58 |
+| 0:25 | Your finances (conversational) | One question at a time — answer 4,200 · 2,900 · 0 · 6,000 with **Continue**. Open "Why we ask" once; show "Your answers" history (edit anytime) and "I'd rather not say" (never blocks the rest). | ux_a, A-01r |
+| 1:05 | Loan offer → **Upload contract** | Upload `contract_standard.pdf`: each term with "From your document, p.1"; open "Show evidence" once (verbatim quote, APR 5.80% vs 5.796% re-check). **Confirm all remaining** → save. (Fallback: **Enter terms** — essentials first, "More details" for the rest.) | doc_flow 32/32 |
+| 1:35 | Down payment → **See my results** | The offer has $4,000 down → one question: "My savings". | ux_a |
+| 1:45 | **1 Understand** — Decision summary | Three insights: what changes ($1,300 → $924.86 left each month), the most important concern (illustrative job-loss scenario: savings run out, unfunded gap), what to explore next (36 months: −$1,009.97 finance charge, same rate assumed). The commitment: $375.14 · $26,508.29 through the deal · $3,008.29 finance charge (interest + fees). The honest note: running costs not included — "Add running costs". Open one source chip. | ux_b 47/47 |
+| 2:45 | **2 Vulnerabilities** — Stress | Concise rows, with vs without the loan; consequential ones highlighted; "Show details" for the chart/table. "Illustrative — not a forecast." | ux_b |
+| 3:20 | **3 Alternatives** | Two constraint-aware options that keep your savings: 72 months (−$55.36/mo, +$516.25 finance charge) and 36 months (−$1,009.97, +$222.04/mo); "Same rate assumed — ask the lender"; "Compare all 16 options" for the rest. | ux_c 38/38 |
+| 3:55 | **4 Decide** — Report | Executive summary, impact, concerns, alternatives, next actions (ask for the buy rate; add running costs); appendix with every source; Print / Save as PDF; Delete my data. | ux_c (print) |
+| 4:20 | Close | Exact-to-the-cent deterministic math (CFPB reference vectors), a source behind every number, honest labels, AI only where bounded and checkable, private by default. | 362 backend tests, audits GO |
 
 ## Edge / failure moments (optional, if time allows)
 - Edge: `scripts/demo_cases.py` EDGE household (low savings, BNPL ending month 4, 72-month loan → TERM_GT_60, expense shock → unfunded gap).
