@@ -137,6 +137,21 @@ python -m pytest            # Windows: .venv\Scripts\python -m pytest
   $375.14, monthly left after $474.86); it skips itself until all modules are present.
 * Regenerate the contract files: `python scripts/export_schemas.py` and `python scripts/export_openapi.py`.
 
+Measured on 2026-10-24 (full log in `implementation/TEST_RESULTS.md`, evidence in `audit/evidence/`): **359 backend
+tests pass**; the web app passes `tsc`, `eslint`, 20 unit tests (`npm test`) and `next build`.
+
+### End-to-end verification scripts
+
+| Script | What it does | Needs running servers |
+|---|---|---|
+| `backend/scripts/demo_walkthrough.py` | Reference case over HTTP: adaptive intake, manual offer, analysis; asserts every audited value, then the 400/401/404/delete paths | API on :8000 |
+| `backend/scripts/document_walkthrough.py` | Synthetic contract upload → reader extraction with quotes → confirm → analysis; two-option chooser; unsupported product; prompt injection; non-fixture upload → 403 | no (in-process) |
+| `backend/scripts/demo_cases.py` | Normal / edge / failure demo cases with independently computed expectations | no (in-process) |
+| `web/e2e/doc_flow.mjs`, `manual_flow.mjs`, `a11y.mjs` | Real browser (system Chrome via `playwright-core`), document and manual flows, axe-core + keyboard checks | API :8000 + web :3000 |
+
+The browser scripts are not wired into `npm` (no Playwright dependency in the app): install `playwright-core` and
+`axe-core` in a scratch folder, copy the scripts there, and run them with `node`.
+
 ## Synthetic demo case
 
 `backend/fixtures/reference_case.json` (synthetic, audited): take-home $4,200, essentials $2,900 (including $260
@@ -155,6 +170,9 @@ costs).
   Carlo simulation, scanned/image documents, price-change and delay-purchase levers, custom scenarios, accounts.
 * Extraction accuracy has only been measured on synthetic sample documents, not real dealer contracts.
 * Single-process SQLite storage, sized for a demo; no concurrency or load testing.
+* Not executed by the team: Docker Compose (Docker was not available on the build machine) and live Gemini
+  extraction (no paid-tier key; the deterministic TILA reader is the path that was tested). Free-text answer parsing
+  is deferred — answers use typed widgets.
 * Alternatives that change the term assume the same rate ("if offered at the same rate"); only verified offers
   supply APRs.
 
