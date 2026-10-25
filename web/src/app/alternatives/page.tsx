@@ -9,7 +9,6 @@ import { formatMoney } from "@/lib/format";
 import { plain } from "@/lib/copy";
 import { FixtureNotice } from "@/components/banners";
 import { AlternativesScatter } from "@/components/charts";
-import { decisionTitle } from "@/components/report-parts";
 import { ReportGate, UnavailableSection } from "@/components/report-gate";
 import { ActionRow, StageLayout } from "@/components/shell";
 import { Disclosure, PrimaryAction, SourceLink } from "@/components/system";
@@ -17,7 +16,7 @@ import { IconBadge, SpotCompare } from "@/components/visual";
 import { OptionCard } from "@/components/alternatives/alt-card";
 import { AltTable } from "@/components/alternatives/alt-table";
 import { baseAlternative, slotPlan, SLOT_SKIPPED_TEXT } from "@/components/alternatives/alt-view";
-import { ResultsRailContext, ResultsRailProgress, ResultsRailSteps } from "@/components/alternatives/results-rail";
+import { resultsRail } from "@/components/summary/results-rail";
 
 const LEDE =
   "Each option changes one or two terms and recalculates the same figures. These are what-if calculations under stated assumptions, not offers or recommendations.";
@@ -61,12 +60,7 @@ function Options({ report }: { report: DecisionReport }) {
 
   return (
     <StageLayout
-      stage="Your results"
-      stageNote={decisionTitle(report)}
-      progress={<ResultsRailProgress current="options" />}
-      context={<ResultsRailContext report={report} />}
-      steps={<ResultsRailSteps current="options" />}
-      mobileSummaryLabel="Your loan"
+      {...resultsRail(report, "alternatives")}
       actions={
         <ActionRow back={{ href: "/stress", label: "Stress test" }}>
           <PrimaryAction href="/report">Next: your decision report</PrimaryAction>

@@ -4,7 +4,7 @@ import { BarChart3, Car, FileText, Gauge, SlidersHorizontal } from "lucide-react
 import type { DecisionReport } from "@/lib/contracts";
 import { formatMoney, formatRate } from "@/lib/format";
 import { withOfferMetric } from "@/lib/report";
-import { RailFacts, RailSteps, type RailFact, type RailStep, type StageLayoutProps } from "@/components/shell";
+import { RailFacts, RailProgress, RailSteps, type RailFact, type RailStep, type StageLayoutProps } from "@/components/shell";
 
 export type ResultsStep = "summary" | "stress" | "alternatives" | "report";
 
@@ -43,10 +43,13 @@ export function resultsSteps(current: ResultsStep): RailStep[] {
   }));
 }
 
-/** StageLayout props shared by the results screens: loan context + journey + Start over. */
-export function resultsRail(report: DecisionReport, current: ResultsStep): Pick<StageLayoutProps, "stage" | "stageNote" | "context" | "steps" | "mobileSummaryLabel"> {
+/** StageLayout props shared by the four results screens (Summary, Stress test, Options, Report):
+ *  one rail everywhere, with the step count, the loan context, the journey and Start over. */
+export function resultsRail(report: DecisionReport, current: ResultsStep): Pick<StageLayoutProps, "stage" | "stageNote" | "progress" | "context" | "steps" | "mobileSummaryLabel"> {
   const label = report.offer?.label?.trim();
+  const step = STEPS.findIndex((s) => s.id === current) + 1;
   return {
+    progress: <RailProgress value={step} max={STEPS.length} label={`Step ${step} of ${STEPS.length}`} />,
     stage: (
       <span className="flex items-center gap-2.5">
         <Car aria-hidden className="size-6 shrink-0 text-brand" />

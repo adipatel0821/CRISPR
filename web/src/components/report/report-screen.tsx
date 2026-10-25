@@ -2,53 +2,28 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, FileText, Printer, ShieldCheck, SlidersHorizontal, Wallet } from "lucide-react";
+import { ArrowLeft, CalendarDays, Printer } from "lucide-react";
 import type { DecisionReport } from "@/lib/contracts";
-import { formatMoney, formatRate, formatTimestamp } from "@/lib/format";
+import { formatTimestamp } from "@/lib/format";
 import { plain } from "@/lib/copy";
-import { metric } from "@/lib/report";
 import { useApp } from "@/lib/app-context";
 import { FixtureNotice } from "@/components/banners";
 import { DeleteDataButton } from "@/components/delete-data";
 import { decisionTitle } from "@/components/report-parts";
 import { PrimaryAction } from "@/components/system";
-import { RailFacts, RailProgress, RailSteps, StageLayout, type RailFact } from "@/components/shell";
+import { StageLayout } from "@/components/shell";
+import { resultsRail } from "@/components/summary/results-rail";
 import { AboutReport, BeforeYouSign, ChangesSection, ConcernSection, LoanSection, OptionsSection } from "./report-sections";
 import { ReportAppendix } from "./report-appendix";
-
-function loanFacts(report: DecisionReport): RailFact[] {
-  const t = report.offer?.terms;
-  const payment = metric(report, "monthly_payment")?.value ?? null;
-  const facts: RailFact[] = [];
-  if (payment) facts.push({ label: "Monthly payment", value: formatMoney(payment) });
-  if (t?.apr?.value) facts.push({ label: "APR", value: formatRate(t.apr.value) });
-  if (t?.term_months?.value) facts.push({ label: "Term", value: `${t.term_months.value} months` });
-  if (t?.amount_financed?.value) facts.push({ label: "Amount financed", value: formatMoney(t.amount_financed.value) });
-  if (t?.cash_down?.value) facts.push({ label: "Cash down", value: formatMoney(t.cash_down.value) });
-  return facts;
-}
-
-const STEPS = [
-  { label: "Summary", href: "/dashboard", state: "done" as const, icon: Wallet },
-  { label: "Stress test", href: "/stress", state: "done" as const, icon: ShieldCheck },
-  { label: "Options", href: "/alternatives", state: "done" as const, icon: SlidersHorizontal },
-  { label: "Report", state: "current" as const, icon: FileText },
-];
 
 export function ReportScreen({ report }: { report: DecisionReport }) {
   const { fixtures } = useApp();
   const [withAppendix, setWithAppendix] = React.useState(false);
   const generated = formatTimestamp(report.generated_at);
-  const facts = loanFacts(report);
 
   return (
     <StageLayout
-      stage="Your report"
-      stageNote="Everything in one place, ready to print or save."
-      progress={<RailProgress value={4} max={4} label="Step 4 of 4" />}
-      context={<RailFacts title="Your loan" facts={facts} empty="No loan offer was included." />}
-      steps={<RailSteps label="Your results" steps={STEPS} />}
-      mobileSummaryLabel="Your loan"
+      {...resultsRail(report, "report")}
       workspaceClassName="print:!p-0"
     >
       <article aria-labelledby="report-title" data-report="" className="mx-auto w-full max-w-[1320px] space-y-16 print:max-w-none print:space-y-5">
