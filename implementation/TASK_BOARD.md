@@ -9,12 +9,12 @@ States: Not started · In progress · Implemented · Tested · Integrated · Blo
 | Counterfactual (levers, Pareto, rate sensitivity) | Agent 1 | Integrated; rendered live (/alternatives) |
 | Ontology, ledger, readiness, priority questions, H01/H02 | Agent 2 | Integrated + tested live (P1 = 5 questions) |
 | Manual offer builder + checks | Agent 2 | Integrated + tested live |
-| PDF extraction (PyMuPDF + TILA reader + Gemini gate) + 7 synthetic PDFs | Agent 2 | Integrated; unit-tested; live upload NOT yet run |
+| PDF extraction (PyMuPDF + TILA reader + Gemini gate) + 7 synthetic PDFs | Agent 2 | Integrated + API-tested (reader path 25/25 both modes); Gemini path NOT RUN (no key) |
 | Free-text answer parsing (LLM #1) | Agent 2 | Deferred (scope-cut item 4) |
 | Storage, sessions/tokens, all routes, error schema | Agent 4 | Integrated + tested live |
 | Claim-based explanations, key points | Agent 4 | Integrated + tested live |
 | Docker Compose + Dockerfiles | Agent 4 | Implemented, NOT RUN (no Docker) |
 | Next.js app (7 screens) | Agent 3 | Integrated + tested live in browser |
-| Edge + failure demo cases | Supervisor | Not started |
+| Edge + failure demo cases | Supervisor | Tested (scripts/demo_cases.py 25/25) |
 | Fresh-clone native startup test + demo rehearsal | Supervisor | Not started |
 | LLM narration, Monte Carlo, scanned docs, price/delay levers | — | Deferred (v1.1) |

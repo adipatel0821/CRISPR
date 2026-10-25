@@ -1,0 +1,29 @@
+NORMAL — complete profile, standard fixed-rate auto loan (reference case)
+  [PASS] payment 375.14
+  [PASS] monthly left 900.00 -> 474.86
+  [PASS] RESERVE_LT_1_MONTH informational flag
+  [PASS] paired scenarios
+EDGE — limited savings, two existing obligations (one ending), long term, shock
+  [PASS] edge facts accepted
+  [PASS] edge offer ready (principal derived from itemization)
+  [PASS] edge principal 17700.00 (derived)
+  [PASS] edge payment 318.96
+  [PASS] edge TOP 22965.58 / FC 5265.58
+  [PASS] edge left 445.00 -> 126.04
+  [PASS] edge savings after purchase 400.00 (down not from savings)
+  [PASS] edge reserve after 0.13
+  [PASS] edge flags TERM_GT_60 + RESERVE_LT_1_MONTH
+  [PASS] edge expense shock produces an unfunded gap with the loan
+  [PASS] BNPL debt ends after month 4 in the simulation (month 5 debts = 210.00)
+FAILURE — missing/contradictory terms, invalid input, deficit, AI unavailable
+  [PASS] offer without any rate is stored but not ready
+  [PASS] analysis without a ready offer -> 422 INSUFFICIENT_INFORMATION with readiness
+  [PASS] contract payment typo 3,751.40 vs computed 375.14 -> PAYMENT_MISMATCH warning
+  [PASS] term 500 -> 400 VALIDATION_ERROR on terms.term_months
+  [PASS] variable-rate product -> 422 UNSUPPORTED_PRODUCT
+  [PASS] deficit acknowledged exactly once, no loop
+  [PASS] deficit analysed (-210.00) and flagged, not rejected
+  [PASS] deficit leads the key points
+  [PASS] report data_mode shown
+
+RESULT: PASS
