@@ -24,10 +24,10 @@ import type { Alternative, ScenarioResult } from "@/lib/contracts";
 import { displayNumber, formatMoney, formatMoneyTick } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const ACCENT = "#0f766e";
-const CONTEXT = "#64748b";
-const GRID = "#e2e8f0";
-const AXIS = "#64748b";
+const ACCENT = "#2A64E3";
+const CONTEXT = "#7C8BA1";
+const GRID = "#E4E8EF";
+const AXIS = "#667085";
 
 /* ------------------------------------------------------------------ */
 /* Stacked breakdown bar: "Where does the total paid through the deal go?" */
@@ -182,7 +182,8 @@ export function SavingsPathChart({ without, withOffer }: { without?: ScenarioRes
 export function PathTable({ without, withOffer, caption }: { without?: ScenarioResult; withOffer?: ScenarioResult; caption: string }) {
   const rows = (withOffer ?? without)?.monthly_paths ?? [];
   return (
-    <div className="overflow-x-auto">
+    // Focusable so keyboard users can scroll the table sideways on narrow screens.
+    <div className="overflow-x-auto rounded-sm" tabIndex={0} role="region" aria-label={caption}>
       <table className="w-full min-w-[28rem] text-xs">
         <caption className="sr-only">{caption}</caption>
         <thead>
