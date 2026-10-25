@@ -10,6 +10,7 @@ import { choiceLabel } from "@/lib/labels";
 import { cn } from "@/lib/utils";
 import { ActionRow } from "@/components/shell";
 import { PrimaryAction } from "@/components/system";
+import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/misc";
 import { HelpDisclosure, IconBadge, OptionTiles, type TileOption } from "@/components/visual";
@@ -31,6 +32,15 @@ function choiceIcon(label: string) {
   if (/same/.test(t)) return Equal;
   if (/a lot/.test(t)) return Activity;
   if (/varies|vary/.test(t)) return Waves;
+  return undefined;
+}
+
+/** One short line under a choice, where it helps (down payment sources only). */
+function choiceDescription(label: string): string | undefined {
+  const t = label.toLowerCase();
+  if (/no down payment/.test(t)) return "You pay nothing upfront";
+  if (/savings/.test(t)) return "Money you have now, in checking or savings";
+  if (/somewhere|other/.test(t)) return "A gift, a sale or another account";
   return undefined;
 }
 
@@ -57,6 +67,7 @@ function AcknowledgeCard({
   variant,
   headingLevel,
   lead,
+  continueAs,
 }: {
   question: QuestionCandidate;
   busy: boolean;
@@ -64,14 +75,21 @@ function AcknowledgeCard({
   variant: "inline" | "stage";
   headingLevel: "h1" | "h2";
   lead?: React.ReactNode;
+  continueAs: "primary" | "secondary";
 }) {
   const Heading = headingLevel;
   const headingId = `q-${question.question_id}`;
-  const confirm = (
-    <PrimaryAction disabled={busy} onClick={() => onAnswer({ raw_answer: "acknowledged", typed_value: true })} arrow={false}>
-      I understand, continue
-    </PrimaryAction>
-  );
+  const onConfirm = () => onAnswer({ raw_answer: "acknowledged", typed_value: true });
+  const confirm =
+    continueAs === "secondary" && variant === "inline" ? (
+      <Button variant="primary" size="lg" disabled={busy} onClick={onConfirm} className="w-full sm:w-auto">
+        I understand, continue
+      </Button>
+    ) : (
+      <PrimaryAction disabled={busy} onClick={onConfirm} arrow={false}>
+        I understand, continue
+      </PrimaryAction>
+    );
   const review = question.allow_skip ? (
     <button
       type="button"
@@ -137,6 +155,7 @@ export function QuestionCard({
   variant = "inline",
   headingLevel,
   lead,
+  continueAs = "primary",
 }: {
   question: QuestionCandidate;
   busy: boolean;
@@ -147,6 +166,11 @@ export function QuestionCard({
   headingLevel?: "h1" | "h2";
   /** Stage variant: content above the question (saved note, errors). */
   lead?: React.ReactNode;
+  /**
+   * Inline variant: "secondary" renders Continue as a blue button instead of the yellow pill, for screens that
+   * already have their own primary action (one yellow pill per screen). Default "primary".
+   */
+  continueAs?: "primary" | "secondary";
 }) {
   const [text, setText] = React.useState("");
   const [text2, setText2] = React.useState("");
@@ -163,7 +187,17 @@ export function QuestionCard({
   const wording = questionWording(question.fact_key);
 
   if (question.rule_id)
-    return <AcknowledgeCard question={question} busy={busy} onAnswer={onAnswer} variant={variant} headingLevel={level} lead={lead} />;
+    return (
+      <AcknowledgeCard
+        question={question}
+        busy={busy}
+        onAnswer={onAnswer}
+        variant={variant}
+        headingLevel={level}
+        lead={lead}
+        continueAs={continueAs}
+      />
+    );
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -205,7 +239,12 @@ export function QuestionCard({
           { value: "true", title: "Yes", icon: Check },
           { value: "false", title: "No", icon: X },
         ]
-      : (question.choices ?? []).map((c) => ({ value: c, title: choiceLabel(c), icon: choiceIcon(choiceLabel(c)) }));
+      : (question.choices ?? []).map((c) => ({
+          value: c,
+          title: choiceLabel(c),
+          icon: choiceIcon(choiceLabel(c)),
+          description: question.fact_key === "loan.down_payment_source" ? choiceDescription(choiceLabel(c)) : undefined,
+        }));
 
   const headline = questionHeadline(question.fact_key, question.kind, question.text, plain);
   const labelled = question.kind === "currency" || question.kind === "number" || question.kind === "free_text";
@@ -381,11 +420,16 @@ export function QuestionCard({
     </p>
   ) : null;
 
-  const continueButton = (
-    <PrimaryAction type="submit" disabled={busy} arrow={stage}>
-      {busy ? "Saving" : "Continue"}
-    </PrimaryAction>
-  );
+  const continueButton =
+    continueAs === "secondary" && !stage ? (
+      <Button type="submit" variant="primary" size="lg" disabled={busy} className="w-full sm:w-auto">
+        {busy ? "Saving" : "Continue"}
+      </Button>
+    ) : (
+      <PrimaryAction type="submit" disabled={busy} arrow={stage}>
+        {busy ? "Saving" : "Continue"}
+      </PrimaryAction>
+    );
 
   if (stage) {
     return (
