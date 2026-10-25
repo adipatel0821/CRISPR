@@ -143,6 +143,29 @@ export function pieceLink(piece: SummaryPiece | null): PieceLink | null {
 }
 
 /**
+ * Advance widths (em, at the figure's -0.03em tracking) of the glyphs a formatted figure can contain: the wider of
+ * Plus Jakarta Sans 800 (tabular) and the system fallback, measured in Chrome. Anything else counts as a digit.
+ */
+const GLYPH_EM: Record<string, number> = { "$": 0.62, ",": 0.36, ".": 0.38, "−": 0.69, "-": 0.69, "+": 0.62, " ": 0.25 };
+const DIGIT_EM = 0.57;
+
+/** Width of a formatted figure in em ("$2,081.09" -> about 4.77). Display sizing only: never money math. */
+export function figureEm(text: string): number {
+  let em = 0;
+  for (const ch of text) em += GLYPH_EM[ch] ?? DIGIT_EM;
+  return em;
+}
+
+/**
+ * Font size (CSS length in container inline units) at which a formatted figure fills about 96% of its column, so
+ * a four-digit amount stays on one line next to the bars. Pair it with min(<the usual size>, ...).
+ */
+export function figureFit(text: string, fill = 96): string {
+  const em = Math.max(figureEm(text), 1);
+  return `${(fill / em).toFixed(2)}cqi`;
+}
+
+/**
  * The scenario_outcome claim for a scenario's run WITH the loan. The backend may emit one claim per run
  * (values.run); a claim without a run field is accepted as describing the scenario as a whole.
  */

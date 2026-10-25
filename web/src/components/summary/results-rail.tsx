@@ -49,7 +49,7 @@ export function resultsRail(report: DecisionReport, current: ResultsStep): Pick<
   return {
     stage: (
       <span className="flex items-center gap-2.5">
-        <Car aria-hidden className="size-6 shrink-0 text-brand" />
+        <Car aria-hidden className="size-6 shrink-0 text-ink" />
         <span className="min-w-0">{label || "Your loan"}</span>
       </span>
     ),
