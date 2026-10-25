@@ -1,6 +1,7 @@
 /**
- * Provenance chip wording (Stage 6 FR1, A-42). Source and verification are shown separately and the
- * word "verified" is never used: user confirmation says "You confirmed"; a document match says "matched".
+ * Provenance wording (Stage 6 FR1, A-42). Short and honest: the label names the SOURCE only
+ * ("Calculated", "You told us", "From your document, page 1"); how far it was checked is a separate
+ * sentence (verificationText) shown in the source popover. The word "verified" is never used.
  * Dependency-free so it can be unit-tested with `node --test`.
  */
 import type {
@@ -25,16 +26,20 @@ export function honestLabel(label: string): string {
   return label.replace(/\bunverified\b/gi, "not confirmed").replace(FORBIDDEN, "checked");
 }
 
-function verificationSuffix(v: Verification | string | null | undefined): string {
+/**
+ * How far a value was checked, as one plain sentence (or null when nothing was checked).
+ * User confirmation is never presented as independent evidence.
+ */
+export function verificationText(v: Verification | string | null | undefined): string | null {
   switch (v) {
     case "evidence_matched_user_confirmed":
-      return " · matched · you confirmed";
+      return "It matches the text in your document, and you confirmed it.";
     case "evidence_matched":
-      return " · matched";
+      return "It matches the text in your document.";
     case "user_confirmed":
-      return " · you confirmed";
+      return "You confirmed it.";
     default:
-      return "";
+      return null;
   }
 }
 
@@ -51,16 +56,14 @@ export function sourceChip(
       return verification === "user_confirmed" || verification === "evidence_matched_user_confirmed"
         ? { label: "You confirmed", tone: "outline" }
         : { label: "You told us", tone: "outline" };
-    case "document": {
-      const page = opts.page ? `, p.${opts.page}` : "";
-      return { label: `From your document${page}${verificationSuffix(verification)}`, tone: "accent" };
-    }
+    case "document":
+      return { label: opts.page ? `From your document, page ${opts.page}` : "From your document", tone: "accent" };
     case "calculation":
       return { label: "Calculated", tone: "neutral" };
     case "assumption":
       return { label: "Assumption", tone: "info" };
     case "ai_interpretation":
-      return { label: "Read by AI · check it", tone: "info" };
+      return { label: "Read by AI, check it", tone: "info" };
     case "external_source":
       return { label: "Published source", tone: "neutral" };
     default:
@@ -98,7 +101,7 @@ export function factStatusChip(status: FactStatus | string): ChipSpec {
     case "calculated":
       return { label: "Calculated", tone: "neutral" };
     case "conflicting":
-      return { label: "Conflicting", tone: "deficit" };
+      return { label: "Answers disagree", tone: "deficit" };
     case "superseded":
       return { label: "Replaced", tone: "neutral" };
     default:

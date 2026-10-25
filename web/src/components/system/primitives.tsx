@@ -1,27 +1,25 @@
 import * as React from "react";
 import Link from "next/link";
-import { AlertCircle, ArrowRight, CircleDot, Info } from "lucide-react";
+import { AlertCircle, ArrowRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
- * Container — content widths. "reading" ≈ 704 px for conversational screens, "results" ≈ 960 px.
+ * Container: kept for existing call sites. Every width now resolves to the one 640 px column that the
+ * layout already applies, so it only adds `mx-auto w-full`.
  * ---------------------------------------------------------------------------------------------- */
 export function Container({
-  width = "results",
+  width: _width = "results",
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { width?: "reading" | "results" }) {
-  return (
-    <div
-      className={cn("mx-auto w-full", width === "reading" ? "max-w-[44rem]" : "max-w-[60rem]", className)}
-      {...props}
-    />
-  );
+  void _width;
+  return <div className={cn("mx-auto w-full max-w-[40rem]", className)} {...props} />;
 }
 
 /* ------------------------------------------------------------------------------------------------
- * PageIntro — eyebrow, title (h1 by default), one-line lede, optional actions on the right.
+ * PageIntro: legacy page heading (screens move to <Screen>). The old eyebrow renders as a quiet
+ * sentence-case context line, never uppercase.
  * ---------------------------------------------------------------------------------------------- */
 export interface PageIntroProps {
   eyebrow?: React.ReactNode;
@@ -48,11 +46,11 @@ export function PageIntro({ eyebrow, title, lede, as: Tag = "h1", align = "left"
       )}
     >
       <div className={cn("min-w-0 space-y-2", center && "mx-auto max-w-xl")}>
-        {eyebrow && <p className="text-[13px] font-medium text-ink-subtle">{eyebrow}</p>}
-        <Tag id={id} className="text-balance text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-display">
+        {eyebrow && <p className="text-sm text-ink-subtle">{eyebrow}</p>}
+        <Tag id={id} className="text-balance text-[1.75rem] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-title">
           {title}
         </Tag>
-        {lede && <p className="max-w-[40rem] text-pretty text-lede text-ink-muted">{lede}</p>}
+        {lede && <p className="text-pretty text-lede text-ink-muted">{lede}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -60,21 +58,21 @@ export function PageIntro({ eyebrow, title, lede, as: Tag = "h1", align = "left"
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Insight — a calm statement block: small label, one sentence, optional figure, tone, source, action.
- * Tone is never the only signal: each tone also has an icon and the label text carries the meaning.
+ * Insight: legacy statement block (screens move to <Answer> and <Note>). Flat, no border.
+ * Tone is never the only signal: attention / gap add an icon and the label carries the meaning.
  * ---------------------------------------------------------------------------------------------- */
 export type InsightTone = "neutral" | "attention" | "gap";
 
 export interface InsightProps {
-  /** Small label above the sentence, e.g. "What changes", "Worth a look". */
+  /** Small label above the sentence. */
   label?: React.ReactNode;
-  /** The one sentence (claims[].text or a backend-string template). */
+  /** The one sentence. */
   children: React.ReactNode;
-  /** Optional figure shown large beside/below the sentence (pass formatted backend strings). */
+  /** Optional figure (pass formatted backend strings). */
   figure?: React.ReactNode;
-  /** neutral (default), attention (amber), gap (rose — deficit / unfunded gap findings only). */
+  /** neutral (default), attention (amber), gap (rose: deficit / shortfall findings only). */
   tone?: InsightTone;
-  /** Slot for a ProvenanceChip / "Sources" disclosure. */
+  /** Slot for a SourceLink / ProvenanceChip. */
   source?: React.ReactNode;
   /** Optional action link. */
   action?: { href: string; label: string } | React.ReactNode;
@@ -87,7 +85,7 @@ export interface InsightProps {
 }
 
 const INSIGHT_TONE: Record<InsightTone, { wrap: string; label: string; Icon: typeof Info }> = {
-  neutral: { wrap: "bg-canvas", label: "text-ink-subtle", Icon: CircleDot },
+  neutral: { wrap: "bg-canvas", label: "text-ink-subtle", Icon: Info },
   attention: { wrap: "bg-info-soft", label: "text-info", Icon: Info },
   gap: { wrap: "bg-deficit-soft", label: "text-deficit", Icon: AlertCircle },
 };
@@ -103,13 +101,13 @@ export function Insight({ label, children, figure, tone = "neutral", source, act
   return (
     <div id={id} className={cn("print-card rounded-card p-5 sm:p-6", t.wrap, className)} data-tone={tone}>
       {label && (
-        <LabelTag className={cn("mb-2 flex items-center gap-1.5 text-[13px] font-medium", t.label)}>
+        <LabelTag className={cn("mb-2 flex items-center gap-1.5 text-sm font-medium", t.label)}>
           {showIcon && <t.Icon aria-hidden className="size-4 shrink-0" />}
           {label}
         </LabelTag>
       )}
       <div className={cn("flex flex-col gap-3", figure && "sm:flex-row sm:items-end sm:justify-between sm:gap-6")}>
-        <div className="min-w-0 text-pretty text-[15px] leading-relaxed text-ink">{children}</div>
+        <div className="min-w-0 text-pretty text-base leading-relaxed text-ink">{children}</div>
         {figure && <div className="figure shrink-0 text-2xl font-semibold tracking-tight text-ink">{figure}</div>}
       </div>
       {(source || action) && (
@@ -123,19 +121,15 @@ export function Insight({ label, children, figure, tone = "neutral", source, act
 }
 
 /* ------------------------------------------------------------------------------------------------
- * KeyFigure — big tabular figure + label, optional before → after. Values must be formatted backend
- * strings (formatMoney(metric.value) etc.); this component never computes.
+ * KeyFigure: legacy figure + label, optional before → after (screens move to <Answer>).
+ * Values must be formatted backend strings; this component never computes.
  * ---------------------------------------------------------------------------------------------- */
 export interface KeyFigureProps {
   label: React.ReactNode;
-  /** The figure (already formatted). Optional when before/after are given. */
   value?: React.ReactNode;
-  /** Before → after pair (already formatted). Shown as "before → after" with screen-reader wording. */
   before?: React.ReactNode;
   after?: React.ReactNode;
-  /** One quiet line under the figure. */
   caption?: React.ReactNode;
-  /** Slot for ProvenanceChip / AssumptionChip. */
   source?: React.ReactNode;
   size?: "md" | "lg";
   className?: string;
@@ -146,41 +140,51 @@ export function KeyFigure({ label, value, before, after, caption, source, size =
   const hasChange = before !== undefined && after !== undefined;
   return (
     <div className={cn("min-w-0 space-y-1.5", className)}>
-      <p className="text-[13px] font-medium text-ink-subtle">{label}</p>
+      <p className="text-sm text-ink-muted">{label}</p>
       {hasChange ? (
         <p className={cn("figure flex flex-wrap items-baseline gap-x-2 font-semibold tracking-tight text-ink", big)}>
           <span className="sr-only">From </span>
           <span className="text-[0.62em] font-medium text-ink-subtle">{before}</span>
-          <ArrowRight aria-hidden className="size-4 shrink-0 self-center text-ink-subtle" />
+          <span aria-hidden className="text-[0.62em] font-normal text-ink-subtle">
+            →
+          </span>
           <span className="sr-only"> to </span>
           <span>{after}</span>
         </p>
       ) : (
         <p className={cn("figure font-semibold tracking-tight text-ink", big)}>{value}</p>
       )}
-      {caption && <p className="text-[13px] leading-relaxed text-ink-muted">{caption}</p>}
-      {source && <div className="flex flex-wrap items-center gap-1.5 pt-0.5">{source}</div>}
+      {caption && <p className="text-sm leading-relaxed text-ink-muted">{caption}</p>}
+      {source && <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-0.5">{source}</div>}
     </div>
   );
 }
 
 /* ------------------------------------------------------------------------------------------------
- * PrimaryAction — the ONE primary button/link per screen. SecondaryLink — quiet text link with arrow.
+ * PrimaryAction: the ONE primary button or link on a screen state. Always carries data-primary-action
+ * (tests and the density script count it). Charcoal, 48 px tall, full width on phones.
  * ---------------------------------------------------------------------------------------------- */
 export interface PrimaryActionProps {
   children: React.ReactNode;
-  /** Renders a Next <Link> when given, otherwise a <button>. */
+  /** Renders a Next <Link> when given (and not disabled), otherwise a <button>. */
   href?: string;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
   type?: "button" | "submit";
   disabled?: boolean;
-  /** Trailing arrow (default true). */
+  /** Shows the button as busy: disabled, aria-busy, and `pendingLabel` (if given) replaces the text. */
+  pending?: boolean;
+  pendingLabel?: React.ReactNode;
+  /** Trailing arrow icon. Off by default (decorative). */
   arrow?: boolean;
   size?: "md" | "lg";
   /** Stretch to full width on small screens (default true). */
   block?: boolean;
+  id?: string;
+  /** Associates a submit button with a form elsewhere on the page. */
+  form?: string;
   className?: string;
   "aria-describedby"?: string;
+  "aria-label"?: string;
 }
 
 export function PrimaryAction({
@@ -189,39 +193,55 @@ export function PrimaryAction({
   onClick,
   type = "button",
   disabled,
-  arrow = true,
+  pending = false,
+  pendingLabel,
+  arrow = false,
   size = "lg",
   block = true,
+  id,
+  form,
   className,
   ...aria
 }: PrimaryActionProps) {
   const cls = cn(block && "w-full sm:w-auto", className);
   const inner = (
     <>
-      {children}
+      {pending && pendingLabel ? pendingLabel : children}
       {arrow && <ArrowRight aria-hidden />}
     </>
   );
-  if (href && !disabled) {
+  if (href && !disabled && !pending) {
     return (
       <Button asChild size={size} className={cls}>
-        <Link href={href} {...aria}>
+        <Link href={href} id={id} data-primary-action="" onClick={onClick as React.MouseEventHandler<HTMLAnchorElement>} {...aria}>
           {inner}
         </Link>
       </Button>
     );
   }
   return (
-    <Button type={type} size={size} className={cls} onClick={onClick} disabled={disabled} {...aria}>
+    <Button
+      type={type}
+      size={size}
+      className={cls}
+      id={id}
+      form={form}
+      data-primary-action=""
+      onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+      disabled={disabled || pending}
+      aria-busy={pending || undefined}
+      {...aria}
+    >
       {inner}
     </Button>
   );
 }
 
+/** Quiet text link (accent). No arrow unless asked: arrows are not decoration. */
 export function SecondaryLink({
   href,
   children,
-  arrow = true,
+  arrow = false,
   className,
   onClick,
 }: {
@@ -236,23 +256,21 @@ export function SecondaryLink({
       href={href}
       onClick={onClick}
       className={cn(
-        "group inline-flex items-center gap-1 rounded-sm text-sm font-medium text-accent-strong underline-offset-4 hover:underline",
+        "group inline-flex items-center gap-1 rounded-sm text-[15px] font-medium text-accent-strong underline decoration-accent-line decoration-1 underline-offset-4 transition-colors duration-150 hover:decoration-current",
         className,
       )}
     >
       {children}
-      {arrow && (
-        <ArrowRight aria-hidden className="size-3.5 transition-transform duration-150 ease-out group-hover:translate-x-0.5" />
-      )}
+      {arrow && <ArrowRight aria-hidden className="size-3.5" />}
     </Link>
   );
 }
 
 /* ------------------------------------------------------------------------------------------------
- * FadeIn — CSS-only entrance (opacity + 4 px rise, 220 ms). Reduced motion: no animation.
- * `step` staggers siblings by 60 ms each (0–4).
+ * FadeIn: CSS-only entrance (opacity + 2 px rise, 180 ms). Reduced motion: no animation.
+ * `step` staggers siblings by 50 ms each (0 to 4).
  * ---------------------------------------------------------------------------------------------- */
-const DELAY = ["", "[animation-delay:60ms]", "[animation-delay:120ms]", "[animation-delay:180ms]", "[animation-delay:240ms]"];
+const DELAY = ["", "[animation-delay:50ms]", "[animation-delay:100ms]", "[animation-delay:150ms]", "[animation-delay:200ms]"];
 
 export function FadeIn({
   as: Tag = "div",
@@ -264,7 +282,7 @@ export function FadeIn({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * EmptyNote — a quiet inline note for absent data ("Not known yet", "Add running costs …").
+ * EmptyNote: a quiet inline note for absent data. (New code: prefer <Note>.)
  * ---------------------------------------------------------------------------------------------- */
 export function EmptyNote({
   title,
@@ -278,7 +296,7 @@ export function EmptyNote({
   className?: string;
 }) {
   return (
-    <div className={cn("rounded-card bg-canvas px-4 py-3.5 text-sm leading-relaxed text-ink-muted sm:px-5", className)}>
+    <div className={cn("rounded-card bg-canvas px-4 py-3.5 text-[15px] leading-relaxed text-ink-muted sm:px-5", className)}>
       {title && <p className="font-medium text-ink">{title}</p>}
       {children && <div className={cn(title && "mt-0.5")}>{children}</div>}
       {action && (
@@ -291,7 +309,7 @@ export function EmptyNote({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Section — a titled block on a page (h2 + optional one-line description), generous spacing.
+ * Section: a titled block (h2 + optional one-line description), generous spacing.
  * ---------------------------------------------------------------------------------------------- */
 export function Section({
   title,
@@ -312,13 +330,13 @@ export function Section({
 }) {
   const headingId = id ? `${id}-heading` : undefined;
   return (
-    <section id={id} aria-labelledby={headingId} className={cn("scroll-mt-28 space-y-4", className)}>
+    <section id={id} aria-labelledby={headingId} className={cn("scroll-mt-8 space-y-4", className)}>
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div className="space-y-1">
           <Tag id={headingId} className="text-lg font-semibold tracking-tight text-ink">
             {title}
           </Tag>
-          {description && <p className="text-sm leading-relaxed text-ink-muted">{description}</p>}
+          {description && <p className="text-[15px] leading-relaxed text-ink-muted">{description}</p>}
         </div>
         {actions}
       </div>
