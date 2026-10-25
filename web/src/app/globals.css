@@ -17,7 +17,10 @@
  * every existing call site keeps working.
  */
 @theme {
-  --font-sans: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Plus Jakarta Sans from next/font (layout.tsx sets --font-jakarta on <html>). Every var() here needs a fallback:
+     one undefined var() without one (the old --font-inter) voids the whole list and every screen fell back to the
+     system font. */
+  --font-sans: var(--font-jakarta, system-ui), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Identity */
   --color-frame: #111111;      /* header band and the band behind the surface */
@@ -290,6 +293,13 @@ body:has([data-stage-layout]) [data-legacy-journey] {
 }
 .dt-bar[data-negative] {
   transform-origin: right center;
+}
+
+/* Radix renders a hidden form input after each checkbox and pulls it back over the button by its own width. In
+   our flex rows it already starts at the row's start, so the pull put it 20 px left of the row: off screen at 360
+   and 390 px. It stays invisible (opacity 0) and ignores the pointer; this keeps it on top of the button. */
+button[role="checkbox"] + input[type="checkbox"][aria-hidden="true"] {
+  transform: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

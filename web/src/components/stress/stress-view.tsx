@@ -145,7 +145,8 @@ function ScenarioDetails({ report, pair }: { report: DecisionReport; pair: Scena
     (c) => c.type === "scenario_outcome" && c.values?.scenario_id === pair.scenarioId && typeof c.text === "string" && c.text.trim(),
   );
   return (
-    <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+    // grid-cols-1 (minmax(0, 1fr)): the month table's min width scrolls inside its region instead of widening the column.
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:items-start">
       <details className="dt-disclosure group rounded-card border border-line bg-surface">
         <summary className="flex min-h-12 items-center justify-between gap-3 px-5 text-[15px] font-semibold text-ink">
           What this what-if assumes

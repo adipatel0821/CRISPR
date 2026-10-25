@@ -153,6 +153,13 @@ try {
 
   // 4. Results pages
   total += await axe("/dashboard");
+  // The summary is one result card: the sources sit behind "Show all details", so open it with the keyboard first.
+  check("kbd: Show all details reachable", await tabTo(/^BUTTON\|.*Show all details/));
+  check("kbd: focus indicator visible on Show all details", await focusVisible());
+  await page.keyboard.press("Enter");
+  await page.locator('[data-card-details][data-state="open"]').waitFor({ timeout: 5000 });
+  check('kbd: Enter opens the details (aria-expanded="true")', (await page.locator("[data-card-toggle]").getAttribute("aria-expanded")) === "true");
+  total += await axe("/dashboard (details open)");
   check("kbd: a source chip opens with Enter", await tabTo(/Source for Monthly payment/));
   await page.keyboard.press("Enter");
   check("kbd: popover visible", await page.locator("[data-radix-popper-content-wrapper]").first().isVisible());

@@ -134,7 +134,10 @@ try {
     console.log("   report derived_status:", report.with_offer?.derived_status, "assumptions_used:", JSON.stringify(report.with_offer?.assumptions_used));
     const docEv = (report.evidence || []).filter((e) => e.kind === "document");
     check("A: report carries document evidence", docEv.length > 0, String(docEv.length));
-    // popover on Monthly payment lists the document quote
+    // popover on Monthly payment lists the document quote. The summary is one result card: its sources sit behind
+    // "Show all details", so the card is opened first.
+    await page.getByRole("button", { name: "Show all details", exact: true }).click();
+    await page.locator('[data-card-details][data-state="open"]').waitFor({ timeout: 5000 });
     await page.getByRole("button", { name: /Source for Monthly payment/ }).click();
     const pop = await page.locator("[data-radix-popper-content-wrapper]").first().textContent().catch(() => "");
     check("A: monthly payment source popover lists the document quote", /From your document/.test(pop) && /page 1/.test(pop), pop.slice(0, 200));
