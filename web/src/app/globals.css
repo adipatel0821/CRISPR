@@ -35,14 +35,16 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
+  position: relative; /* contain absolutely-positioned sr-only text so it can't widen the page */
+  overflow-x: clip;
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-feature-settings: "cv11", "ss01";
-  overflow-x: hidden;
 }
 
 /* All figures align. */

@@ -146,9 +146,13 @@ export function formatTimestamp(iso: string | null | undefined): string {
   if (!iso) return NOT_KNOWN;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return NOT_KNOWN;
+  // dateStyle/timeStyle cannot be combined with timeZoneName (RangeError), so list the fields.
   return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     timeZone: "UTC",
     timeZoneName: "short",
   }).format(d);

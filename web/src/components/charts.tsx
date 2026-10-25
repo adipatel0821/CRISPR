@@ -285,7 +285,31 @@ export function AlternativesScatter({ alternatives, pareto }: { alternatives: Al
             <Scatter name="Trade-off set (no option beats it on every measure)" data={front} fill={ACCENT} fillOpacity={0.35} stroke={ACCENT} strokeWidth={2} shape="circle" isAnimationActive={false} />
           )}
           {base.length > 0 && (
-            <Scatter name="Your offer" data={base} fill={ACCENT} stroke="#ffffff" strokeWidth={2} shape="diamond" isAnimationActive={false} />
+            <Scatter
+              name="Your offer"
+              data={base}
+              fill={ACCENT}
+              legendType="diamond"
+              isAnimationActive={false}
+              shape={(props: unknown) => {
+                const { cx, cy } = props as { cx?: number; cy?: number };
+                if (cx === undefined || cy === undefined) return <g />;
+                const r = 9;
+                return (
+                  <g>
+                    <path
+                      d={`M${cx},${cy - r} L${cx + r},${cy} L${cx},${cy + r} L${cx - r},${cy} Z`}
+                      fill={ACCENT}
+                      stroke="#ffffff"
+                      strokeWidth={2}
+                    />
+                    <text x={cx + r + 6} y={cy + 4} fontSize={12} fill="#0f172a" fontWeight={600}>
+                      Your offer
+                    </text>
+                  </g>
+                );
+              }}
+            />
           )}
         </ScatterChart>
       </ResponsiveContainer>

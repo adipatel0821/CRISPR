@@ -198,15 +198,15 @@ function SourcesList({ report }: { report: DecisionReport }) {
       <summary className="cursor-pointer text-sm font-semibold text-ink">
         <FileText aria-hidden className="mr-1 inline size-4 text-ink-subtle" /> Every source behind these numbers ({report.evidence.length})
       </summary>
-      <div className="mt-4 grid gap-6 md:grid-cols-2">
+      <div className="mt-4 grid gap-6 md:grid-cols-2 [&>*]:min-w-0">
         {Object.entries(groups).map(([kind, list]) => (
           <div key={kind}>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-subtle">{titles[kind] ?? kind}</h3>
             <ul className="space-y-1.5">
               {list.map((e) => (
-                <li key={e.evidence_id} className="flex flex-wrap items-center gap-2 text-sm">
+                <li key={e.evidence_id} className="flex min-w-0 flex-wrap items-center gap-2 text-sm">
                   <Chip spec={evidenceChip(e)} kind={e.kind} />
-                  <span className="text-ink-muted">{e.display_label}</span>
+                  <span className="min-w-0 break-words text-ink-muted">{e.display_label}</span>
                 </li>
               ))}
             </ul>

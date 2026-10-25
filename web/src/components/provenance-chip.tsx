@@ -5,6 +5,7 @@ import type { ExplanationEvidence } from "@/lib/contracts";
 import { evidenceChip, honestLabel, type ChipSpec } from "@/lib/provenance";
 import { FORMULA_NAMES } from "@/lib/report";
 import { cn } from "@/lib/utils";
+import { factLabel, factValueText } from "@/lib/labels";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const TONE: Record<ChipSpec["tone"], string> = {
@@ -24,7 +25,7 @@ function KindIcon({ kind }: { kind: string }) {
   return <Info aria-hidden className={cls} />;
 }
 
-export function Chip({ spec, kind, className }: { spec: ChipSpec; kind?: string; className?: string }) {
+export function Chip({ spec, kind, className, wrap = false }: { spec: ChipSpec; kind?: string; className?: string; wrap?: boolean }) {
   return (
     <span
       className={cn(
@@ -34,7 +35,7 @@ export function Chip({ spec, kind, className }: { spec: ChipSpec; kind?: string;
       )}
     >
       {kind && <KindIcon kind={kind} />}
-      <span className="truncate">{spec.label}</span>
+      <span className={wrap ? "break-words" : "truncate"}>{spec.label}</span>
     </span>
   );
 }
@@ -52,7 +53,7 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
   const assumption = str(ref.assumption_id);
   return (
     <li className="space-y-1 border-t border-line pt-3 first:border-t-0 first:pt-0">
-      <Chip spec={evidenceChip(e)} kind={e.kind} />
+      <Chip spec={evidenceChip(e)} kind={e.kind} wrap />
       <p className="text-ink">{honestLabel(e.display_label)}</p>
       {formula && (
         <p className="text-xs text-ink-muted">
@@ -65,7 +66,12 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
           “{quote}”{page ? ` — page ${page}` : ""}
         </blockquote>
       )}
-      {factKey && <p className="text-xs text-ink-muted">Your answer: {factKey}</p>}
+      {factKey && (
+        <p className="text-xs text-ink-muted">
+          Your answer: {factLabel(factKey)}
+          {str(ref.value) ? ` = ${factValueText(str(ref.value), "text", factKey)}` : ""}
+        </p>
+      )}
       {assumption && <p className="text-xs text-ink-muted">Assumption id: {assumption}</p>}
     </li>
   );
@@ -116,7 +122,15 @@ export function EvidenceFootnote({ evidence }: { evidence: ExplanationEvidence[]
   if (!evidence.length) return null;
   return (
     <span className="text-[11px] text-ink-subtle">
-      [{evidence.map((e) => honestLabel(e.display_label)).join("; ")}]
+      [{evidence.map(footnoteText).join("; ")}]
     </span>
   );
+}
+
+function footnoteText(e: ExplanationEvidence): string {
+  const ref = (e.ref ?? {}) as Record<string, unknown>;
+  const label = honestLabel(e.display_label);
+  if (e.kind === "user_input" && typeof ref.fact_key === "string") return `${label}: ${factLabel(ref.fact_key)}`;
+  if (e.kind === "assumption" && typeof ref.assumption_id === "string") return `${label} ${ref.assumption_id}`;
+  return label;
 }

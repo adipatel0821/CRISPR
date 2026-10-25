@@ -121,7 +121,8 @@ export function evidenceForMetric(r: DecisionReport, key: string): ExplanationEv
   const ids = new Set<string>();
   if (m?.formula_id) ids.add(`ev_calc_${m.formula_id}`);
   for (const c of r.claims) {
-    if (c.subject_metric === key) c.evidence_ids.forEach((id) => ids.add(id));
+    // comparison claims (alternatives) cite their own assumptions; they are not sources of this figure
+    if (c.subject_metric === key && c.type !== "comparison") c.evidence_ids.forEach((id) => ids.add(id));
   }
   const out: ExplanationEvidence[] = [];
   ids.forEach((id) => {

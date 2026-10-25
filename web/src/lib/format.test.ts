@@ -9,6 +9,7 @@ import {
   formatRate,
   formatRatioPercent,
   formatSignedMoney,
+  formatTimestamp,
   fractionToPercent,
   normalizeCurrencyInput,
   normalizeIntegerInput,
@@ -87,6 +88,12 @@ test("normalizeCurrencyInput accepts what people type and rejects the rest", () 
   assert.equal(normalizeCurrencyInput("-5"), null);
   assert.equal(normalizeCurrencyInput(""), null);
   assert.equal(normalizeCurrencyInput("four"), null);
+});
+
+test("formatTimestamp renders UTC without throwing", () => {
+  assert.equal(formatTimestamp("2026-10-25T01:30:00Z"), "Oct 25, 2026, 1:30 AM UTC");
+  assert.equal(formatTimestamp(null), NOT_KNOWN);
+  assert.equal(formatTimestamp("not a date"), NOT_KNOWN);
 });
 
 test("normalizeIntegerInput", () => {
