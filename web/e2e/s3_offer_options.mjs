@@ -5,8 +5,9 @@
 //   Offer:   upload contract_standard.pdf -> review -> Confirm all -> save -> results 375.14 / 22,508.29 / 3,008.29;
 //            dealer_worksheet_two_options.pdf chooser; contract_variable_rate.pdf unsupported + one-click manual
 //            fallback; manual path to results.
-//   Every state: copyIssues 0, axe 0 serious/critical (reduced motion), one visible primary action, no horizontal
-//   scroll; screenshots at 1440x900, 1920x1080, 768x1024 and 390x844.
+//   Every state: copyIssues 0, axe 0 serious/critical (reduced motion), one visible primary action, nothing cut off
+//   at the screen edge (element bounds with every <details> open) and the primary label fits its pill (D5-003);
+//   screenshots at 1440x900, 1920x1080, 768x1024, 390x844 and 360x740 (the pending question too at 390 and 360).
 //
 // Usage (playwright-core + axe-core resolvable from this file's folder; system Chrome):
 //   WEB=http://localhost:3303 API=http://localhost:8303 DOCS=<repo>/backend/fixtures/documents node s3_offer_options.mjs <outdir>
@@ -14,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
-import { axe, copyClean, copyIssues, noHorizontalScroll, primaryActions } from "./lib/check.mjs";
+import { axe, clippedElements, copyClean, copyIssues, noHorizontalScroll, primaryActionFit, primaryActions } from "./lib/check.mjs";
 
 const require = createRequire(import.meta.url);
 const AXE = require.resolve("axe-core/axe.min.js");
@@ -30,7 +31,9 @@ const VIEWPORTS = [
   [1920, 1080],
   [768, 1024],
   [390, 844],
+  [360, 740],
 ];
+const PHONES = VIEWPORTS.filter(([w]) => w < 768);
 
 const results = [];
 function check(name, ok, detail = "") {
@@ -107,6 +110,11 @@ async function stateChecks(page, label, { axeScan = true } = {}) {
   const pa = await primaryActions(page);
   check(`${label}: exactly one visible primary action`, pa.visible === 1, JSON.stringify(pa.labels));
   check(`${label}: no horizontal scroll`, await noHorizontalScroll(page));
+  // D5-003: the scrollWidth check above cannot fail under overflow-x: clip; these two can.
+  const clipped = await clippedElements(page);
+  check(`${label}: nothing cut off at the screen edge (element bounds, details open)`, clipped.length === 0, clipped.slice(0, 4).join(" | "));
+  const fit = await primaryActionFit(page);
+  check(`${label}: primary action label fits, no overlap`, fit.problems.length === 0, fit.problems.join(" | "));
   check(`${label}: one h1`, (await page.locator("h1").count()) === 1);
   if (axeScan) {
     const a = await axe(page, AXE);
@@ -246,6 +254,14 @@ async function pendingChecks() {
   const pa = await primaryActions(page);
   check(`${tag}: one primary action (the question's Continue)`, pa.visible === 1, JSON.stringify(pa.labels));
   await shoot(page, "offer_pending");
+  // phones: the bar holds Back and "Change the offer" only, the question's Continue is the one primary action
+  for (const [w, h] of PHONES) {
+    await page.setViewportSize({ width: w, height: h });
+    await page.waitForTimeout(250);
+    await shoot(page, "offer_pending");
+    await stateChecks(page, `${tag} ${w}`, { axeScan: w === 390 });
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
   const radio = sec.getByRole("radio", { name: /savings/i }).first();
   if (await radio.count()) {
     await radio.check({ force: true });
@@ -253,6 +269,12 @@ async function pendingChecks() {
     await page.getByRole("button", { name: /See my results/ }).waitFor({ timeout: 15000 });
     check(`${tag}: answering brings back See my results`, await page.getByRole("button", { name: /See my results/ }).isEnabled());
     await stateChecks(page, `${tag} answered`);
+    for (const [w, h] of PHONES) {
+      await page.setViewportSize({ width: w, height: h });
+      await page.waitForTimeout(250);
+      await stateChecks(page, `${tag} answered ${w}`, { axeScan: false });
+    }
+    await page.setViewportSize({ width: 1440, height: 900 });
   } else check(`${tag}: savings option present`, false);
   check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
   await ctx.close();

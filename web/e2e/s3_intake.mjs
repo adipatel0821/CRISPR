@@ -4,7 +4,9 @@
 // Enter continues; Skip defers (asked again later); "I'd rather not say" is never re-asked; an estimate is
 // recorded; validation appears under the input for "-5" and "abc"; an earlier answer is edited from the rail;
 // a deficit household is acknowledged once; one primary action per state; copy has no dashes / banned phrases;
-// axe 0 serious/critical; no horizontal scroll at 390; reference figures on the results after the intake
+// axe 0 serious/critical; every state: nothing cut off at the screen edge (element bounds with every <details> open)
+// and the primary label fits its pill, at 1440 and on phones (390x844 and 360x740, D5-003); the celebration shows
+// only right after the intake is completed, never with a skipped answer; reference figures on the results after the intake
 // (375.14 / 22,508.29 / 3,008.29 / 26,508.29 / 1,300.00 -> 924.86 / 6,000 -> 2,000) and with refinements
 // (900.00 -> 474.86); screenshots at 1440x900, 1920x1080, 768x1024 and 390x844.
 //
@@ -14,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
-import { axe, copyClean, copyIssues, noHorizontalScroll, primaryActions } from "./lib/check.mjs";
+import { axe, clippedElements, copyClean, copyIssues, noHorizontalScroll, primaryActionFit, primaryActions } from "./lib/check.mjs";
 
 const require = createRequire(import.meta.url);
 const AXE = require.resolve("axe-core/axe.min.js");
@@ -57,6 +59,11 @@ async function stateChecks(page, label, { a11y = true } = {}) {
   const ci = await copyIssues(page);
   check(`${label}: copy clean (no dashes, banned phrases, "!")`, copyClean(ci), JSON.stringify({ v: ci.visible, a: ci.all }).slice(0, 400));
   check(`${label}: no horizontal scroll`, await noHorizontalScroll(page));
+  // D5-003: the scrollWidth check above cannot fail under overflow-x: clip; these two can.
+  const clipped = await clippedElements(page);
+  check(`${label}: nothing cut off at the screen edge (element bounds, details open)`, clipped.length === 0, clipped.slice(0, 4).join(" | "));
+  const fit = await primaryActionFit(page);
+  check(`${label}: primary action label fits, no overlap`, fit.problems.length === 0, fit.problems.join(" | "));
   check(`${label}: one h1`, (await page.locator("h1").count()) === 1, String(await page.locator("h1").count()));
   if (a11y) {
     const r = await axe(page, AXE);
@@ -175,6 +182,12 @@ try {
     check("default path asks exactly take-home, essentials, debts, savings, down payment", JSON.stringify(asked) === JSON.stringify(DEFAULT_PATH), JSON.stringify(asked));
     await page.getByRole("heading", { level: 1, name: /That's everything we need/ }).waitFor({ timeout: 8000 });
     await stateChecks(page, "intake done");
+    check("done right after the last answer: one celebration", (await page.locator("[data-intake-done] [data-cheer]").count()) === 1);
+    check(
+      "done: no second yellow check (no visible Saved line above the celebration)",
+      (await page.locator("[data-intake-done] [data-sun-check]").count()) === 1,
+      String(await page.locator("[data-intake-done] [data-sun-check]").count()),
+    );
     check("done: primary goes to the loan offer", (await primaryActions(page)).labels.some((l) => /Continue to the loan offer/.test(l)));
     const rail = page.locator("aside[data-stage-rail]");
     const railText = await rail.innerText();
@@ -209,6 +222,7 @@ try {
     await page.reload({ waitUntil: "networkidle" });
     await page.locator("[data-intake-done]").waitFor({ timeout: 15000 });
     await settle(page);
+    check("return to a finished intake: no celebration", (await page.locator("[data-cheer]").count()) === 0);
     const pa = await primaryActions(page);
     check("done with offer: the one primary action is See my results", pa.visible === 1 && /See my results/.test(pa.labels[0] || ""), JSON.stringify(pa.labels));
     check(
@@ -293,6 +307,11 @@ try {
     check("B: done state says all for now", (await page.locator("h1").innerText()).includes("That's all for now"));
     check("B: skipped take-home listed with an Add action", /Take-home pay/.test(await page.locator("[data-skipped]").innerText()));
     check("B: rail marks take-home as skipped", /Take-home pay[\s\S]*Skipped/.test(await page.locator("aside[data-stage-rail]").innerText()));
+    check(
+      "B: a needed answer is missing, so a plain line and no yellow celebration",
+      (await page.locator("[data-cheer], [data-intake-done] [data-sun-check]").count()) === 0 &&
+        /Your money: done for now\./.test(await page.locator("[data-intake-done]").innerText()),
+    );
     await stateChecks(page, "B done with a skipped answer");
     await shot(page, "B_done_skipped_1440");
     await page.getByRole("button", { name: "Add Take-home pay" }).click();
@@ -303,6 +322,7 @@ try {
     await page.locator("[data-intake-done]").waitFor();
     check("B: added later, the rail shows $4,200.00", /Take-home pay[\s\S]*\$4,200\.00/.test(await page.locator("aside[data-stage-rail]").innerText()));
     check("B: no skipped list once added", (await page.locator("[data-skipped]").count()) === 0);
+    check("B: adding the last missing answer completes the intake and celebrates once", (await page.locator("[data-cheer]").count()) === 1);
     await page.context().close();
   }
 
@@ -336,25 +356,34 @@ try {
     await page.context().close();
   }
 
-  // ------------------------------------------------------------------ D: 390 px mobile
-  console.log("D: 390 x 844");
-  {
-    const page = await newPage(390, 844);
+  // ------------------------------------------------------------------ D: phones (390 x 844 and 360 x 740)
+  for (const [w, h] of [[390, 844], [360, 740]]) {
+    console.log(`D: ${w} x ${h}`);
+    const page = await newPage(w, h);
     await page.goto(WEB + "/", { waitUntil: "networkidle" });
-    await stateChecks(page, "390 welcome");
+    await stateChecks(page, `${w} welcome`);
     await start(page);
-    await stateChecks(page, "390 intake q1");
+    await stateChecks(page, `${w} intake q1`);
     const summary = page.locator("[data-stage-rail] details summary").first();
     await summary.click();
-    check("390: answers disclosure opens", await page.locator("[data-stage-rail] details").first().evaluate((d) => d.open));
+    check(`${w}: answers disclosure opens`, await page.locator("[data-stage-rail] details").first().evaluate((d) => d.open));
     await summary.click();
     for (let i = 0; i < 6; i++) {
       const st = await current(page);
       if (st.kind === "done") break;
+      if (i === 4) await stateChecks(page, `${w} intake ${st.key}`, { a11y: false });
       await answerDefault(page, st.key);
     }
     await page.locator("[data-intake-done]").waitFor();
-    await stateChecks(page, "390 intake done");
+    await stateChecks(page, `${w} intake done`);
+    // with an offer the bar's one primary action is See my results
+    const s = await session(page);
+    await api("POST", `/sessions/${s.sid}/offers`, OFFER, s.token);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.locator("[data-intake-done]").waitFor({ timeout: 15000 });
+    await settle(page);
+    check(`${w}: done with offer shows See my results`, /See my results/.test((await primaryActions(page)).labels.join(" ")));
+    await stateChecks(page, `${w} intake done with offer`, { a11y: false });
     await page.context().close();
   }
 

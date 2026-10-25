@@ -1,11 +1,14 @@
 // UX3 foundation check: the app frame (blue band, header actions, About, menu, delete confirmation) and that the
-// live summary still shows the reference figures inside the new frame. Sessions are prepared through the real API.
+// live summary still shows the reference figures inside the new frame, at 1440, 390 and 360 px with nothing cut off
+// at the screen edge and the primary label fitting its pill (lib/check.mjs, D5-003). Sessions are prepared through
+// the real API.
 //
 // Usage (playwright-core + axe-core resolvable from this file's folder; system Chrome):
 //   WEB=http://localhost:3300 API=http://localhost:8300 node s3_foundation.mjs
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
+import { clippedElements, primaryActionFit } from "./lib/check.mjs";
 
 const require = createRequire(import.meta.url);
 const AXE = require.resolve("axe-core/axe.min.js");
@@ -55,7 +58,14 @@ const reportId = (await api("POST", `/sessions/${s.session_id}/analysis`, {}, s.
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 let failures = 0;
-for (const [w, h] of [[1440, 900], [390, 844]]) {
+// D5-003: documentElement.scrollWidth cannot exceed the viewport while html/body use overflow-x: clip, so the
+// "no horizontal scroll" asserts below are kept for continuity only; layoutOk() is the real check.
+async function layoutOk(page, where) {
+  assert.deepEqual(await clippedElements(page), [], `nothing cut off at the screen edge on ${where}`);
+  assert.deepEqual((await primaryActionFit(page)).problems, [], `primary action label fits on ${where}`);
+}
+
+for (const [w, h] of [[1440, 900], [390, 844], [360, 740]]) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: "reduce" });
   await ctx.addInitScript((v) => {
     sessionStorage.setItem("dt.session_id", v.sessionId);
@@ -76,6 +86,7 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     if (w < 1024) assert.equal(bandBg, "rgb(17, 17, 17)");
     assert.equal(await page.locator("[data-primary-action]:visible").count(), 1, "one primary action on welcome");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, "no horizontal scroll");
+    await layoutOk(page, "welcome");
     assert.deepEqual(await seriousAxe(page), [], "axe serious/critical on welcome");
 
     // How it works opens About with the disclaimer, and closes with Escape.
@@ -98,7 +109,8 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     const text = await page.locator("main").innerText();
     for (const fig of ["924.86", "1,300.00"]) assert.ok(text.includes(fig), `summary shows ${fig}`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, "no horizontal scroll on summary");
-    console.log(`PASS ${w}px frame, About, menu, delete confirmation, summary figures 924.86 / 1,300.00`);
+    await layoutOk(page, "summary");
+    console.log(`PASS ${w}px frame, About, menu, delete confirmation, summary figures 924.86 / 1,300.00, nothing cut off, primary label fits`);
   } catch (e) {
     failures++;
     console.log(`FAIL ${w}px ${e.message}`);
