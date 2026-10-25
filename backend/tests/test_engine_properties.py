@@ -25,7 +25,11 @@ def test_schedule_invariants(p, r, n):
     assert all(row[3] >= 0 for row in rows)
     level = payment(p, r, n)
     assert all(row[0] == level for row in rows[:-1])
-    assert abs(rows[-1][0] - level) <= Decimal("0.01") * n       # final payment only absorbs cent residue
+    # final payment absorbs only the rounding residue: payment + interest rounding ≤ 1 cent per month,
+    # compounded at the monthly rate -> |residue| ≤ 0.01 · Σ_{k<n} (1+r/12)^k
+    mr = r / 12
+    bound = Decimal("0.01") * (((1 + mr) ** n - 1) / mr if mr else Decimal(n))
+    assert abs(rows[-1][0] - level) <= bound
 
 
 @settings(max_examples=100, deadline=None)
