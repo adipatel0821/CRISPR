@@ -182,7 +182,8 @@ export function SavingsPathChart({ without, withOffer }: { without?: ScenarioRes
 export function PathTable({ without, withOffer, caption }: { without?: ScenarioResult; withOffer?: ScenarioResult; caption: string }) {
   const rows = (withOffer ?? without)?.monthly_paths ?? [];
   return (
-    <div className="overflow-x-auto">
+    // Focusable so keyboard users can scroll the table sideways on narrow screens.
+    <div className="overflow-x-auto rounded-sm" tabIndex={0} role="region" aria-label={caption}>
       <table className="w-full min-w-[28rem] text-xs">
         <caption className="sr-only">{caption}</caption>
         <thead>
