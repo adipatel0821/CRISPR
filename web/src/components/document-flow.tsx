@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, CircleMinus, FileUp, Loader2, XCircle, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Check, CheckCircle2, CircleMinus, FileText, FileUp, Loader2, XCircle } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import type { VerifyRequestBody } from "@/lib/api-types";
 import type { DocumentStatus, LoanOffer, VerifiedFinancialTerm } from "@/lib/contracts";
@@ -12,21 +12,34 @@ import { cn } from "@/lib/utils";
 import { Chip } from "@/components/provenance-chip";
 import { OfferAlerts } from "@/components/offer-summary";
 import { ErrorState } from "@/components/states";
+import { Disclosure, FadeIn, PrimaryAction } from "@/components/system";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label } from "@/components/ui/input";
+import { confirmRemaining, reviewState, reviewStatusText, type ReviewAction } from "@/components/offer/model";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 
-type Action = { action: "confirm" | "correct" | "reject"; value?: string; display?: string };
+type Action = ReviewAction;
 
-function CheckIcon({ v }: { v: string }) {
-  if (v === "pass") return <CheckCircle2 aria-hidden className="size-4 text-accent" />;
-  if (v === "warn") return <AlertTriangle aria-hidden className="size-4 text-info" />;
-  if (v === "fail") return <XCircle aria-hidden className="size-4 text-deficit" />;
-  return <CircleMinus aria-hidden className="size-4 text-ink-subtle" />;
+function CheckIcon({ v, className = "size-4" }: { v: string; className?: string }) {
+  if (v === "pass") return <CheckCircle2 aria-hidden className={cn(className, "text-accent")} />;
+  if (v === "warn") return <AlertTriangle aria-hidden className={cn(className, "text-info")} />;
+  if (v === "fail") return <XCircle aria-hidden className={cn(className, "text-deficit")} />;
+  return <CircleMinus aria-hidden className={cn(className, "text-ink-subtle")} />;
 }
 
 const CHECK_WORD: Record<string, string> = { pass: "passed", warn: "warning", fail: "failed" };
+
+/** Worst automatic check result for a term: fail > warn > pass (selection only). */
+function checkSummary(checks: [string, string][]): { v: string; text: string } | null {
+  if (checks.length === 0) return null;
+  const fails = checks.filter(([, v]) => v === "fail").length;
+  const warns = checks.filter(([, v]) => v === "warn").length;
+  if (fails) return { v: "fail", text: fails === 1 ? "1 check failed" : `${fails} checks failed` };
+  if (warns) return { v: "warn", text: warns === 1 ? "1 check to look at" : `${warns} checks to look at` };
+  if (checks.every(([, v]) => v === "pass")) return { v: "pass", text: "Checks passed" };
+  return null;
+}
 
 function normaliseCorrection(t: VerifiedFinancialTerm, raw: string): string | null {
   if (t.value_type === "rate") return percentToFraction(raw);
@@ -49,50 +62,87 @@ function TermRow({
   const [editing, setEditing] = React.useState(false);
   const [raw, setRaw] = React.useState("");
   const [err, setErr] = React.useState<string | null>(null);
-  const checks = Object.entries(t.checks).filter(([, v]) => v !== "not_applicable");
+  const checks = Object.entries(t.checks).filter(([, v]) => v !== "not_applicable") as [string, string][];
+  const summary = checkSummary(checks);
   const id = `verify-${t.term_key}`;
   const label = TERM_LABELS[t.term_key] ?? t.term_key;
+  const conflict = t.status === "conflicting";
+  const hasEvidence = !!t.evidence?.quote || checks.length > 0;
 
   return (
-    <li className={cn("space-y-3 py-4", t.status === "conflicting" && "rounded-md bg-deficit-soft/40 px-3")}>
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-sm text-ink-muted">{label}</p>
-          <p className="figure text-lg font-semibold text-ink">
-            {action?.action === "correct" ? action.display : action?.action === "reject" ? "Rejected" : termValueText(t.value ?? null, t.value_type)}
-          </p>
-        </div>
-        <Chip spec={termChip(t)} kind={t.source_kind} />
-      </div>
-
-      {t.evidence?.quote && (
-        <blockquote className="border-l-2 border-accent-line pl-3 text-xs text-ink-muted">
-          “{t.evidence.quote}”{t.evidence.page ? ` — page ${t.evidence.page}` : ""}
-        </blockquote>
+    <li
+      className={cn(
+        "space-y-3 px-4 py-4 transition-colors duration-200 sm:px-5",
+        conflict && action?.action !== "correct" && "bg-deficit-soft/50",
+        action?.action === "confirm" && "bg-accent-soft/40",
       )}
-
-      {checks.length > 0 && (
-        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-muted">
-          {checks.map(([k, v]) => (
-            <li key={k} className="flex items-center gap-1">
-              <CheckIcon v={v} />
-              <span>
-                {CHECK_LABELS[k] ?? k}: <span className="font-medium">{CHECK_WORD[v] ?? v}</span>
+      data-term={t.term_key}
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 space-y-1">
+          <p className="text-[13px] text-ink-muted">{label}</p>
+          <p className="figure flex items-center gap-2 text-lg font-semibold tracking-tight text-ink">
+            {action?.action === "correct"
+              ? action.display
+              : action?.action === "reject"
+                ? "Left out"
+                : termValueText(t.value ?? null, t.value_type)}
+            {action?.action === "confirm" && (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-accent-strong">
+                <Check aria-hidden className="size-3.5" /> You confirmed
               </span>
-            </li>
-          ))}
-        </ul>
-      )}
+            )}
+            {action?.action === "correct" && <span className="text-xs font-medium text-ink-muted">You corrected</span>}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-ink-subtle">
+            <Chip spec={termChip(t)} kind={t.source_kind} />
+            {summary && (
+              <span className="inline-flex items-center gap-1">
+                <CheckIcon v={summary.v} className="size-3.5" />
+                {summary.text}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {!readOnly && !editing && (
+          <div className="flex shrink-0 flex-wrap gap-1.5" role="group" aria-label={`Actions for ${label}`}>
+            <Button
+              size="sm"
+              variant={action?.action === "confirm" ? "primary" : "secondary"}
+              aria-pressed={action?.action === "confirm"}
+              disabled={conflict && action?.action !== "correct"}
+              onClick={() => onAction(action?.action === "confirm" ? undefined : { action: "confirm" })}
+            >
+              <Check aria-hidden /> Confirm
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setEditing(true)}>
+              Correct
+            </Button>
+            <Button
+              size="sm"
+              variant={action?.action === "reject" ? "danger" : "ghost"}
+              aria-pressed={action?.action === "reject"}
+              onClick={() => onAction(action?.action === "reject" ? undefined : { action: "reject" })}
+            >
+              Reject
+            </Button>
+          </div>
+        )}
+      </div>
 
       {!readOnly && t.alternatives_found.length > 0 && (
         <fieldset className="space-y-2">
           <legend className="text-xs font-semibold text-deficit">Two readings disagree — choose the one on your document</legend>
           {t.alternatives_found.map((c, i) => (
-            <label key={`${c.source}-${i}`} className="flex items-start gap-2 rounded-md border border-line bg-surface p-2 text-sm">
+            <label
+              key={`${c.source}-${i}`}
+              className="flex cursor-pointer items-start gap-2 rounded-control border border-line bg-surface p-3 text-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent"
+            >
               <input
                 type="radio"
                 name={`${id}-alt`}
-                className="mt-1 size-4 accent-[var(--color-accent)]"
+                className="mt-1 size-4 accent-[var(--color-ink)]"
                 checked={action?.action === "correct" && action.value === c.value}
                 onChange={() => onAction({ action: "correct", value: c.value, display: termValueText(c.value, t.value_type) })}
               />
@@ -109,9 +159,9 @@ function TermRow({
         </fieldset>
       )}
 
-      {readOnly ? null : editing ? (
+      {!readOnly && editing && (
         <form
-          className="flex flex-col gap-2 sm:flex-row sm:items-end"
+          className="flex flex-col gap-2 rounded-control bg-canvas p-3 sm:flex-row sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
             const v = normaliseCorrection(t, raw);
@@ -125,8 +175,17 @@ function TermRow({
             <Label htmlFor={`${id}-fix`}>
               Correct value{t.value_type === "rate" ? " (%)" : t.value_type === "integer" ? " (months)" : ""}
             </Label>
-            <Input id={`${id}-fix`} value={raw} onChange={(e) => setRaw(e.target.value)} inputMode="decimal" className="sm:w-48" />
-            <FieldError>{err}</FieldError>
+            <Input
+              id={`${id}-fix`}
+              value={raw}
+              onChange={(e) => setRaw(e.target.value)}
+              inputMode="decimal"
+              className="sm:w-48"
+              aria-invalid={!!err}
+              aria-describedby={err ? `${id}-fix-err` : undefined}
+              autoFocus
+            />
+            <FieldError id={`${id}-fix-err`}>{err}</FieldError>
           </div>
           <Button type="submit" size="sm">
             Use this value
@@ -135,40 +194,48 @@ function TermRow({
             Cancel
           </Button>
         </form>
-      ) : (
-        <div className="flex flex-wrap gap-2" role="group" aria-label={`Actions for ${label}`}>
-          <Button
-            size="sm"
-            variant={action?.action === "confirm" ? "primary" : "secondary"}
-            aria-pressed={action?.action === "confirm"}
-            disabled={t.status === "conflicting" && action?.action !== "correct"}
-            onClick={() => onAction(action?.action === "confirm" ? undefined : { action: "confirm" })}
-          >
-            Confirm
-          </Button>
-          <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
-            Correct
-          </Button>
-          <Button
-            size="sm"
-            variant={action?.action === "reject" ? "danger" : "ghost"}
-            aria-pressed={action?.action === "reject"}
-            onClick={() => onAction(action?.action === "reject" ? undefined : { action: "reject" })}
-          >
-            Reject
-          </Button>
-          {action && (
-            <span className="self-center text-xs text-ink-muted">
-              {action.action === "confirm" ? "You confirmed this value" : action.action === "correct" ? "You corrected this value" : "Will be left out"}
-            </span>
-          )}
-        </div>
+      )}
+
+      {hasEvidence && (
+        <Disclosure summary="Show evidence" meta={t.evidence?.page ? `page ${t.evidence.page}` : undefined} className="-my-1">
+          <div className="space-y-3">
+            {t.evidence?.quote && (
+              <blockquote className="border-l-2 border-accent-line pl-3 text-xs text-ink-muted">
+                “{t.evidence.quote}”{t.evidence.page ? ` — page ${t.evidence.page}` : ""}
+              </blockquote>
+            )}
+            {checks.length > 0 && (
+              <ul className="space-y-1 text-xs text-ink-muted">
+                {checks.map(([k, v]) => (
+                  <li key={k} className="flex items-center gap-1.5">
+                    <CheckIcon v={v} className="size-3.5" />
+                    <span>
+                      {CHECK_LABELS[k] ?? k}: <span className="font-medium">{CHECK_WORD[v] ?? v}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </Disclosure>
       )}
     </li>
   );
 }
 
-/** Upload → extraction status → verification table → saved LoanOffer. */
+function FileLine({ doc }: { doc: DocumentStatus }) {
+  return (
+    <p className="flex min-w-0 items-center gap-2 text-[13px] text-ink-muted">
+      <FileText aria-hidden className="size-4 shrink-0 text-ink-subtle" />
+      <span className="truncate">
+        {doc.filename}
+        {doc.is_fixture ? " · bundled synthetic sample" : ""}
+      </span>
+    </p>
+  );
+}
+
+/** Upload → extraction status → verification list → saved LoanOffer. */
 export function DocumentFlow({
   onSaved,
   onUseManual,
@@ -262,9 +329,15 @@ export function DocumentFlow({
     }
   }
 
+  function reset() {
+    setDoc(null);
+    setDraft(null);
+    setStatus("");
+    setActions({});
+  }
+
   const terms = draft ? Object.values(draft.terms) : [];
-  const conflicts = terms.filter((t) => t.status === "conflicting" && actions[t.term_key]?.action !== "correct");
-  const unreviewed = terms.filter((t) => !actions[t.term_key]);
+  const review = reviewState(terms, actions);
 
   return (
     <div className="space-y-6">
@@ -286,13 +359,21 @@ export function DocumentFlow({
             if (f) void upload(f);
           }}
           className={cn(
-            "flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed px-6 py-12 text-center",
-            drag ? "border-accent bg-accent-soft" : "border-line-strong bg-surface",
+            "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed px-6 py-14 text-center transition-colors duration-200",
+            drag ? "border-accent bg-accent-soft" : "border-line-strong bg-canvas",
           )}
         >
-          {busy ? <Loader2 aria-hidden className="size-6 animate-spin text-accent" /> : <FileUp aria-hidden className="size-6 text-ink-subtle" />}
-          <p className="text-sm font-medium text-ink">{busy ? "Reading the document…" : "Drag a loan contract PDF here"}</p>
-          <p className="text-xs text-ink-muted">PDF up to 10 MB and 30 pages. In demo mode, use the bundled synthetic samples.</p>
+          <span className="flex size-11 items-center justify-center rounded-full bg-surface shadow-soft">
+            {busy ? (
+              <Loader2 aria-hidden className="size-5 animate-spin text-accent motion-reduce:animate-none" />
+            ) : (
+              <FileUp aria-hidden className="size-5 text-ink-muted" />
+            )}
+          </span>
+          <div className="space-y-1">
+            <p className="text-[15px] font-medium text-ink">{busy ? "Reading the document…" : "Drop your loan contract here"}</p>
+            <p className="text-[13px] text-ink-muted">PDF up to 10 MB and 30 pages. In demo mode, use the bundled synthetic samples.</p>
+          </div>
           <input
             ref={inputRef}
             type="file"
@@ -307,7 +388,7 @@ export function DocumentFlow({
               e.target.value = "";
             }}
           />
-          <Button variant="secondary" disabled={busy} onClick={() => inputRef.current?.click()}>
+          <Button variant="secondary" disabled={busy} onClick={() => inputRef.current?.click()} className="mt-1">
             Choose a file
           </Button>
         </div>
@@ -323,24 +404,17 @@ export function DocumentFlow({
       )}
 
       {doc && (doc.status === "failed" || doc.status === "unsupported") && (
-        <div role="alert" className="rounded-lg border border-deficit-line bg-deficit-soft p-4 text-sm">
+        <div role="alert" className="rounded-card bg-deficit-soft p-5 text-sm leading-relaxed">
           <p className="font-semibold text-deficit">
             {doc.status === "unsupported" ? "This document or loan type isn't supported" : "We couldn't read this document"}
           </p>
           {doc.message && <p className="mt-1 text-ink">{doc.message}</p>}
-          <div className="mt-3 flex flex-wrap gap-2">
+          <p className="mt-1 text-ink-muted">You can still type the terms of a fixed-rate offer yourself.</p>
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button size="sm" onClick={onUseManual}>
               Type the terms instead
             </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => {
-                setDoc(null);
-                setDraft(null);
-                setStatus("");
-              }}
-            >
+            <Button size="sm" variant="secondary" onClick={reset}>
               Try another file
             </Button>
           </div>
@@ -348,24 +422,40 @@ export function DocumentFlow({
       )}
 
       {doc && doc.status === "needs_choice" && (
-        <fieldset className="space-y-3 rounded-lg border border-line bg-surface p-5">
-          <legend className="px-1 text-base font-semibold text-ink">This document has {doc.offers_found} offers. Which one are you considering?</legend>
-          {doc.offer_labels.map((l, i) => (
-            <label key={l} className="flex items-center gap-3 rounded-md border border-line-strong px-4 py-3 text-sm">
-              <input
-                type="radio"
-                name="offer-choice"
-                checked={choice === i + 1}
-                onChange={() => setChoice(i + 1)}
-                className="size-4 accent-[var(--color-accent)]"
-              />
-              {l}
-            </label>
-          ))}
-          <Button disabled={busy || choice === null} onClick={chooseOffer}>
-            Use this offer
-          </Button>
-        </fieldset>
+        <FadeIn>
+          <fieldset className="space-y-3">
+            <legend className="mb-1 text-lg font-semibold tracking-tight text-ink">
+              This document has {doc.offers_found} offers. Which one are you considering?
+            </legend>
+            <FileLine doc={doc} />
+            <div className="grid gap-2 pt-1">
+              {doc.offer_labels.map((l, i) => (
+                <label
+                  key={l}
+                  className={cn(
+                    "flex min-h-13 cursor-pointer items-center gap-3 rounded-card border px-4 py-3 text-[15px] transition-colors duration-150",
+                    "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent",
+                    choice === i + 1 ? "border-ink bg-surface" : "border-line-strong bg-surface hover:bg-canvas",
+                  )}
+                >
+                  <input
+                    type="radio"
+                    name="offer-choice"
+                    checked={choice === i + 1}
+                    onChange={() => setChoice(i + 1)}
+                    className="size-4 accent-[var(--color-ink)]"
+                  />
+                  {l}
+                </label>
+              ))}
+            </div>
+            <div className="pt-2">
+              <PrimaryAction disabled={busy || choice === null} onClick={chooseOffer} size="md">
+                Use this offer
+              </PrimaryAction>
+            </div>
+          </fieldset>
+        </FadeIn>
       )}
 
       {doc && draft && doc.status === "unsupported" && terms.length > 0 && (
@@ -377,7 +467,7 @@ export function DocumentFlow({
             {doc.filename}
             {doc.is_fixture ? " · bundled synthetic sample" : ""} · these values are not used for any calculation.
           </p>
-          <ul className="divide-y divide-line rounded-lg border border-line bg-surface px-4">
+          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
             {terms.map((t) => (
               <TermRow key={t.term_key} t={t} action={undefined} onAction={() => {}} readOnly />
             ))}
@@ -386,23 +476,21 @@ export function DocumentFlow({
       )}
 
       {doc && draft && doc.status !== "needs_choice" && doc.status !== "unsupported" && doc.status !== "failed" && (
-        <section aria-labelledby="verify-heading" className="space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 id="verify-heading" className="text-lg font-semibold text-ink">
-                Check what we read
-              </h2>
-              <p className="text-sm text-ink-muted">
-                {doc.filename}
-                {doc.is_fixture ? " · bundled synthetic sample" : ""} · compare each value with your document.
-              </p>
+        <FadeIn as="section" aria-labelledby="verify-heading" className="space-y-5">
+          <div className="space-y-1.5">
+            <h2 id="verify-heading" className="text-lg font-semibold tracking-tight text-ink">
+              Check what we read
+            </h2>
+            <p className="text-sm text-ink-muted">Compare each value with your document, then confirm or correct it.</p>
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-1">
+              <FileLine doc={doc} />
+              <span className="tabular text-[13px] text-ink-subtle">
+                {review.reviewed} of {review.total} checked
+              </span>
             </div>
-            <Button variant="link" onClick={onUseManual}>
-              Type the terms instead
-            </Button>
           </div>
           <OfferAlerts offer={draft} />
-          <ul className="divide-y divide-line rounded-lg border border-line bg-surface px-4">
+          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
             {terms.map((t) => (
               <TermRow
                 key={t.term_key}
@@ -419,33 +507,33 @@ export function DocumentFlow({
               />
             ))}
           </ul>
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button
-              variant="secondary"
-              onClick={() =>
-                setActions((s) => {
-                  const n = { ...s };
-                  terms.forEach((t) => {
-                    if (!n[t.term_key] && t.status !== "conflicting") n[t.term_key] = { action: "confirm" };
-                  });
-                  return n;
-                })
-              }
-            >
-              Confirm all remaining
-            </Button>
-            <Button disabled={busy || conflicts.length > 0} onClick={save}>
-              {busy ? "Saving…" : "Save checked offer"}
-            </Button>
-            <p className="text-xs text-ink-muted" aria-live="polite">
-              {conflicts.length > 0
-                ? `Choose a value for ${conflicts.length} disagreeing term${conflicts.length > 1 ? "s" : ""} first.`
-                : unreviewed.length > 0
-                  ? `${unreviewed.length} value${unreviewed.length > 1 ? "s" : ""} not reviewed yet.`
-                  : "All values reviewed."}
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {review.unreviewed.length > 0 && (
+                <Button variant="secondary" size="lg" onClick={() => setActions((s) => confirmRemaining(terms, s))}>
+                  <Check aria-hidden /> Confirm all remaining
+                </Button>
+              )}
+              <PrimaryAction
+                disabled={busy || review.conflicts.length > 0}
+                onClick={save}
+                arrow={false}
+                aria-describedby="review-status"
+              >
+                {busy ? "Saving…" : "Save checked offer"}
+              </PrimaryAction>
+            </div>
+            <p id="review-status" className="text-[13px] text-ink-muted" aria-live="polite">
+              {reviewStatusText(review)}
+            </p>
+            <p className="text-[13px] text-ink-subtle">
+              Something look off?{" "}
+              <Button variant="link" className="text-[13px]" onClick={onUseManual}>
+                Type the terms instead
+              </Button>
             </p>
           </div>
-        </section>
+        </FadeIn>
       )}
     </div>
   );

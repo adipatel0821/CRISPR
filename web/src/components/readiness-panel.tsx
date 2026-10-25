@@ -6,6 +6,7 @@ import type { AnalysisReadiness } from "@/lib/contracts";
 import { factLabel } from "@/lib/labels";
 import { ANALYSIS_LABELS } from "@/lib/report";
 import { cn } from "@/lib/utils";
+import { Disclosure } from "@/components/system";
 
 function statusOf(r: AnalysisReadiness): { label: string; tone: string; icon: React.ReactNode } {
   if (r.available)
@@ -22,7 +23,7 @@ function statusOf(r: AnalysisReadiness): { label: string; tone: string; icon: Re
   };
 }
 
-function ReadinessList({ readiness }: { readiness: AnalysisReadiness[] }) {
+export function ReadinessList({ readiness }: { readiness: AnalysisReadiness[] }) {
   return (
     <ul className="space-y-3">
       {readiness.map((r) => {
@@ -45,39 +46,40 @@ function ReadinessList({ readiness }: { readiness: AnalysisReadiness[] }) {
   );
 }
 
-/** Per-analysis readiness: sticky side panel on desktop, collapsible on mobile. */
-export function ReadinessPanel({ readiness, className }: { readiness: AnalysisReadiness[]; className?: string }) {
+export function readinessSummary(readiness: AnalysisReadiness[]): string {
   const available = readiness.filter((r) => r.available).length;
+  return `${available} of ${readiness.length} ready`;
+}
+
+/** Per-analysis readiness inside a quiet card disclosure ("What you can see so far · 2 of 7 ready"). */
+export function ReadinessDetails({
+  readiness,
+  showOfferLink = true,
+  className,
+}: {
+  readiness: AnalysisReadiness[];
+  showOfferLink?: boolean;
+  className?: string;
+}) {
   const awaitingOffer = readiness.some((r) => r.awaiting_offer || r.missing.includes("offer.minimum_set"));
-  const summary = `${available} of ${readiness.length} analyses ready`;
-  const body = (
-    <>
-      <ReadinessList readiness={readiness} />
-      {awaitingOffer && (
-        <p className="mt-4 border-t border-line pt-3 text-xs text-ink-muted">
-          Most results need a loan offer.{" "}
-          <Link href="/offer" className="font-medium text-accent underline-offset-4 hover:underline">
-            Add the offer
-          </Link>
-        </p>
-      )}
-    </>
-  );
   return (
-    <div className={className}>
-      <details className="rounded-lg border border-line bg-surface p-4 lg:hidden">
-        <summary className="cursor-pointer text-sm font-semibold text-ink">
-          What you can see so far <span className="font-normal text-ink-muted">· {summary}</span>
-        </summary>
-        <div className="mt-4">{body}</div>
-      </details>
-      <aside aria-label="What you can see so far" className="hidden rounded-lg border border-line bg-surface p-5 lg:sticky lg:top-6 lg:block">
-        <h2 className="text-sm font-semibold text-ink">What you can see so far</h2>
-        <p className="mb-4 text-xs text-ink-muted" aria-live="polite">
-          {summary}
-        </p>
-        {body}
-      </aside>
-    </div>
+    <Disclosure variant="card" summary="What you can see so far" meta={readinessSummary(readiness)} className={className}>
+      <div className="pt-1">
+        <ReadinessList readiness={readiness} />
+        {awaitingOffer && showOfferLink && (
+          <p className="mt-4 border-t border-line pt-3 text-xs text-ink-muted">
+            Most results need a loan offer.{" "}
+            <Link href="/offer" className="font-medium text-accent-strong underline-offset-4 hover:underline">
+              Add the offer
+            </Link>
+          </p>
+        )}
+      </div>
+    </Disclosure>
   );
+}
+
+/** Kept for existing imports: now the same quiet disclosure. */
+export function ReadinessPanel({ readiness, className }: { readiness: AnalysisReadiness[]; className?: string }) {
+  return <ReadinessDetails readiness={readiness} className={className} />;
 }

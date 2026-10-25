@@ -7,7 +7,7 @@ import { termChip } from "@/lib/provenance";
 import { Chip } from "@/components/provenance-chip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const ORDER = [
+export const TERM_ORDER = [
   "cash_price", "taxes_title_fees", "cash_down", "trade_in_value", "trade_in_payoff", "principal", "amount_financed",
   "prepaid_finance_charges", "pfc_paid_in_cash", "apr", "contract_rate", "term_months", "monthly_payment",
   "finance_charge", "total_of_payments", "total_sale_price", "prepayment_penalty", "late_fee", "variable_rate",
@@ -26,10 +26,11 @@ export function isPaymentMismatch(offer: LoanOffer): boolean {
 export function OfferAlerts({ offer }: { offer: LoanOffer }) {
   const mismatch = isPaymentMismatch(offer);
   const others = offer.warnings.filter((w) => !/PAYMENT_MISMATCH/i.test(w));
+  if (!mismatch && others.length === 0 && offer.unsupported_features.length === 0) return null;
   return (
     <div className="space-y-3">
       {offer.unsupported_features.length > 0 && (
-        <div role="alert" className="rounded-lg border border-deficit-line bg-deficit-soft p-4 text-sm">
+        <div role="alert" className="rounded-card bg-deficit-soft p-4 text-sm leading-relaxed sm:p-5">
           <p className="flex items-center gap-2 font-semibold text-deficit">
             <Ban aria-hidden className="size-4" /> This loan type isn&apos;t supported yet
           </p>
@@ -41,7 +42,7 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
         </div>
       )}
       {mismatch && (
-        <div role="alert" className="rounded-lg border border-info-line bg-info-soft p-4 text-sm">
+        <div role="alert" className="rounded-card bg-info-soft p-4 text-sm leading-relaxed sm:p-5">
           <p className="flex items-center gap-2 font-semibold text-info">
             <AlertTriangle aria-hidden className="size-4" /> The payment on the contract doesn&apos;t match the other terms
           </p>
@@ -52,7 +53,7 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
         </div>
       )}
       {others.length > 0 && (
-        <ul className="space-y-1 text-sm text-ink-muted">
+        <ul className="space-y-1 text-[13px] text-ink-muted">
           {others.map((w) => (
             <li key={w} className="flex items-start gap-2">
               <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-info" />
@@ -65,8 +66,29 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
   );
 }
 
+/** Every term of the offer with its source chip (value + "Typed by you" / "From your document, p.N" …). */
+export function OfferTermsList({ offer }: { offer: LoanOffer }) {
+  const keys = TERM_ORDER.filter((k) => offer.terms[k]);
+  return (
+    <dl className="grid gap-x-8 sm:grid-cols-2">
+      {keys.map((k) => {
+        const t = offer.terms[k];
+        return (
+          <div key={k} className="flex items-center justify-between gap-3 border-b border-line py-2.5">
+            <dt className="min-w-0 text-[13px] text-ink-muted">{TERM_LABELS[k] ?? k}</dt>
+            <dd className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+              <span className="figure text-sm font-medium text-ink">{termValueText(t.value ?? null, t.value_type)}</span>
+              <Chip spec={termChip(t)} kind={t.source_kind} />
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
+/** Full offer summary (used by the report page): alerts + every term with its source. */
 export function OfferSummary({ offer }: { offer: LoanOffer }) {
-  const keys = ORDER.filter((k) => offer.terms[k]);
   return (
     <Card>
       <CardHeader>
@@ -86,20 +108,7 @@ export function OfferSummary({ offer }: { offer: LoanOffer }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <OfferAlerts offer={offer} />
-        <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2">
-          {keys.map((k) => {
-            const t = offer.terms[k];
-            return (
-              <div key={k} className="flex flex-col gap-1 border-b border-line pb-2">
-                <dt className="text-xs text-ink-muted">{TERM_LABELS[k] ?? k}</dt>
-                <dd className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="figure text-sm font-medium text-ink">{termValueText(t.value ?? null, t.value_type)}</span>
-                  <Chip spec={termChip(t)} kind={t.source_kind} />
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        <OfferTermsList offer={offer} />
       </CardContent>
     </Card>
   );
