@@ -203,7 +203,10 @@ class FactInput(_Model):
         elif self.value is None:
             raise ValueError("a value is required unless the fact is declined")
         else:
-            self.value = V.normalize_fact_value(self.key, self.value)
+            try:
+                self.value = V.normalize_fact_value(self.key, self.value)
+            except ValueError as e:
+                raise ValueError(f"{self.key}: {e}") from None
         if self.original_representation and len(self.original_representation) > 1000:
             raise ValueError("original_representation must be at most 1,000 characters")
         return self
@@ -369,7 +372,7 @@ TERM_KEYS = [
 TERM_VALUE_TYPES = {
     **{k: "currency" for k in TERM_KEYS},
     "apr": "rate", "contract_rate": "rate", "term_months": "integer",
-    "prepayment_penalty": "boolean", "variable_rate": "boolean", "balloon_payment": "boolean",
+    "prepayment_penalty": "boolean", "variable_rate": "boolean", "balloon_payment": "boolean",  # amount > 0 also accepted (parse_balloon)
 }
 
 
@@ -420,11 +423,12 @@ class ManualOfferRequest(_Model):
         out: dict[str, str | None] = {}
         for key, raw in terms.items():
             if key not in TERM_VALUE_TYPES:
-                raise ValueError(f"unknown loan term '{key}'")
+                raise ValueError(f"{key}: unknown loan term")
             if raw is None or raw == "":
                 continue
             try:
-                out[key] = V.TERM_PARSERS[TERM_VALUE_TYPES[key]](raw)
+                parser = V.parse_balloon if key == "balloon_payment" else V.TERM_PARSERS[TERM_VALUE_TYPES[key]]
+                out[key] = parser(raw)
             except ValueError as e:
                 raise ValueError(f"{key}: {e}") from None
         return out

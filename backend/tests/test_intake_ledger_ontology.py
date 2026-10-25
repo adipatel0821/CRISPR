@@ -21,7 +21,10 @@ CANONICAL_KEYS = [  # implementation/INTERFACES.md canonical fact keys (ontology
 
 
 def _one(key, value, status="provided", existing=None):
-    upd = ledger.apply_inputs("s", existing or [], [{"key": key, "value": value, "status": status}])
+    # Internal typed-answer path (intake builds FactInput.model_construct and its ontology normalizer validates).
+    # Dict inputs from the API are additionally contract-validated (D0-004) — see test_dict_inputs_are_contract_validated.
+    from schemas.contracts import FactInput
+    upd = ledger.apply_inputs("s", existing or [], [FactInput.model_construct(key=key, value=value, status=status)])
     return upd
 
 
@@ -150,3 +153,11 @@ def test_dependency_orders_match_spec():
     for k in onto.facts:
         if k not in expected:
             assert onto.spec_for(k).dependency_order > 50       # refinements come after
+
+
+def test_dict_inputs_are_contract_validated():
+    """Form/API path: raw dicts go through FactInput (contracts §5) and surface as FactValidationError."""
+    with pytest.raises(FactValidationError) as e:
+        ledger.apply_inputs("s", [], [{"key": "income.take_home_monthly", "value": "1234.565"}])
+    assert "income.take_home_monthly" in e.value.message
+    assert ledger.apply_inputs("s", [], [{"key": "income.take_home_monthly", "value": "4,200"}]).new_facts[0].value == "4200.00"

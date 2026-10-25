@@ -199,14 +199,14 @@ def graph_required_facts(analysis_id: str, facts: Mapping[str, Any], offer: Any 
         else:
             cond = onto.conditions.get(tok, {})
             if cond.get("waived_when") == "offer_cash_down_zero":
-                cd = req._cash_down(offer)
-                if cd is not None and cd == 0:
+                if not req.down_payment_source_needed(offer):   # same rule as the engine (D0-003)
                     continue
             keys = [tok]
         out += [k for k in keys if k not in out]
     for tok, cond in conditional_tokens(analysis_id):
         f = facts.get(cond["fact"])
-        if req.is_known(facts, cond["fact"]) and req._value(f) in set(cond["in"]) and tok not in out:
+        if (req.is_known(facts, cond["fact"]) and req._value(f) in set(cond["in"]) and tok not in out
+                and not req.is_declined(facts, tok)):          # IMP-009: a declined low_month does not block
             out.append(tok)
     return out + [req.OFFER_MINIMUM_SET]
 

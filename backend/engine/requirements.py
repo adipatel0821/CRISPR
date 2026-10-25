@@ -228,3 +228,13 @@ def evaluate_readiness(analysis_id: str, facts: Mapping[str, Any], offer: Any = 
 
 def evaluate_all(selected: list[str], facts: Mapping[str, Any], offer: Any = None) -> list[AnalysisReadiness]:
     return [evaluate_readiness(a, facts, offer) for a in selected]
+
+
+def cash_down_amount(offer: Any) -> Decimal | None:
+    """Public accessor: computable cash_down of an offer, or None (used by intake rule H02)."""
+    return _term_amount(offer, "cash_down")
+
+
+def down_payment_source_needed(offer: Any) -> bool:
+    """Public form of the D0-003 rule (used by intake's generated-graph parity check)."""
+    return _down_payment_source_needed(offer)

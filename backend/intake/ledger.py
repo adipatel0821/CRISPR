@@ -8,6 +8,8 @@
 """
 from __future__ import annotations
 
+from pydantic import ValidationError
+
 import json
 import re
 import uuid
@@ -238,7 +240,15 @@ def apply_inputs(session_id: str, existing: list[Any], inputs: list[FactInput | 
     errors: list[dict[str, Any]] = []
     staged: list[tuple[str, str | None, str, FactSpec, Any, Uncertainty | None]] = []
     for raw_inp in inputs:
-        inp = raw_inp if isinstance(raw_inp, FactInput) else FactInput.model_validate(raw_inp)
+        if isinstance(raw_inp, FactInput):
+            inp = raw_inp
+        else:
+            try:
+                inp = FactInput.model_validate(raw_inp)
+            except ValidationError as e:   # contract-level (D0-004) failure -> intake's error type
+                key = raw_inp.get("key") if isinstance(raw_inp, dict) else None
+                msg = "; ".join(err.get("msg", "invalid value").removeprefix("Value error, ") for err in e.errors())
+                raise FactValidationError(f"{key or 'value'}: {msg}", {"errors": [{"key": key, "message": msg}]}) from None
         spec = onto.spec_for(inp.key)
         if spec is None:
             raise _unknown_key_error(inp.key)

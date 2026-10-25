@@ -2,6 +2,8 @@
 validation errors. engine.offer_checks is monkeypatched with a small fake (Agent 1 owns the real one)."""
 from __future__ import annotations
 
+from pydantic import ValidationError
+
 from decimal import Decimal
 from types import SimpleNamespace
 
@@ -107,21 +109,25 @@ def test_a28_trade_in_derived(checks, payoff, equity, rolled):
 
 
 def test_rate_validation(checks):
+    # The builder keeps its own checks for internal callers (model_construct bypasses the contract model);
+    # the contract model itself also rejects these values at the API boundary (tests/test_cp0_directives.py).
     with pytest.raises(OfferValidationError) as e:
-        build_manual_offer("s1", ManualOfferRequest(terms={**REF_TERMS, "contract_rate": "4.75"}))
+        build_manual_offer("s1", ManualOfferRequest.model_construct(terms={**REF_TERMS, "contract_rate": "4.75"}))
     assert "0.0475" in e.value.message
     offer = build_manual_offer("s1", ManualOfferRequest(terms={**REF_TERMS, "contract_rate": "4.75%"}))
     assert offer.terms["contract_rate"].value == "0.0475"
     with pytest.raises(OfferValidationError):
-        build_manual_offer("s1", ManualOfferRequest(terms={**REF_TERMS, "apr": "-0.01"}))
+        build_manual_offer("s1", ManualOfferRequest.model_construct(terms={**REF_TERMS, "apr": "-0.01"}))
 
 
 @pytest.mark.parametrize("bad", [{"term_months": 500}, {"term_months": 5}, {"term_months": "60.5"},
                                  {"cash_price": "-1"}, {"monthly_payment": "abc"}, {"loan_amount": "20000"}])
 def test_validation_errors(checks, bad):
     with pytest.raises(OfferValidationError) as e:
-        build_manual_offer("s1", ManualOfferRequest(terms={**REF_TERMS, **bad}))
+        build_manual_offer("s1", ManualOfferRequest.model_construct(terms={**REF_TERMS, **bad}))
     assert e.value.message
+    with pytest.raises(ValidationError):            # and the contract model rejects it at the API boundary
+        ManualOfferRequest(terms={**REF_TERMS, **bad})
 
 
 def test_not_ready_without_rate(checks):

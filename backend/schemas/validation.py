@@ -30,7 +30,7 @@ def parse_currency(value: Any, *, allow_negative: bool = False) -> str:
     neg = allow_negative and s.startswith("-")
     body = s[1:] if neg else s
     if not _CURRENCY_RE.match(body):
-        raise ValueError("must be a non-negative dollar amount with at most 2 decimals, e.g. \"4200.00\"")
+        raise ValueError("must be a dollar amount of zero or more, with at most 2 decimals, e.g. \"4200.00\"")
     d = Decimal(body)
     if d > MAX_CURRENCY:
         raise ValueError("is implausibly large")
@@ -40,9 +40,12 @@ def parse_currency(value: Any, *, allow_negative: bool = False) -> str:
 def parse_rate(value: Any) -> str:
     """Rates are fractions: "0.0475" = 4.75%. 0 <= r < 1."""
     s = _clean(value)
+    percent = s.endswith("%")
+    if percent:                                   # explicit "4.75%" is unambiguous -> 0.0475
+        s = s[:-1]
     if not _RATE_RE.match(s):
         raise ValueError("must be a rate written as a fraction, e.g. \"0.0475\" for 4.75%")
-    d = Decimal(s)
+    d = Decimal(s) / (100 if percent else 1)
     if not (Decimal(0) <= d < Decimal(1)):
         raise ValueError("must be a fraction between 0 and 1, e.g. \"0.0475\" for 4.75%")
     return format(d.normalize(), "f") if d != 0 else "0"
@@ -150,6 +153,13 @@ def normalize_fact_value(key: str, value: Any) -> str:
             raise ValueError(f"must be one of: {', '.join(allowed)}")
         return s
     raise ValueError(f"unsupported value type {vt}")
+
+
+def parse_balloon(value: Any) -> str:
+    """balloon_payment may be a yes/no flag or an amount (> 0 => unsupported product)."""
+    if isinstance(value, bool) or str(value).strip().lower() in {"true", "false", "yes", "no", "y", "n"}:
+        return parse_bool(value)
+    return parse_currency(value)
 
 
 TERM_PARSERS = {

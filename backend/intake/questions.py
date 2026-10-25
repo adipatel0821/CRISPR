@@ -324,7 +324,7 @@ def _ack_outcome(session_id: str, question: QuestionCandidate, resp: QuestionRes
         spec = load_ontology().spec_for("loan.down_payment_source")
         choice = ledger_mod.normalize_enum(value, spec)
         if choice != "savings":
-            upd = ledger_mod.apply_inputs(session_id, existing, [FactInput(
+            upd = ledger_mod.apply_inputs(session_id, existing, [FactInput.model_construct(
                 key="loan.down_payment_source", value=choice, original_representation=str(value))])
             out.new_facts, out.superseded_ids = upd.new_facts, upd.superseded_ids
         return out
@@ -354,7 +354,7 @@ def apply_answer(session_id: str, question: QuestionCandidate, response: Questio
     if response.skipped:
         return AnswerOutcome(skipped_key=key)
     if response.declined:
-        upd = ledger_mod.apply_inputs(session_id, existing, [FactInput(key=key, status="declined")])
+        upd = ledger_mod.apply_inputs(session_id, existing, [FactInput.model_construct(key=key, status="declined")])
         return AnswerOutcome(new_facts=upd.new_facts, superseded_ids=upd.superseded_ids)
     status = "estimated" if response.marked_estimate else "provided"
     value = _answer_value(response)
@@ -367,10 +367,10 @@ def apply_answer(session_id: str, question: QuestionCandidate, response: Questio
         spec = load_ontology().spec_for(key)
         pair = (spec.variable_question or {}).get("pair", [key, "income.low_month"])
         first, second = _split_pair(value)
-        inputs = [FactInput(key=pair[0], value=None if first is None else str(first), status=status,
+        inputs = [FactInput.model_construct(key=pair[0], value=None if first is None else str(first), status=status,
                             original_representation=original)]
         if second is not None and str(second).strip():
-            inputs.append(FactInput(key=pair[1], value=str(second), status=status, original_representation=original))
+            inputs.append(FactInput.model_construct(key=pair[1], value=str(second), status=status, original_representation=original))
         upd = ledger_mod.apply_inputs(session_id, existing, inputs)
         return AnswerOutcome(new_facts=upd.new_facts, superseded_ids=upd.superseded_ids)
 
@@ -382,7 +382,7 @@ def apply_answer(session_id: str, question: QuestionCandidate, response: Questio
             if lo != hi:
                 if key == "income.take_home_monthly":
                     # Persona P2: a range reveals variable income → next ask typical + slow month.
-                    upd = ledger_mod.apply_inputs(session_id, existing, [FactInput(
+                    upd = ledger_mod.apply_inputs(session_id, existing, [FactInput.model_construct(
                         key="income.variability", value="somewhat_variable", original_representation=original)])
                     return AnswerOutcome(new_facts=upd.new_facts, superseded_ids=upd.superseded_ids)
                 raise FactValidationError(
@@ -390,7 +390,7 @@ def apply_answer(session_id: str, question: QuestionCandidate, response: Questio
                     {"value": value})
             value = str(lo)
 
-    upd = ledger_mod.apply_inputs(session_id, existing, [FactInput(
+    upd = ledger_mod.apply_inputs(session_id, existing, [FactInput.model_construct(
         key=key, value=value if isinstance(value, str) else _to_str(value), status=status,
         original_representation=original)])
     return AnswerOutcome(new_facts=upd.new_facts, superseded_ids=upd.superseded_ids)

@@ -6,6 +6,8 @@ No stack traces and no user-supplied values ever appear in an error body; the se
 """
 from __future__ import annotations
 
+import re
+
 import logging
 import traceback
 from collections.abc import Callable
@@ -91,12 +93,20 @@ def error_response(request: Request, status: int, code: str, message: str, detai
     return JSONResponse(status_code=status, content=body.model_dump(mode="json"), headers=headers)
 
 
+_KEYED_MSG = re.compile(r"^([A-Za-z0-9_.\[\]]+): (.+)$", re.S)
+
+
 def _field_message(err: dict[str, Any]) -> dict[str, Any]:
     loc = [str(p) for p in err.get("loc", ()) if p not in ("body", "query", "path", "header")]
     field = ".".join(loc) or "request"
     msg = err.get("msg", "invalid value")
     if msg.startswith("Value error, "):
         msg = msg[len("Value error, "):]
+    # Model-level validators (contracts §5) prefix the offending key: "term_months: ..." / "income.x: ..."
+    m = _KEYED_MSG.match(msg)
+    if m and (loc == ["terms"] or (len(loc) == 2 and loc[0] == "facts")):
+        field = f"terms.{m.group(1)}" if loc == ["terms"] else m.group(1)
+        msg = m.group(2)
     return {"field": field, "message": f"{field}: {msg}", "type": err.get("type")}
 
 

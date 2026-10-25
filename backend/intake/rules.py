@@ -98,7 +98,7 @@ def deficit_amount(facts: Mapping[str, Any]) -> Decimal | None:
 
 
 def offer_cash_down(offer: Any) -> Decimal | None:
-    return req._cash_down(offer)
+    return req.cash_down_amount(offer)
 
 
 def check_rules(facts: Mapping[str, Any], offer: Any = None,
