@@ -7,6 +7,9 @@
  *   white on brand/cta #111111 18.9:1 · ink #111111 on canvas #F2F2F2 16.9:1 · ink-2 #404040 on white 10.4:1
  *   ink-3 #5C5C5C on white 6.7:1, on canvas 6.0:1, on tint #F0F0F0 5.9:1 · shortfall-ink #111111 on #E8E8E8 15.4:1
  *   caution #404040 on #F0F0F0 9.1:1 · fills need 3:1: savings / chart-slate-strong #737373 4.7:1, chart-slate #8A8A8A 3.5:1
+ *   Blue accent (owner request 10:35 ET), used only for: primary action, progress and current step, selected choices,
+ *   links and focus, the result figure and the "with the loan" series. White on #2A64E3 5.2:1 · #2A64E3 on white 5.2:1
+ *   · #1C4FC4 on white 7.1:1 · #2A64E3 on tint #EAF1FF 4.6:1 · as a fill on white 5.2:1. The frame stays black (#111111).
  *   Meaning is never carried by colour alone: findings use icons, labels and weight.
  * Token names from earlier versions (page, canvas, ink-muted, accent, info, deficit ...) are kept and remapped so
  * every existing call site keeps working.
@@ -15,12 +18,13 @@
   --font-sans: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Identity */
-  --color-brand: #111111;
-  --color-brand-strong: #000000;
-  --color-brand-tint: #f0f0f0;
-  --color-brand-line: #d4d4d4;
-  --color-cta: #111111;
-  --color-cta-hover: #333333;
+  --color-frame: #111111;      /* header band and the band behind the surface */
+  --color-brand: #2a64e3;
+  --color-brand-strong: #1c4fc4;
+  --color-brand-tint: #eaf1ff;
+  --color-brand-line: #c9dafb;
+  --color-cta: #2a64e3;
+  --color-cta-hover: #1c4fc4;
   --color-cta-ink: #ffffff;
 
   /* Meaning (always paired with an icon or words) */
@@ -56,13 +60,13 @@
   --color-line-strong: #d4d4d4;
 
   /* Former names, remapped */
-  --color-primary: #111111;
-  --color-primary-hover: #333333;
+  --color-primary: #2a64e3;
+  --color-primary-hover: #1c4fc4;
   --color-primary-ink: #ffffff;
-  --color-accent: #111111;
-  --color-accent-strong: #000000;
-  --color-accent-soft: #f0f0f0;
-  --color-accent-line: #d4d4d4;
+  --color-accent: #2a64e3;
+  --color-accent-strong: #1c4fc4;
+  --color-accent-soft: #eaf1ff;
+  --color-accent-line: #c9dafb;
   --color-info: #404040;
   --color-info-soft: #f0f0f0;
   --color-info-line: #d4d4d4;

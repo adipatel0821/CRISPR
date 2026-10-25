@@ -31,7 +31,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </a>
         <AppProvider>
           {/* The blue band runs behind the header and the top of the application surface. */}
-          <div data-brand-band aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-brand" />
+          <div data-brand-band aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-frame" />
           <SiteHeader />
           <div
             data-app-surface

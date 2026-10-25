@@ -14,7 +14,7 @@ import { HeaderActions } from "@/components/shell/more-menu";
 export function SiteHeader() {
   const { fixtures } = useApp();
   return (
-    <header data-site-header data-on-brand="" className="relative z-20 bg-brand lg:bg-transparent">
+    <header data-site-header data-on-brand="" className="relative z-20 bg-frame lg:bg-transparent">
       <div className="mx-auto flex h-[var(--header-height)] w-full items-center justify-between gap-3 px-4 sm:px-6 lg:w-[var(--app-width)] lg:px-2">
         <div className="flex min-w-0 items-center gap-3">
           <Link href="/" aria-label="DecisionTwin, home" className="rounded-md">
