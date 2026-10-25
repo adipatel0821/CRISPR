@@ -53,7 +53,7 @@ export function sourceChip(
         : { label: "You told us", tone: "outline" };
     case "document": {
       const page = opts.page ? `, p.${opts.page}` : "";
-      return { label: `From your contract${page}${verificationSuffix(verification)}`, tone: "accent" };
+      return { label: `From your document${page}${verificationSuffix(verification)}`, tone: "accent" };
     }
     case "calculation":
       return { label: "Calculated", tone: "neutral" };
