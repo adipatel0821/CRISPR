@@ -27,3 +27,5 @@ Reported as measured. States: Passed · Failed · Blocked · Not run · Not impl
 | ≈21:35–21:55 | Phase 2 agents (agent-reported): Agent 1 316 passed; Agent 2 348 passed (A-03r 1,000 sessions 0 re-asks); Agent 3 doc_flow 32/32, manual_flow 25/25, a11y 26/26 (axe serious/critical 1 → 0), web tests 20/20 | see audit/inbox/agent_{1,2,3}_phase_CP2.md |
 | 21:52 | merged Phase 2 (3 branches) + ev_calc for every metric | **359 passed** |
 | 21:56 | live re-run on merged code (uvicorn :8000 fresh DB + next start :3000): cp1_browser 23/23 · doc_flow 32/32 · manual_flow 25/25 · a11y 26/26 · API walkthrough PASS · document_walkthrough PASS · demo_cases PASS | **all PASS** (audit/evidence/phase2) |
+| 22:18 | D2-001 fix (5b24df6) — Supervisor re-run | **362 passed**; Agent 5 re-audit: A-15 script 12/12, D2-001 VERIFIED, GO stands at 96712e4 |
+| 22:20 | **fresh clone @ 96712e4, native startup per README** (uvicorn --env-file ../.env :8000, next start :3000, default SQLite path) | health ok/synthetic_only; pytest 362 passed; API walkthrough PASS; browser doc_flow 32/32; manual_flow 25/25 (audit/evidence/fresh_clone) |

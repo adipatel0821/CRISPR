@@ -95,3 +95,12 @@ The release bar is that the demo shows correct numbers, never invents or leaks d
 The one open directive (D2-001, MEDIUM) is an audit-log persistence gap. It doesn't touch numbers, privacy or the demo flow, so it doesn't block demonstration. Fix it if time allows; otherwise list it as a known limitation.
 
 **Verdict: GO — READY FOR DEMONSTRATION.**
+
+---
+
+## Addendum: re-assessment at HEAD 96712e4 (2026-10-24 ~22:25 EDT)
+- **D2-001 is VERIFIED** (fix 5b24df6). LLM call records now persist to `llm_calls` as metadata only (one row per call, with retries visible in the outcome; ruled acceptable) and are purged on DELETE. My A-15 API audit is 12/12, Agent 4's tests pass 3/3, and the **full suite has 362 passed**.
+- **Code delta since the reviewed commit 26e7931** (backend/ and web/): only `backend/api/routers/offers.py` (+12/−3) and a new test file. No engine, intake, documents, schema or web code changed, so the financial, integration, A-19 and security results above still hold for 96712e4. I did not re-run the live browser runs; I was asked not to use ports 3000/8000, and the delta does not touch the UI or the demo path's arithmetic.
+- **Open directives: none.** Every directive (D0-001 to D0-005, D1-001, D2-001) is VERIFIED. Known limitation 5 (LLM audit log not persisted) is resolved; the other limitations in §6 are unchanged.
+
+**The GO stands at 96712e4: GO — READY FOR DEMONSTRATION.**

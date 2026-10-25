@@ -1,0 +1,17 @@
+== A-15: SSN fixture through the API (synthetic_only, real LLMClient + recording transport) ==
+  [PASS] upload SSN fixture -> 200 extracted -> 200 extracted
+  [PASS] LLM request attempted (fixture allowed) prompts=2
+  [PASS] outbound LLM prompt has no SSN/email/phone/account 
+  [PASS] response body has no SSN 
+  [PASS] captured logs (all levels) have no SSN/email/account 
+  [PASS] raw DB scan: no SSN/email/account stored anywhere {}
+     table row counts after upload: {'sessions': 1, 'facts': 0, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 1, 'offers': 0, 'reports': 0, 'llm_calls': 1, 'idempotency': 0}
+  [PASS] llm_calls audit row persisted for the LLM call (system_architecture §5: 'logged to llm_calls') llm_calls=1 (client recorded calls)
+  [PASS] verify document -> offer -> 200 True
+  [PASS] analysis from the document offer -> 200 with payment 375.14 -> 200 
+     rows mentioning the session before DELETE: {'sessions': 1, 'facts': 1, 'documents': 1, 'offers': 1, 'reports': 1, 'llm_calls': 1} counts={'sessions': 1, 'facts': 5, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 1, 'offers': 1, 'reports': 1, 'llm_calls': 2, 'idempotency': 0}
+  [PASS] DELETE -> 204 -> 204
+  [PASS] after DELETE: no row in ANY table mentions the session (incl. llm_calls) {} counts={'sessions': 0, 'facts': 0, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 0, 'offers': 0, 'reports': 0, 'llm_calls': 0, 'idempotency': 0}
+  [PASS] no INFO-level log line contains the household or loan figures []
+
+TOTAL: 12 PASS / 0 FAIL

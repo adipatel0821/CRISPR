@@ -11,3 +11,7 @@
 | 20:58 | merge feature/product-experience (94e8c7f) | clean |
 | 21:04 | integration fixes (46ec559) | intake private-helper rename, model_construct internal path, keyed validation messages, % rates, balloon parser → 305 passed |
 | 21:12 | CP1 live slice verified + UI fix (9ad5d6b), tag `cp1-vertical-slice` | API 32/32, browser 23/23, 306 passed |
+| 21:52 | merge feature/{financial-core,financial-intelligence,product-experience}-cp2 + ev_calc for all metrics (26e7931, tag cp3-documents-live) | 359 passed; live re-run all PASS |
+| 22:12 | Agent 5 release assessment | **GO — READY FOR DEMONSTRATION**; D2-001 MEDIUM opened |
+| 22:16 | D2-001 fix by Agent 4 (5b24df6) | 362 passed; VERIFIED by Agent 5; GO stands |
+| 22:23 | Cleanup: 7 agent worktrees removed after verifying 0 uncommitted files and 0 unmerged commits each; 7 empty worktree-wf_* scratch branches deleted; feature/* branches kept; ports 3000/8000 free | — |
