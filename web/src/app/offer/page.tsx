@@ -16,7 +16,7 @@ import { ReadinessDetails } from "@/components/readiness-panel";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
 import { Container, EmptyNote, FadeIn, PrimaryAction, SecondaryLink } from "@/components/system";
 import { ActionRow, RailFacts, RailProgress, RailSteps, StageLayout, type RailFact } from "@/components/shell";
-import { OptionTiles } from "@/components/visual";
+import { Cheer, OptionTiles } from "@/components/visual";
 import { Button } from "@/components/ui/button";
 import { DataModeLine } from "@/components/intake/data-mode-line";
 import { answerStatus, runningCostsUnknown } from "@/components/intake/model";
@@ -72,6 +72,8 @@ export default function OfferPage() {
   const [running, setRunning] = React.useState(false);
   const [answering, setAnswering] = React.useState(false);
   const [editing, setEditing] = React.useState(false);
+  // True right after an offer is saved on this visit: shows the small yellow "saved" moment above the terms.
+  const [justSaved, setJustSaved] = React.useState(false);
   const [status, setStatus] = React.useState("");
   const [reloadKey, setReloadKey] = React.useState(0);
   const topRef = React.useRef<HTMLDivElement>(null);
@@ -105,6 +107,7 @@ export default function OfferPage() {
   function saved(o: LoanOffer) {
     setOffer(o);
     setEditing(false);
+    setJustSaved(true);
     setRunError(null);
     setStatus(`Saved: ${o.label}.`);
     setReloadKey((k) => k + 1);
@@ -192,7 +195,14 @@ export default function OfferPage() {
           <ActionRow
             back={{ href: "/intake", label: "Your money" }}
             secondary={
-              <Button variant="ghost" size="lg" onClick={() => setEditing(true)}>
+              <Button
+                variant="ghost"
+                size="lg"
+                onClick={() => {
+                  setEditing(true);
+                  setJustSaved(false);
+                }}
+              >
                 Change the offer
               </Button>
             }
@@ -227,6 +237,7 @@ export default function OfferPage() {
 
         {offer && !editing && (
           <FadeIn className="space-y-8">
+            {justSaved && <Cheer>Got it. Your offer is saved.</Cheer>}
             <SavedOffer offer={offer} />
 
             {pending && (

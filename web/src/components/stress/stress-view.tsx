@@ -21,7 +21,7 @@ import { evidenceForClaim, evidenceMap, isAvailable, scenarioPairs, type Scenari
 import { cn } from "@/lib/utils";
 import { UnavailableSection } from "@/components/report-gate";
 import { PathTable } from "@/components/charts";
-import { Note, SourceLink } from "@/components/system";
+import { Note, SourceLink, TrustLine } from "@/components/system";
 import { ScenarioTiles, SpotBudget, scenarioPanelProps, type ScenarioTileItem } from "@/components/visual";
 import { horizonMonths, orderByConsequence, runOutcome, tileOutcome } from "./outcome";
 import { TrajectoryChart } from "./trajectory-chart";
@@ -249,10 +249,7 @@ export function StressView({ report }: { report: DecisionReport }) {
         <p className="inline-flex items-center gap-2 rounded-full bg-brand-tint px-3.5 py-1.5 text-sm font-bold text-brand-strong">
           Stress test
         </p>
-        <p className="inline-flex items-center gap-2 text-[15px] font-semibold text-ink-2">
-          <Info aria-hidden className="size-4 text-ink-3" />
-          Illustrative scenario, not a prediction
-        </p>
+        <TrustLine icon={Info}>Illustrative scenario, not a prediction</TrustLine>
       </div>
 
       {report.resilience?.deficit_at_baseline && (

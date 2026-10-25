@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * The DecisionTwin mark: two overlapping rounded squares, your money and the same money with the loan.
- * `onBrand` (default) draws it white on the blue band; otherwise blue on white.
+ * `onBrand` (default) draws it white on the dark band; otherwise blue on white. A small yellow spark sits top right.
  * Decorative: the wordmark or the link's accessible name carries the meaning.
  */
 export function TwinMark({ className, onBrand = true }: { className?: string; onBrand?: boolean }) {
@@ -14,6 +14,8 @@ export function TwinMark({ className, onBrand = true }: { className?: string; on
       <rect x="2" y="4" width="18" height="18" rx="6" fill={back} />
       <rect x="11" y="10" width="19" height="19" rx="6.5" fill={front} stroke={cut} strokeWidth="2.25" />
       <path d="M16 22.5 L20 18.5 L23 21 L26.5 16.5" fill="none" stroke={cut} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* the yellow spark: where your month lands */}
+      <circle cx="27.25" cy="4.75" r="3.25" fill="var(--color-sun)" />
     </svg>
   );
 }

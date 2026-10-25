@@ -22,3 +22,4 @@ export { Reveal, type RevealProps } from "./reveal";
 export { ChoiceGroup, type ChoiceGroupProps, type ChoiceOption } from "./choice-group";
 export { Menu, MenuItem, MenuSeparator, MenuText } from "./menu";
 export { Toast, ToastProvider, useToast, type ToastTone } from "./toast";
+export { TrustLine, TrustStrip } from "./trust";

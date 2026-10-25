@@ -203,6 +203,53 @@ table,
   text-decoration-thickness: 2px;
 }
 
+/* ---------- Bright yellow moments (fills only; the text on them stays ink) ---------- */
+/* Highlighter: a marker stroke behind a few words. It follows line wraps (each line gets its own stroke) and
+   draws in once from left to right. With reduced motion the global rule below makes it appear at once. */
+.dt-mark {
+  color: inherit;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0 46%,
+    var(--color-sun) 46% 92%,
+    transparent 92% 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: left center;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  border-radius: 0.3em 0.15em 0.35em 0.2em;
+  padding-inline: 0.14em;
+  margin-inline: -0.06em;
+  animation: dt-mark-in 700ms var(--ease-calm) 200ms both;
+}
+@keyframes dt-mark-in {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+/* A short, calm scale in for the yellow check on finished steps. */
+.dt-pop {
+  animation: dt-pop 420ms var(--ease-calm) both;
+}
+@keyframes dt-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+
 /* ---------- Disclosure (<details>) ---------- */
 .dt-disclosure > summary {
   list-style: none;
@@ -246,6 +293,11 @@ body:has([data-stage-layout]) [data-legacy-journey] {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* No delay either: the highlighter and the yellow check are simply there. */
+  .dt-mark,
+  .dt-pop {
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {

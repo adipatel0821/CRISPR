@@ -128,8 +128,8 @@ export function RailProgress({ value, max, label }: { value: number; max: number
 }
 
 /* ------------------------------------------------------------------------------------------------
- * RailSteps: the stage's steps, Peddle-style list with chevrons. Done steps link back, the current one is
- * marked (aria-current + bold + blue + "Current" for screen readers), later ones are muted text.
+ * RailSteps: the stage's steps, Peddle-style list with chevrons. Done steps link back and wear a yellow check, the
+ * current one is marked (aria-current + bold + blue + "Current" for screen readers), later ones are muted text.
  * ---------------------------------------------------------------------------------------------- */
 export interface RailStep {
   label: string;
@@ -151,7 +151,12 @@ export function RailSteps({ steps, label = "Steps" }: { steps: RailStep[]; label
             <>
               <span className="flex min-w-0 items-center gap-3">
                 {s.state === "done" ? (
-                  <span aria-hidden className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-brand text-white">
+                  // Finished steps: a black check in a yellow circle (the current step stays blue).
+                  <span
+                    aria-hidden
+                    data-step-done=""
+                    className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-sun text-sun-ink"
+                  >
                     <Check className="size-3.5" strokeWidth={3} />
                   </span>
                 ) : Icon ? (
@@ -303,7 +308,9 @@ export function ActionRow({
             ))}
           {secondary}
         </div>
-        {children && <div className="ml-auto flex min-w-0 flex-1 justify-end sm:flex-none">{children}</div>}
+        {/* grow (basis auto), not flex-1: when Back + a secondary action leave too little room on a phone, the
+            primary pill wraps to its own line instead of being squeezed. */}
+        {children && <div className="ml-auto flex min-w-0 grow justify-end sm:flex-none">{children}</div>}
       </div>
     </div>
   );

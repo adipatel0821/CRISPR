@@ -53,8 +53,17 @@ export function useToast(): ToastApi {
 
 const NOOP: ToastApi = { show: () => {} };
 
+/** The toast's icon: a black check in a yellow circle when something is done, an alert icon for a problem. */
+function ToastIcon({ tone }: { tone: ToastTone }) {
+  if (tone === "problem") return <AlertCircle aria-hidden className="size-4 shrink-0" />;
+  return (
+    <span aria-hidden data-sun-check="" className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-sun text-sun-ink">
+      <Check className="size-3" strokeWidth={3} />
+    </span>
+  );
+}
+
 function ToastRegion({ message, messageKey, tone }: { message: string | null; messageKey?: number; tone: ToastTone }) {
-  const Icon = tone === "problem" ? AlertCircle : Check;
   return (
     <div
       data-toast=""
@@ -67,9 +76,9 @@ function ToastRegion({ message, messageKey, tone }: { message: string | null; me
         <p
           key={messageKey}
           data-toast-tone={tone}
-          className="dt-panel-in inline-flex max-w-[34rem] items-start gap-2 rounded-control bg-primary px-3.5 py-2 text-sm font-medium text-primary-ink shadow-overlay"
+          className="dt-panel-in inline-flex max-w-[34rem] items-center gap-2.5 rounded-2xl bg-ink py-2 pl-2.5 pr-4 text-sm font-semibold text-white shadow-overlay"
         >
-          <Icon aria-hidden className="mt-0.5 size-4 shrink-0" />
+          <ToastIcon tone={tone} />
           {message}
         </p>
       )}
@@ -85,8 +94,8 @@ export function Toast({ message, className }: { message: string | null; classNam
   return (
     <div data-toast="" role="status" aria-live="polite" aria-atomic="true" className={cn("min-h-0", className)}>
       {message && (
-        <p className="dt-panel-in inline-flex items-center gap-2 rounded-control bg-primary px-3.5 py-2 text-sm font-medium text-primary-ink">
-          <Check aria-hidden className="size-4" />
+        <p className="dt-panel-in inline-flex items-center gap-2.5 rounded-2xl bg-ink py-2 pl-2.5 pr-4 text-sm font-semibold text-white">
+          <ToastIcon tone="done" />
           {message}
         </p>
       )}

@@ -29,3 +29,4 @@ export {
   type TileOption,
 } from "./controls";
 export { SpotBudget, SpotCompare, SpotSavings, WelcomeTwin } from "./illustrations";
+export { Cheer, Mark, SunCheck } from "./sun";

@@ -7,9 +7,9 @@ import { api, ApiError } from "@/lib/api";
 import { useApp } from "@/lib/app-context";
 import { store } from "@/lib/session-store";
 import { ErrorState } from "@/components/states";
-import { FadeIn, PrimaryAction } from "@/components/system";
+import { FadeIn, PrimaryAction, TrustStrip } from "@/components/system";
 import { Checkbox } from "@/components/ui/misc";
-import { WelcomeTwin } from "@/components/visual";
+import { Mark, WelcomeTwin } from "@/components/visual";
 import { DataModeLine } from "@/components/intake/data-mode-line";
 
 const STEPS = [
@@ -51,7 +51,7 @@ export default function WelcomePage() {
               Car loan decision check
             </p>
             <h1 className="text-balance text-hero font-extrabold text-ink">
-              See what a car loan does to <span className="text-brand">your month</span>.
+              See what a car loan does to <Mark>your month</Mark>.
             </h1>
             <p className="max-w-[34rem] text-pretty text-lede text-ink-2">
               Add your monthly numbers and the loan offer. You get the full cost, what you keep each month and what is
@@ -92,7 +92,8 @@ export default function WelcomePage() {
             {error && <ErrorState error={error} onRetry={start} />}
           </FadeIn>
 
-          <FadeIn step={2}>
+          <FadeIn step={2} className="space-y-5">
+            <TrustStrip />
             <DataModeLine />
           </FadeIn>
         </div>

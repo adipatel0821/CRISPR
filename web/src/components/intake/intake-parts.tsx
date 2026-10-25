@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, CircleCheck, PiggyBank, Plus } from "lucide-react";
+import { PiggyBank, Plus } from "lucide-react";
 import type { FinancialFact, QuestionCandidate } from "@/lib/contracts";
 import { plain } from "@/lib/copy";
 import { formatMoney } from "@/lib/format";
@@ -9,7 +9,7 @@ import { RUNNING_COSTS_TEXT } from "@/lib/insights";
 import { cn } from "@/lib/utils";
 import { ActionRow } from "@/components/shell";
 import { FadeIn, Note } from "@/components/system";
-import { IconBadge, ValueBars, type BarDatum } from "@/components/visual";
+import { Cheer, IconBadge, Mark, SunCheck, ValueBars, type BarDatum } from "@/components/visual";
 import type { IntakeProgress } from "./model";
 import { answersLabel } from "./model";
 import { QuestionArt, artIcon } from "./question-art";
@@ -30,8 +30,8 @@ export function IntakeProgressLine({ progress }: { progress: IntakeProgress }) {
 export function SavedNote({ text }: { text: string }) {
   if (!text) return null;
   return (
-    <FadeIn key={text} className="mb-6 flex items-center gap-2 text-[15px] font-semibold text-savings-ink" aria-hidden>
-      <Check className="size-4" strokeWidth={3} /> {text}
+    <FadeIn key={text} className="mb-6 flex items-center gap-2.5 text-[15px] font-semibold text-ink" aria-hidden>
+      <SunCheck size="sm" pop /> {text}
     </FadeIn>
   );
 }
@@ -123,12 +123,15 @@ export function IntakeDone({
         actions={<ActionRow>{primary}</ActionRow>}
       >
         <div className="space-y-4">
-          <p className="flex items-center gap-3 text-[15px] font-semibold text-savings-ink">
-            <IconBadge icon={CircleCheck} tone="savings" size="sm" />
-            Your money: done
-          </p>
+          <Cheer>{gaps ? "Your money: done for now." : "Your money: done. Nice work."}</Cheer>
           <h1 className="text-pretty text-[length:var(--text-display)] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink">
-            {gaps ? "That's all for now" : "That's everything we need"}
+            {gaps ? (
+              "That's all for now"
+            ) : (
+              <>
+                That&apos;s <Mark>everything we need</Mark>
+              </>
+            )}
           </h1>
           <p className="max-w-[var(--measure)] text-[18px] leading-relaxed text-ink-2">
             {hasOffer

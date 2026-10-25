@@ -1,6 +1,6 @@
 "use client";
 
-import { Info } from "lucide-react";
+import { ReceiptText } from "lucide-react";
 import type { ExplanationEvidence } from "@/lib/contracts";
 import { cn } from "@/lib/utils";
 import { EvidenceList, sourceAriaLabel } from "@/components/provenance-chip";
@@ -13,7 +13,7 @@ export interface SourceLinkProps {
   label?: string;
   /** Visible text (default "How we got this"). */
   text?: string;
-  /** "link" (default): blue text with an info icon. "quiet": small gray underlined text. */
+  /** "link" (default): blue text after a small receipt badge. "quiet": small gray underlined text. */
   variant?: "link" | "quiet";
   className?: string;
 }
@@ -33,15 +33,20 @@ export function SourceLink({ evidence, label, text = "How we got this", variant 
         data-source-link=""
         aria-label={sourceAriaLabel(evidence, label)}
         className={cn(
-          "no-print inline-flex min-h-8 items-center gap-1.5 rounded-sm transition-colors duration-150",
+          "no-print inline-flex min-h-8 items-center gap-2 rounded-sm transition-colors duration-150",
           variant === "link"
             ? "text-[15px] font-semibold text-brand-strong hover:underline hover:underline-offset-4"
             : "text-sm text-ink-subtle underline decoration-line-strong decoration-1 underline-offset-4 hover:text-ink hover:decoration-current",
           className,
         )}
       >
+        {/* Same small receipt badge as "Every number shows its source" on the welcome page. */}
+        {variant === "link" && (
+          <span aria-hidden className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-sun-soft text-sun-ink">
+            <ReceiptText aria-hidden className="size-3.5" strokeWidth={2.25} />
+          </span>
+        )}
         {text}
-        {variant === "link" && <Info aria-hidden className="size-[1.1em] shrink-0" />}
       </PopoverTrigger>
       <PopoverContent>
         <EvidenceList evidence={evidence} label={label} />

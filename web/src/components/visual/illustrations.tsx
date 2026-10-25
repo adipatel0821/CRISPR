@@ -25,8 +25,17 @@ export function WelcomeTwin({ className, title }: IllustrationProps) {
     <svg viewBox="0 0 560 420" className={cn("h-auto w-full", className)} {...a11y(title)}>
       {/* soft backdrop */}
       <circle cx="300" cy="210" r="190" fill="var(--color-brand-tint)" />
-      <circle cx="470" cy="70" r="26" fill="var(--color-cta)" />
+      {/* a little sun with short rays */}
+      <circle cx="470" cy="70" r="26" fill="var(--color-sun)" />
+      <g stroke="var(--color-sun-strong)" strokeWidth="5" strokeLinecap="round">
+        <path d="M470 28 L470 18 M470 112 L470 122 M428 70 L418 70 M512 70 L522 70" />
+        <path d="M440 40 L433 33 M500 100 L507 107 M500 40 L507 33 M440 100 L433 107" />
+      </g>
       <circle cx="96" cy="360" r="14" fill="var(--color-brand-line)" />
+      {/* spark dots */}
+      <path d="M65 57 l5 -13 l5 13 l13 5 l-13 5 l-5 13 l-5 -13 l-13 -5 Z" fill="var(--color-sun)" />
+      <circle cx="112" cy="70" r="5" fill="var(--color-sun)" />
+      <path d="M536 300 l3.5 -9 l3.5 9 l9 3.5 l-9 3.5 l-3.5 9 l-3.5 -9 l-9 -3.5 Z" fill="var(--color-sun-strong)" />
 
       {/* Left card: your money */}
       <g transform="rotate(-4 170 220)">
@@ -40,9 +49,12 @@ export function WelcomeTwin({ className, title }: IllustrationProps) {
         {/* savings jar */}
         <rect x="196" y="270" width="62" height="62" rx="16" fill="var(--color-savings-soft)" stroke="var(--color-savings)" strokeWidth="2.5" />
         <rect x="206" y="262" width="42" height="12" rx="5" fill="var(--color-savings)" />
-        <circle cx="219" cy="312" r="7" fill="var(--color-cta)" />
-        <circle cx="236" cy="300" r="7" fill="var(--color-cta)" />
+        <circle cx="219" cy="312" r="7" fill="var(--color-sun)" stroke="var(--color-sun-strong)" strokeWidth="2" />
+        <circle cx="236" cy="300" r="7" fill="var(--color-sun)" stroke="var(--color-sun-strong)" strokeWidth="2" />
         <circle cx="236" cy="318" r="7" fill="#737373" />
+        {/* a coin dropping in */}
+        <circle cx="228" cy="246" r="9" fill="var(--color-sun)" stroke="var(--color-sun-strong)" strokeWidth="2.5" />
+        <path d="M228 241 L228 251" stroke="var(--color-sun-ink)" strokeWidth="2.5" strokeLinecap="round" />
       </g>
 
       {/* Right card: the same month with the loan */}
@@ -98,9 +110,10 @@ export function SpotSavings({ className, title }: IllustrationProps) {
       <rect x="52" y="34" width="56" height="66" rx="16" fill="#ffffff" stroke="var(--color-savings)" strokeWidth="3" />
       <rect x="60" y="24" width="40" height="14" rx="6" fill="var(--color-savings)" />
       <rect x="58" y="70" width="44" height="24" rx="8" fill="var(--color-savings)" opacity="0.18" />
-      <circle cx="72" cy="80" r="8" fill="var(--color-cta)" />
+      <circle cx="72" cy="80" r="8" fill="var(--color-sun)" stroke="var(--color-sun-strong)" strokeWidth="2" />
       <circle cx="88" cy="74" r="8" fill="#737373" />
-      <circle cx="90" cy="88" r="8" fill="var(--color-cta)" />
+      <circle cx="90" cy="88" r="8" fill="var(--color-sun)" stroke="var(--color-sun-strong)" strokeWidth="2" />
+      <path d="M124 26 l3 -8 l3 8 l8 3 l-8 3 l-3 8 l-3 -8 l-8 -3 Z" fill="var(--color-sun)" />
     </svg>
   );
 }
