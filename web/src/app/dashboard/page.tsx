@@ -11,6 +11,8 @@ import { FixtureNotice } from "@/components/banners";
 import { BreakdownBar } from "@/components/charts";
 import { BeforeAfter, Figure } from "@/components/figure";
 import { Chip, ProvenanceChip } from "@/components/provenance-chip";
+import { AssumptionChip } from "@/components/assumption-chip";
+import { resultHasCaveat } from "@/lib/assumptions";
 import { ReportGate, UnavailableSection } from "@/components/report-gate";
 import {
   AssumptionsPanel,
@@ -121,7 +123,13 @@ function YourMonth({ report }: { report: DecisionReport }) {
           after={after?.value}
           format={formatMoney}
           direction={change?.direction ?? null}
-          chip={<ProvenanceChip evidence={[...evidenceForMetric(report, "monthly_left_before"), ...evidenceForMetric(report, "monthly_left_after")]} label="left over each month" />}
+          chip={
+            <div className="flex flex-wrap gap-1.5">
+              <ProvenanceChip evidence={[...evidenceForMetric(report, "monthly_left_before"), ...evidenceForMetric(report, "monthly_left_after")]} label="left over each month" />
+              <AssumptionChip report={report} metricKey="monthly_left_before" label="left over each month now" />
+              <AssumptionChip report={report} metricKey="monthly_left_after" label="left over each month with this loan" />
+            </div>
+          }
         />
         <dl className="grid gap-4 border-t border-line pt-4 text-sm sm:grid-cols-3">
           <div>
@@ -131,8 +139,10 @@ function YourMonth({ report }: { report: DecisionReport }) {
           <div>
             <dt className="text-ink-muted">Change in car running costs</dt>
             <dd className="figure font-medium text-ink">{formatSignedMoney(inc?.value)}</dd>
-            <dd className="mt-1">
+            {inc?.label && <dd className="text-xs text-ink-muted">{inc.label}</dd>}
+            <dd className="mt-1 flex flex-wrap gap-1.5">
               <ProvenanceChip evidence={evidenceForMetric(report, "incremental_vehicle_costs")} label="change in car running costs" />
+              <AssumptionChip report={report} metricKey="incremental_vehicle_costs" label="change in car running costs" />
             </dd>
           </div>
           <div>
@@ -168,14 +178,25 @@ function Savings({ report }: { report: DecisionReport }) {
           before={before}
           after={withOfferMetric(report, "savings_after_purchase")?.value}
           format={formatMoney}
-          chip={<ProvenanceChip evidence={evidenceForMetric(report, "savings_after_purchase")} label="savings after purchase" />}
+          chip={
+            <div className="flex flex-wrap gap-1.5">
+              <ProvenanceChip evidence={evidenceForMetric(report, "savings_after_purchase")} label="savings after purchase" />
+              <AssumptionChip report={report} metricKey="savings_after_purchase" label="savings after purchase" />
+            </div>
+          }
         />
         <BeforeAfter
           label="Months of expenses your savings cover"
           before={metric(report, "reserve_months_before")?.value}
           after={withOfferMetric(report, "reserve_months_after")?.value}
           format={formatMonths}
-          chip={<ProvenanceChip evidence={[...evidenceForMetric(report, "reserve_months_before"), ...evidenceForMetric(report, "reserve_months_after")]} label="reserve months" />}
+          chip={
+            <div className="flex flex-wrap gap-1.5">
+              <ProvenanceChip evidence={[...evidenceForMetric(report, "reserve_months_before"), ...evidenceForMetric(report, "reserve_months_after")]} label="reserve months" />
+              <AssumptionChip report={report} metricKey="reserve_months_before" label="months covered now" />
+              <AssumptionChip report={report} metricKey="reserve_months_after" label="months covered with this loan" />
+            </div>
+          }
         />
       </CardContent>
     </Card>
@@ -189,7 +210,7 @@ function SourcesList({ report }: { report: DecisionReport }) {
   });
   const titles: Record<string, string> = {
     user_input: "From your answers",
-    document: "From your contract",
+    document: "From your document",
     calculation: "Calculations",
     assumption: "Assumptions",
   };
@@ -230,6 +251,17 @@ export default function DashboardPage() {
                 <p className="text-sm font-medium text-accent">{report.offer?.label ?? "Your decision"}</p>
                 <h1 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">{decisionTitle(report)}</h1>
                 <ReportMeta report={report} />
+                {resultHasCaveat(report) && (
+                  <p className="mt-2 text-sm text-ink-muted">
+                    Some figures rest on an assumption or an estimate. They carry an{" "}
+                    <span className="font-medium text-info">“Includes an assumption”</span> or{" "}
+                    <span className="font-medium text-info">“Estimate”</span> label —{" "}
+                    <a href="#assumptions" className="font-medium text-accent-strong underline underline-offset-2">
+                      see the assumptions
+                    </a>
+                    .
+                  </p>
+                )}
               </div>
               <Button asChild variant="secondary" className="no-print">
                 <Link href="/report">Printable report</Link>

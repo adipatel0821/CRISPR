@@ -24,9 +24,9 @@ test("user confirmation is labelled as such, never as independent evidence", () 
   assert.equal(sourceChip("user_input", "none").label, "You told us");
   assert.equal(
     sourceChip("document", "evidence_matched_user_confirmed", { page: 1 }).label,
-    "From your contract, p.1 · matched · you confirmed",
+    "From your document, p.1 · matched · you confirmed",
   );
-  assert.equal(sourceChip("document", "user_confirmed", { page: 2 }).label, "From your contract, p.2 · you confirmed");
+  assert.equal(sourceChip("document", "user_confirmed", { page: 2 }).label, "From your document, p.2 · you confirmed");
   assert.equal(sourceChip("calculation", "none").label, "Calculated");
   assert.equal(sourceChip("assumption", "none").label, "Assumption");
   assert.equal(sourceChip("user_input", "none", { status: "estimated" }).label, "Estimate");

@@ -6,6 +6,7 @@ import { formatMoney, formatTimestamp } from "@/lib/format";
 import { factLabel } from "@/lib/labels";
 import { evidenceForClaim, FLAG_TEXT, triggeredFlags } from "@/lib/report";
 import { cn } from "@/lib/utils";
+import { AssumptionChip } from "./assumption-chip";
 import { EvidenceFootnote, ProvenanceChip } from "./provenance-chip";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -34,6 +35,12 @@ export function ClaimLine({ report, claim, print = false }: { report: DecisionRe
     <span className="inline">
       {claim.text ?? claim.template_id}{" "}
       {print ? <EvidenceFootnote evidence={ev} /> : <ProvenanceChip evidence={ev} label={claim.subject_metric.replace(/_/g, " ")} className="align-middle" />}
+      {!print && (
+        <>
+          {" "}
+          <AssumptionChip report={report} metricKey={claim.subject_metric} label={claim.subject_metric.replace(/_/g, " ")} className="align-middle" />
+        </>
+      )}
     </span>
   );
 }
@@ -94,7 +101,7 @@ export function FlagsList({ report, print = false }: { report: DecisionReport; p
 
 export function AssumptionsPanel({ report }: { report: DecisionReport }) {
   return (
-    <Card>
+    <Card id="assumptions" className="scroll-mt-20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Lightbulb aria-hidden className="size-4 text-info" /> Assumptions we made
@@ -106,7 +113,7 @@ export function AssumptionsPanel({ report }: { report: DecisionReport }) {
         ) : (
           <ul className="space-y-2 text-sm">
             {report.assumptions.map((a) => (
-              <li key={a.assumption_id} className="border-b border-line pb-2 last:border-0">
+              <li key={a.assumption_id} id={`asm-${a.assumption_id}`} className="border-b border-line pb-2 last:border-0">
                 <p className="text-ink">{a.text}</p>
                 <p className="text-xs text-ink-subtle">
                   {a.assumption_id}

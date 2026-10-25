@@ -39,10 +39,12 @@ function TermRow({
   t,
   action,
   onAction,
+  readOnly = false,
 }: {
   t: VerifiedFinancialTerm;
   action: Action | undefined;
   onAction: (a: Action | undefined) => void;
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = React.useState(false);
   const [raw, setRaw] = React.useState("");
@@ -82,7 +84,7 @@ function TermRow({
         </ul>
       )}
 
-      {t.alternatives_found.length > 0 && (
+      {!readOnly && t.alternatives_found.length > 0 && (
         <fieldset className="space-y-2">
           <legend className="text-xs font-semibold text-deficit">Two readings disagree — choose the one on your document</legend>
           {t.alternatives_found.map((c, i) => (
@@ -107,7 +109,7 @@ function TermRow({
         </fieldset>
       )}
 
-      {editing ? (
+      {readOnly ? null : editing ? (
         <form
           className="flex flex-col gap-2 sm:flex-row sm:items-end"
           onSubmit={(e) => {
@@ -176,6 +178,7 @@ export function DocumentFlow({
 }) {
   const [doc, setDoc] = React.useState<DocumentStatus | null>(null);
   const [draft, setDraft] = React.useState<LoanOffer | null>(null);
+  // 1-based offer number, as the API expects (VerifyRequest.offer_choice is 1..document_offers_count)
   const [choice, setChoice] = React.useState<number | null>(null);
   const [actions, setActions] = React.useState<Record<string, Action>>({});
   const [busy, setBusy] = React.useState(false);
@@ -211,6 +214,7 @@ export function DocumentFlow({
       const d = await poll(await api.uploadDocument(file));
       setDoc(d);
       setDraft(d.draft_offer);
+      setChoice(null);
       setActions({});
       setStatus(d.message ?? `Document status: ${d.status}.`);
     } catch (e) {
@@ -239,7 +243,7 @@ export function DocumentFlow({
   async function save() {
     if (!doc || !draft) return;
     const body: VerifyRequestBody = {
-      offer_choice: choice ?? draft.offer_choice ?? null,
+      offer_choice: draft.offer_choice ?? choice ?? null,
       actions: Object.entries(actions).map(([term_key, a]) => ({
         term_key,
         action: a.action,
@@ -295,6 +299,8 @@ export function DocumentFlow({
             accept="application/pdf,.pdf"
             className="sr-only"
             id="doc-upload"
+            aria-label="Upload a loan contract PDF"
+            tabIndex={-1}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) void upload(f);
@@ -326,7 +332,15 @@ export function DocumentFlow({
             <Button size="sm" onClick={onUseManual}>
               Type the terms instead
             </Button>
-            <Button size="sm" variant="secondary" onClick={() => setDoc(null)}>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                setDoc(null);
+                setDraft(null);
+                setStatus("");
+              }}
+            >
               Try another file
             </Button>
           </div>
@@ -341,8 +355,8 @@ export function DocumentFlow({
               <input
                 type="radio"
                 name="offer-choice"
-                checked={choice === i}
-                onChange={() => setChoice(i)}
+                checked={choice === i + 1}
+                onChange={() => setChoice(i + 1)}
                 className="size-4 accent-[var(--color-accent)]"
               />
               {l}
@@ -354,7 +368,24 @@ export function DocumentFlow({
         </fieldset>
       )}
 
-      {doc && draft && doc.status !== "needs_choice" && (
+      {doc && draft && doc.status === "unsupported" && terms.length > 0 && (
+        <section aria-labelledby="reference-heading" className="space-y-3">
+          <h2 id="reference-heading" className="text-base font-semibold text-ink">
+            Terms we read — for reference only
+          </h2>
+          <p className="text-sm text-ink-muted">
+            {doc.filename}
+            {doc.is_fixture ? " · bundled synthetic sample" : ""} · these values are not used for any calculation.
+          </p>
+          <ul className="divide-y divide-line rounded-lg border border-line bg-surface px-4">
+            {terms.map((t) => (
+              <TermRow key={t.term_key} t={t} action={undefined} onAction={() => {}} readOnly />
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {doc && draft && doc.status !== "needs_choice" && doc.status !== "unsupported" && doc.status !== "failed" && (
         <section aria-labelledby="verify-heading" className="space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>

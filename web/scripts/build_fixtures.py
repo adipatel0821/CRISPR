@@ -174,8 +174,8 @@ TILA_BOX = {"apr", "finance_charge", "amount_financed", "total_of_payments", "mo
 for key, (label, vtext, quote) in TERM_QUOTES.items():
     matched = key in TILA_BOX
     evidence.append(ev(f"ev_term_{key}", "document",
-                       "From your contract, p.1 · matched · you confirmed" if matched
-                       else "From your contract, p.1 · you confirmed",
+                       "From your document, p.1 · matched · you confirmed" if matched
+                       else "From your document, p.1 · you confirmed",
                        {"doc_id": DOC, "page": 1, "term_key": key, "label_text": label, "value_text": vtext,
                         "quote": quote},
                        "evidence_matched_user_confirmed" if matched else "user_confirmed"))
@@ -472,7 +472,7 @@ def make_term(key, value, pending=False):
             "verification": verification, "source_kind": "document",
             "evidence": {"kind": "document", "doc_id": DOC, "page": 1, "label_text": label, "value_text": vtext,
                          "quote": quote, "quote_found_in_text": True,
-                         "display_label": "From your contract, p.1" + (" · matched" if matched else "")},
+                         "display_label": "From your document, p.1" + (" · matched" if matched else "")},
             "checks": checks, "alternatives_found": [], "user_action": "pending" if pending else "confirmed"}
 
 

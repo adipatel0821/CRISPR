@@ -89,7 +89,7 @@
           "value_text": "5.796 %",
           "quote": "ANNUAL PERCENTAGE RATE The cost of your credit as a yearly rate 5.796 %",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -118,7 +118,7 @@
           "value_text": "$3,008.29",
           "quote": "FINANCE CHARGE The dollar amount the credit will cost you $3,008.29",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -147,7 +147,7 @@
           "value_text": "$19,500.00",
           "quote": "Amount Financed The amount of credit provided to you or on your behalf $19,500.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -176,7 +176,7 @@
           "value_text": "$22,508.29",
           "quote": "Total of Payments The amount you will have paid after you have made all payments as scheduled $22,508.29",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -205,7 +205,7 @@
           "value_text": "$375.14",
           "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -234,7 +234,7 @@
           "value_text": "60",
           "quote": "Number of Payments 60 Amount of Payments $375.14",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1 · matched"
+          "display_label": "From your document, p.1 · matched"
         },
         "checks": {
           "quote_match": "pass",
@@ -263,7 +263,7 @@
           "value_text": "$22,000.00",
           "quote": "1. Cash Price (including accessories) $22,000.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -292,7 +292,7 @@
           "value_text": "$1,500.00",
           "quote": "2. Taxes, title and registration fees $1,500.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -321,7 +321,7 @@
           "value_text": "$4,000.00",
           "quote": "3. Cash Down Payment $4,000.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -350,7 +350,7 @@
           "value_text": "$20,000.00",
           "quote": "4. Principal Balance (amount of note) $20,000.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -379,7 +379,7 @@
           "value_text": "$500.00",
           "quote": "5. Prepaid Finance Charge (loan origination fee) $500.00",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -408,7 +408,7 @@
           "value_text": "4.75 %",
           "quote": "Simple interest contract rate 4.75 % per year",
           "quote_found_in_text": true,
-          "display_label": "From your contract, p.1"
+          "display_label": "From your document, p.1"
         },
         "checks": {
           "quote_match": "pass",
@@ -3434,7 +3434,7 @@
         "value_text": "5.796 %",
         "quote": "ANNUAL PERCENTAGE RATE The cost of your credit as a yearly rate 5.796 %"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_finance_charge",
@@ -3448,7 +3448,7 @@
         "value_text": "$3,008.29",
         "quote": "FINANCE CHARGE The dollar amount the credit will cost you $3,008.29"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_amount_financed",
@@ -3462,7 +3462,7 @@
         "value_text": "$19,500.00",
         "quote": "Amount Financed The amount of credit provided to you or on your behalf $19,500.00"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_total_of_payments",
@@ -3476,7 +3476,7 @@
         "value_text": "$22,508.29",
         "quote": "Total of Payments The amount you will have paid after you have made all payments as scheduled $22,508.29"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_monthly_payment",
@@ -3490,7 +3490,7 @@
         "value_text": "$375.14",
         "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_term_months",
@@ -3504,7 +3504,7 @@
         "value_text": "60",
         "quote": "Number of Payments 60 Amount of Payments $375.14"
       },
-      "display_label": "From your contract, p.1 · matched · you confirmed"
+      "display_label": "From your document, p.1 · matched · you confirmed"
     },
     {
       "evidence_id": "ev_term_cash_price",
@@ -3518,7 +3518,7 @@
         "value_text": "$22,000.00",
         "quote": "1. Cash Price (including accessories) $22,000.00"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_term_taxes_title_fees",
@@ -3532,7 +3532,7 @@
         "value_text": "$1,500.00",
         "quote": "2. Taxes, title and registration fees $1,500.00"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_term_cash_down",
@@ -3546,7 +3546,7 @@
         "value_text": "$4,000.00",
         "quote": "3. Cash Down Payment $4,000.00"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_term_principal",
@@ -3560,7 +3560,7 @@
         "value_text": "$20,000.00",
         "quote": "4. Principal Balance (amount of note) $20,000.00"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_term_prepaid_finance_charges",
@@ -3574,7 +3574,7 @@
         "value_text": "$500.00",
         "quote": "5. Prepaid Finance Charge (loan origination fee) $500.00"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_term_contract_rate",
@@ -3588,7 +3588,7 @@
         "value_text": "4.75 %",
         "quote": "Simple interest contract rate 4.75 % per year"
       },
-      "display_label": "From your contract, p.1 · you confirmed"
+      "display_label": "From your document, p.1 · you confirmed"
     },
     {
       "evidence_id": "ev_a_illustrative_scenarios",
