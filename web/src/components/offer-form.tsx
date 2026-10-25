@@ -1,13 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Car, Percent, Plus, Trash2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import type { ItemizationItemBody } from "@/lib/api-types";
 import type { LoanOffer } from "@/lib/contracts";
 import { normalizeCurrencyInput, normalizeIntegerInput, percentToFraction } from "@/lib/format";
 import { ErrorState } from "@/components/states";
 import { Disclosure, PrimaryAction } from "@/components/system";
+import { IconBadge } from "@/components/visual";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/misc";
 import { CurrencyInput, FieldError, FieldHint, Input, Label, PercentInput } from "@/components/ui/input";
@@ -23,14 +24,14 @@ interface FieldDef {
 
 const FIELDS: Record<string, FieldDef> = {
   cash_price: { key: "cash_price", label: "Cash price of the car", kind: "currency", hint: "Before taxes, fees and your down payment." },
-  cash_down: { key: "cash_down", label: "Cash down payment", kind: "currency" },
-  apr: { key: "apr", label: "APR", kind: "percent", hint: "Annual percentage rate, e.g. 5.796" },
-  term_months: { key: "term_months", label: "Term (months)", kind: "integer", hint: "Number of monthly payments, 6–96" },
+  cash_down: { key: "cash_down", label: "Cash down payment", kind: "currency", hint: "If you pay it from savings, your savings go down by this much." },
+  apr: { key: "apr", label: "APR", kind: "percent", hint: "Annual percentage rate, for example 5.796" },
+  term_months: { key: "term_months", label: "Term (months)", kind: "integer", hint: "Number of monthly payments, 6 to 96" },
   monthly_payment: { key: "monthly_payment", label: "Monthly payment on the contract", kind: "currency", hint: "We check it against the other terms." },
   principal: { key: "principal", label: "Principal (amount of the note)", kind: "currency", hint: "Or fill in the amount financed." },
   amount_financed: { key: "amount_financed", label: "Amount financed", kind: "currency", hint: "From the federal disclosure box." },
   prepaid_finance_charges: { key: "prepaid_finance_charges", label: "Prepaid finance charges", kind: "currency", hint: "Loan fees paid up front, if listed." },
-  contract_rate: { key: "contract_rate", label: "Contract (interest) rate", kind: "percent", hint: "If different from the APR, e.g. 4.75" },
+  contract_rate: { key: "contract_rate", label: "Contract (interest) rate", kind: "percent", hint: "If different from the APR, for example 4.75" },
   taxes_title_fees: { key: "taxes_title_fees", label: "Taxes, title and fees", kind: "currency" },
   trade_in_value: { key: "trade_in_value", label: "Trade-in value", kind: "currency", hint: "Leave blank if there's no trade-in." },
   trade_in_payoff: { key: "trade_in_payoff", label: "Still owed on the trade-in", kind: "currency" },
@@ -40,6 +41,12 @@ const ESSENTIAL: FieldDef[] = ESSENTIAL_TERM_KEYS.map((k) => FIELDS[k]);
 const DETAILS: FieldDef[] = DETAIL_TERM_KEYS.map((k) => FIELDS[k]);
 const ALL_FIELDS: FieldDef[] = [...ESSENTIAL, ...DETAILS];
 const DETAIL_KEYS = new Set<string>(DETAIL_TERM_KEYS);
+
+/** Visible groups (every field the calculation needs is here) and the labelled groups under "More details". */
+const CAR_KEYS = ["cash_price", "cash_down"];
+const LOAN_KEYS = ["apr", "term_months", "monthly_payment"];
+const DISCLOSURE_KEYS = ["amount_financed", "principal", "prepaid_finance_charges", "contract_rate"];
+const TRADE_KEYS = ["taxes_title_fees", "trade_in_value", "trade_in_payoff"];
 
 interface AddOn {
   id: number;
@@ -68,14 +75,17 @@ function Field({
   value,
   error,
   onChange,
+  large = false,
 }: {
   f: FieldDef;
   value: string;
   error?: string;
   onChange: (v: string) => void;
+  large?: boolean;
 }) {
   const id = `term-${f.key}`;
   const describedBy = [f.hint ? `${id}-hint` : "", error ? `${id}-err` : ""].filter(Boolean).join(" ") || undefined;
+  const size = large ? "h-14 text-lg font-semibold sm:text-lg" : "h-12";
   const common = {
     id,
     value,
@@ -84,20 +94,57 @@ function Field({
     "aria-describedby": describedBy,
   };
   return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{f.label}</Label>
-      {f.kind === "currency" && <CurrencyInput {...common} placeholder="0.00" />}
-      {f.kind === "percent" && <PercentInput {...common} placeholder="0.00" />}
-      {f.kind === "integer" && <Input {...common} inputMode="numeric" placeholder="Months" />}
-      {f.hint && <FieldHint id={`${id}-hint`}>{f.hint}</FieldHint>}
-      <FieldError id={`${id}-err`}>{error}</FieldError>
+    <div className="min-w-0 space-y-1.5">
+      <Label htmlFor={id} className="text-[15px] font-semibold">
+        {f.label}
+      </Label>
+      {f.kind === "currency" && <CurrencyInput {...common} placeholder="0.00" className={size} />}
+      {f.kind === "percent" && <PercentInput {...common} placeholder="0.00" className={size} />}
+      {f.kind === "integer" && <Input {...common} inputMode="numeric" placeholder="Months" className={size} />}
+      {f.hint && (
+        <FieldHint id={`${id}-hint`} className="text-sm text-ink-2">
+          {f.hint}
+        </FieldHint>
+      )}
+      <FieldError id={`${id}-err`} className="text-sm">
+        {error}
+      </FieldError>
     </div>
   );
 }
 
+function Group({
+  icon,
+  title,
+  note,
+  children,
+}: {
+  icon: React.ComponentProps<typeof IconBadge>["icon"];
+  title: string;
+  note?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="min-w-0 rounded-[24px] border border-line bg-surface p-5 sm:p-7">
+      <legend className="sr-only">{title}</legend>
+      <div className="flex items-center gap-3">
+        <IconBadge icon={icon} tone="brand" size="sm" />
+        <div className="min-w-0">
+          <p aria-hidden className="text-lg font-extrabold text-ink">
+            {title}
+          </p>
+          {note && <p className="text-sm text-ink-2">{note}</p>}
+        </div>
+      </div>
+      <div className="mt-5 grid gap-5 sm:grid-cols-2">{children}</div>
+    </fieldset>
+  );
+}
+
 /**
- * Manual offer entry (POST /sessions/{id}/offers): the five terms most contracts show plainly come first,
- * everything else sits behind "More details". Rates are typed as % and sent as fractions; nothing is computed.
+ * Manual offer entry (POST /sessions/{id}/offers). The terms the calculation needs sit in two short groups (the car,
+ * the loan); the rest is in labelled groups under "More details". Rates are typed as % and sent as fractions; nothing
+ * is computed here.
  */
 export function OfferForm({ onSaved }: { onSaved: (offer: LoanOffer) => void }) {
   const [label, setLabel] = React.useState("");
@@ -149,7 +196,7 @@ export function OfferForm({ onSaved }: { onSaved: (offer: LoanOffer) => void }) 
     setErrors(errs);
     if (Object.keys(errs).length) {
       revealErrors(errs);
-      setFormError("Some values need fixing — see the highlighted fields.");
+      setFormError("Some values need fixing. See the highlighted fields.");
       return;
     }
     const missing: string[] = [];
@@ -184,41 +231,45 @@ export function OfferForm({ onSaved }: { onSaved: (offer: LoanOffer) => void }) 
   }
 
   const detailCount = DETAILS.filter((f) => (values[f.key] ?? "").trim()).length + addOns.length;
+  const field = (k: string, large = false) => (
+    <Field key={k} f={FIELDS[k]} value={values[k] ?? ""} error={errors[k]} onChange={(v) => set(k, v)} large={large} />
+  );
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-7">
-      <fieldset className="space-y-5">
-        <legend className="sr-only">The main terms</legend>
-        <div className="grid gap-5 sm:grid-cols-2">
-          {ESSENTIAL.map((f) => (
-            <Field key={f.key} f={f} value={values[f.key] ?? ""} error={errors[f.key]} onChange={(v) => set(f.key, v)} />
-          ))}
-        </div>
-      </fieldset>
+    <form onSubmit={submit} noValidate className="space-y-6" data-offer-form="">
+      <div className="grid gap-6 2xl:grid-cols-2">
+        <Group icon={Car} title="The car" note="What you pay for it and what you put down.">
+          {CAR_KEYS.map((k) => field(k, true))}
+        </Group>
+        <Group icon={Percent} title="The loan" note="From the contract or the dealer's worksheet.">
+          {LOAN_KEYS.map((k) => field(k, true))}
+        </Group>
+      </div>
 
       <Disclosure
         variant="card"
         open={moreOpen}
         onOpenChange={setMoreOpen}
-        summary="More details"
+        className="[&>summary]:min-h-14"
+        summary={<span className="text-[17px] font-bold text-ink">More details from the contract</span>}
         meta={detailCount > 0 ? `${detailCount} added` : "Optional"}
       >
-        <div className="space-y-7 pt-2">
-          <p className="text-[13px] text-ink-muted">
-            Copy these from the contract if you have them — they make the figures match it exactly.
+        <div className="space-y-8 pt-2">
+          <p className="max-w-[var(--measure)] text-[15px] text-ink-2">
+            Copy these from the contract if you have them. They make the figures match it exactly.
           </p>
           <fieldset className="space-y-4">
-            <legend className="sr-only">More loan details</legend>
-            <div className="grid gap-5 sm:grid-cols-2">
-              {DETAILS.map((f) => (
-                <Field key={f.key} f={f} value={values[f.key] ?? ""} error={errors[f.key]} onChange={(v) => set(f.key, v)} />
-              ))}
-            </div>
+            <legend className="text-[15px] font-extrabold text-ink">Amounts and rate in the disclosure box</legend>
+            <div className="grid gap-5 sm:grid-cols-2">{DISCLOSURE_KEYS.map((k) => field(k))}</div>
+          </fieldset>
+          <fieldset className="space-y-4">
+            <legend className="text-[15px] font-extrabold text-ink">Taxes, fees and trade-in</legend>
+            <div className="grid gap-5 sm:grid-cols-2">{TRADE_KEYS.map((k) => field(k))}</div>
           </fieldset>
 
           <fieldset className="space-y-3">
-            <legend className="text-sm font-semibold text-ink">Optional add-ons</legend>
-            <p className="text-[13px] text-ink-muted">
+            <legend className="text-[15px] font-extrabold text-ink">Add-ons</legend>
+            <p className="text-sm text-ink-2">
               Service contracts, GAP, protection packages. Only mark one optional if the contract says it is.
             </p>
             {addOns.map((a) => (
@@ -282,25 +333,27 @@ export function OfferForm({ onSaved }: { onSaved: (offer: LoanOffer) => void }) 
 
           <div className="max-w-sm space-y-1.5">
             <Label htmlFor="offer-label">Name this offer (optional)</Label>
-            <Input id="offer-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Dealer offer A" />
+            <Input id="offer-label" value={label} onChange={(e) => setLabel(e.target.value)} placeholder="For example, Dealer offer A" />
           </div>
         </div>
       </Disclosure>
 
-      <div className="space-y-4 border-t border-line pt-6">
-        <div className="flex items-start gap-3">
-          <Checkbox id="offer-confirm" checked={confirmed} onCheckedChange={(v) => setConfirmed(v === true)} className="mt-0.5" />
-          <label htmlFor="offer-confirm" className="text-sm leading-relaxed text-ink">
-            These values match my loan offer. (They&apos;ll be labelled “You confirmed”.)
-          </label>
+      <div className="flex flex-col gap-5 border-t border-line pt-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0 space-y-3">
+          <div className="flex items-start gap-3">
+            <Checkbox id="offer-confirm" checked={confirmed} onCheckedChange={(v) => setConfirmed(v === true)} className="mt-1" />
+            <label htmlFor="offer-confirm" className="text-[15px] leading-relaxed text-ink">
+              These values match my loan offer. We label them &ldquo;You confirmed&rdquo;.
+            </label>
+          </div>
+          {formError && (
+            <p role="alert" className="text-[15px] font-semibold text-shortfall-ink">
+              {formError}
+            </p>
+          )}
+          {serverError && <ErrorState error={serverError} title="The server didn't accept this offer" />}
         </div>
-        {formError && (
-          <p role="alert" className="text-sm font-medium text-deficit">
-            {formError}
-          </p>
-        )}
-        {serverError && <ErrorState error={serverError} title="The server didn't accept this offer" />}
-        <PrimaryAction type="submit" disabled={busy} arrow={false}>
+        <PrimaryAction type="submit" disabled={busy} className="shrink-0">
           {busy ? "Checking…" : "Save offer"}
         </PrimaryAction>
       </div>

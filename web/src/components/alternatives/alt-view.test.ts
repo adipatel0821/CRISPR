@@ -93,7 +93,7 @@ test("tradeOffSentence: gains then costs, numbers only from the backend", () => 
 });
 
 test("assumptionBadges: backend flags in plain words, plus lever-implied ones", () => {
-  assert.deepEqual(assumptionBadges(byId("alt_t72")), ["Same rate assumed — ask the lender", "Term over 60 months"]);
+  assert.deepEqual(assumptionBadges(byId("alt_t72")), ["Same rate assumed, ask the lender", "Term over 60 months"]);
   assert.deepEqual(assumptionBadges(byId("alt_d1000")), ["Extra down payment comes from savings"]);
   assert.deepEqual(
     assumptionBadges({ ...byId("alt_d1000"), assumption_flags: ["extra_down_from_savings"] }),
