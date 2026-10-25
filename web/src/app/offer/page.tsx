@@ -155,8 +155,8 @@ export default function OfferPage() {
           <SavedOffer offer={offer} />
 
           {pending && (
-            <section aria-label="One more question" className="space-y-4 border-t border-line pt-8">
-              <p className="text-[13px] font-medium text-accent-strong">One more question before your results</p>
+            <section aria-label="Before your results" className="space-y-4 border-t border-line pt-8">
+              <p className="text-[13px] font-medium text-accent-strong">Before your results — a question we still need</p>
               {answerError && <ErrorState error={answerError} />}
               <FadeIn key={pending.question_id}>
                 <QuestionCard question={pending} busy={answering} onAnswer={(a) => answer(pending, a)} />

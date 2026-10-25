@@ -88,7 +88,7 @@ function Field({
       <Label htmlFor={id}>{f.label}</Label>
       {f.kind === "currency" && <CurrencyInput {...common} placeholder="0.00" />}
       {f.kind === "percent" && <PercentInput {...common} placeholder="0.00" />}
-      {f.kind === "integer" && <Input {...common} inputMode="numeric" placeholder="60" />}
+      {f.kind === "integer" && <Input {...common} inputMode="numeric" placeholder="Months" />}
       {f.hint && <FieldHint id={`${id}-hint`}>{f.hint}</FieldHint>}
       <FieldError id={`${id}-err`}>{error}</FieldError>
     </div>
@@ -201,7 +201,7 @@ export function OfferForm({ onSaved }: { onSaved: (offer: LoanOffer) => void }) 
         open={moreOpen}
         onOpenChange={setMoreOpen}
         summary="More details"
-        meta={detailCount > 0 ? `${detailCount} added` : "Principal, fees, rate, trade-in, add-ons"}
+        meta={detailCount > 0 ? `${detailCount} added` : "Optional"}
       >
         <div className="space-y-7 pt-2">
           <p className="text-[13px] text-ink-muted">

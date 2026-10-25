@@ -10,7 +10,7 @@ import { Container, FadeIn, PrimaryAction } from "@/components/system";
 import { Checkbox } from "@/components/ui/misc";
 import { DataModeLine } from "@/components/intake/data-mode-line";
 
-const STEPS = ["Tell us about your month", "Add the loan offer", "See the real cost and trade-offs"];
+const STEPS = ["Share your month", "Add the loan offer", "See the trade-offs"];
 
 export default function WelcomePage() {
   const router = useRouter();

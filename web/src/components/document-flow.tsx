@@ -467,11 +467,13 @@ export function DocumentFlow({
             {doc.filename}
             {doc.is_fixture ? " · bundled synthetic sample" : ""} · these values are not used for any calculation.
           </p>
-          <ul className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
-            {terms.map((t) => (
-              <TermRow key={t.term_key} t={t} action={undefined} onAction={() => {}} readOnly />
-            ))}
-          </ul>
+          <Disclosure summary={`Show the ${terms.length} terms we read`}>
+            <ul className="mt-2 divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
+              {terms.map((t) => (
+                <TermRow key={t.term_key} t={t} action={undefined} onAction={() => {}} readOnly />
+              ))}
+            </ul>
+          </Disclosure>
         </section>
       )}
 

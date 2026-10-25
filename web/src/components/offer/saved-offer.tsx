@@ -47,7 +47,7 @@ export function SavedOffer({ offer }: { offer: LoanOffer }) {
       </div>
 
       {headline.length > 0 && (
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4" aria-label="Main terms">
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-7" aria-label="Main terms">
           {headline.map((t) => (
             <li key={t.term_key}>
                 <KeyFigure
