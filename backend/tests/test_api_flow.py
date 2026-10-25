@@ -240,3 +240,23 @@ def test_non_pdf_bytes_422(client, session):
 def test_config_assumptions(client):
     r = client.get(f"{API}/config/assumptions")
     assert r.status_code == 200 and "assumptions" in r.json()
+
+
+def test_analysis_report_carries_claims_and_key_points(client, session):
+    """Real explain module over fake engine outputs (reference values): three key points, claims with evidence."""
+    sid, h = session["id"], session["headers"]
+    client.post(f"{API}/sessions/{sid}/facts", json=reference_facts_payload(), headers=h)
+    client.post(f"{API}/sessions/{sid}/offers", json=reference_offer_payload(), headers=h)
+    rep = client.post(f"{API}/sessions/{sid}/analysis", json={}, headers=h).json()
+    claims = {c["claim_id"]: c for c in rep["claims"]}
+    assert [claims[c]["text"] for c in rep["key_points"]] == [
+        "This loan costs about $3,008 in finance charges over 60 months "
+        "($2,508 interest plus $500 in prepaid finance charges).",
+        "Your monthly leftover goes from $900 to $475 after the payment and the change in car running costs.",
+        "Your savings would go from $6,000 to $2,000 after the down payment — about 0.6 months of essential costs.",
+    ]
+    ev_ids = {e["evidence_id"] for e in rep["evidence"]}
+    assert all(c["evidence_ids"] and set(c["evidence_ids"]) <= ev_ids for c in rep["claims"])
+    assert rep["explanations"][0]["section_id"] == "key_points"
+    assert any(m["fact_key"] == "loan.buy_rate" for m in rep["missing_information"])
+    assert "verified" not in str(rep["evidence"]).lower()
