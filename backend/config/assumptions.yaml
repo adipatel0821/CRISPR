@@ -1,0 +1,107 @@
+# DecisionTwin engine configuration (calc_version 1.1.0). Owner: Agent 1 (Financial Core).
+# Public: served verbatim (minus nothing) by GET /api/v1/config/assumptions. Contains no user data.
+# Every threshold here is either cited or explicitly informational. No verdicts ("safe"/"unsafe").
+version: "1.1.0"
+
+rounding:
+  mode: ROUND_HALF_UP
+  context_precision: 28
+  money_places: 2          # payments, interest lines, totals
+  apr_places: 5            # apr_recomputed, e.g. "0.05796"
+  ltv_places: 3
+  ratio_places: 4          # payment_to_take_home, dti_total
+  months_places: 2         # reserve months, savings months of income
+  break_even_places: 2     # rounded DOWN (a sustainable fraction is never overstated)
+
+tolerances:
+  payment_mismatch: "1.00"      # |computed - disclosed| > $1.00 -> PAYMENT_MISMATCH (warn)
+  identity: "1.00"              # TOP / finance charge / itemization identities, within $1.00
+  apr: "0.00125"                # Reg Z 1026.22 one-eighth of a percentage point; warn only, never fail
+  apr_below_contract_rate: "0.0001"
+
+supported:
+  term_months_min: 6
+  term_months_max: 96
+  product_type: fixed_rate_amortizing
+
+flags:
+  DEFICIT_BEFORE_LOAN:
+    informational: false
+    citation: null
+    description: "Essentials, debt payments (and flexible spending, if given) already exceed take-home pay before this loan."
+  DEFICIT_AFTER_LOAN:
+    informational: false
+    citation: null
+    description: "After this loan's payment and vehicle cost change, monthly outgoings exceed take-home pay."
+  TERM_GT_60:
+    informational: false
+    threshold_months: 60
+    citation: "CFPB en-753"
+    description: "Loan term longer than 60 months; longer terms lower the payment but raise the total interest paid."
+  NEGATIVE_EQUITY_AT_START:
+    informational: false
+    citation: "CFPB en-769"
+    description: "The amount owed at the start exceeds the vehicle's price, or a prior loan balance is rolled into this loan."
+  RESERVE_LT_1_MONTH:
+    informational: true
+    threshold_months: "1"
+    citation: "CFPB Making Ends Meet 2022 (savings groups)"
+    description: "Savings after the purchase cover less than one month of essential outgoings (context only, not a rule)."
+  ADD_ONS_FINANCED:
+    informational: false
+    citation: "CFPB en-797"
+    description: "Optional products (for example GAP or service contracts) are included in the amount financed."
+  PREPAYMENT_PENALTY:
+    informational: false
+    citation: "CFPB en-2132"
+    description: "The contract states a prepayment penalty."
+  PAYMENT_MISMATCH:
+    informational: false
+    citation: null
+    description: "The disclosed monthly payment differs from DecisionTwin's calculation by more than $1.00. Fees may be financed or the first period may be irregular."
+  PFC_ASSUMED_ZERO:
+    informational: false
+    citation: null
+    description: "Prepaid finance charges were not stated and are assumed to be $0."
+
+assumptions:
+  a_pfc_zero:
+    text: "Prepaid finance charges were not stated, so they are assumed to be $0 and the amount financed is treated as equal to the loan principal. If your contract finances fees, the payment check will show a difference."
+    citation: null
+  a_rate_from_apr:
+    text: "The contract (note) interest rate was not given, so the APR was used as the interest rate. If prepaid finance charges exist, the actual note rate is lower than the APR."
+    citation: null
+  a_no_running_costs:
+    text: "New-car running costs (insurance, fuel, maintenance) were not provided, so they are not included; monthly figures show new-car running costs not included."
+    citation: null
+  a_not_replacing:
+    text: "It was not stated whether the new car replaces your current one, so no current-car costs are netted off."
+    citation: null
+  a_illustrative_scenarios:
+    text: "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you."
+    citation: null
+  a_gap_no_interest:
+    text: "Illustrative: any shortfall beyond your savings is shown as an unfunded gap; no interest or fees on that gap are assumed."
+    citation: null
+  a_same_rate_assumed:
+    text: "Illustrative: a different loan term is shown at the same interest rate as your offer. A lender may price a different term differently."
+    citation: null
+  a_no_job_benefits:
+    text: "Illustrative: no unemployment benefits, severance or spending cuts are assumed during the months without income."
+    citation: null
+  a_scenario_before_discretionary:
+    text: "Illustrative: flexible spending was not provided, so these monthly paths are before discretionary spending."
+    citation: null
+  a_extra_down_from_savings:
+    text: "Illustrative: any extra down payment in an alternative is assumed to come out of your savings."
+    citation: null
+
+labels:
+  monthly_left_with_flexible: "after essentials, debts and flexible spending"
+  monthly_left_without_flexible: "before discretionary spending"
+  incremental_costs_not_included: "new-car running costs not included"
+  equity_user_estimate: "your estimate"
+
+context:
+  # Population context sentences (never scenario parameters). Exact wording reviewed before the demo (UD-04).
+  savings_groups: "CFPB Making Ends Meet (2022) groups consumers by emergency savings measured in months of income."

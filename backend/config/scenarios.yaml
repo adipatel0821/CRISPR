@@ -1,0 +1,35 @@
+# Stage 4 catalog v1.1 (ADR-019). Every scenario is ILLUSTRATIVE and user-relative; none is a population
+# statistic or a forecast. Parameters are assumptions (status "assumed").
+version: "1.1.0"
+horizon_months: 12
+seed: 20261024            # recorded on every run; deterministic methods do not use it
+runs: [without_offer, with_offer]
+break_even_months: [3, 6]
+common_assumption_ids: [a_illustrative_scenarios, a_gap_no_interest]
+
+catalog:
+  - scenario_id: sc_expense_spike
+    name: "Illustrative: unexpected expense equal to one month of essentials"
+    type: expense_spike
+    params: {amount_basis: essential_monthly, multiple: "1", month: 2}
+    assumption_ids: []
+  - scenario_id: sc_income_cut
+    name: "Illustrative: take-home pay 25% lower for three months"
+    type: income_cut
+    params: {fraction: "0.25", months: [2, 3, 4]}
+    assumption_ids: []
+  - scenario_id: sc_low_month
+    name: "Illustrative: every month is a slow month"
+    type: low_month
+    params: {requires_variable_income: true}
+    assumption_ids: []
+  - scenario_id: sc_job_loss
+    name: "Illustrative: no income for two months"
+    type: job_loss
+    params: {months: [2, 3]}
+    assumption_ids: [a_no_job_benefits]
+  - scenario_id: sc_cost_rise
+    name: "Illustrative: vehicle cost change 20% higher"
+    type: cost_rise
+    params: {fraction: "0.20", from_month: 1}
+    assumption_ids: []
