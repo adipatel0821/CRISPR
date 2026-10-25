@@ -84,7 +84,7 @@ export const FLAG_TEXT: Record<string, { title: string; body: string }> = {
 };
 
 export const ASSUMPTION_FLAG_TEXT: Record<string, string> = {
-  same_rate_assumed: "Same rate assumed — ask the lender",
+  same_rate_assumed: "Same rate assumed, ask the lender",
   term_gt_60: "Term over 60 months",
   pfc_assumed_zero: "Prepaid charges assumed $0",
 };

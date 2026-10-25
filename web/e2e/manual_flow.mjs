@@ -1,8 +1,10 @@
 // Manual-entry live browser walkthrough (CP1 audit script audit/evidence/cp1/cp1_browser.mjs + CP2 provenance checks).
-// Next.js (:3000) -> FastAPI (:8000) -> engine -> dashboard. System Chrome. Usage: node manual_flow.mjs [screenshot-dir]
+// Next.js (:3000) -> FastAPI (:8000) -> engine -> dashboard. System Chrome. Usage: [WEB=http://localhost:3000] node manual_flow.mjs [screenshot-dir]
+// UX3: the intake question is the page h1 inside form[data-fact-key]; answers go by fact key; amounts in [data-amount-input];
+// choices are [data-option-tile] tiles; the pending down-payment question can appear inline on /offer ("Before your results").
 import { chromium } from "playwright-core";
 
-const WEB = "http://localhost:3000";
+const WEB = process.env.WEB || "http://localhost:3000";
 const OUT = process.argv[2] || ".";
 const results = [];
 const check = (name, ok, detail = "") => { results.push({ name, ok }); console.log(`  [${ok ? "PASS" : "FAIL"}] ${name}${!ok && detail ? " — " + detail : ""}`); };
@@ -22,20 +24,22 @@ try {
   check("start -> /intake", true);
 
   const asked = [];
-  for (let i = 0; i < 12; i++) {
-    const cont = page.getByRole("button", { name: /^Continue$/ });
-    try { await cont.waitFor({ timeout: 6000 }); } catch { break; }
-    const q = (await page.locator("h2").first().textContent()).trim();
-    asked.push(q);
-    if (/take-home/i.test(q)) await page.getByLabel(q).fill("4200");
-    else if (/essential/i.test(q)) await page.getByLabel(q).fill("2900");
-    else if (/debt/i.test(q)) await page.getByLabel(q).fill("0");
-    else if (/savings/i.test(q) && !/down payment/i.test(q)) await page.getByLabel(q).fill("6000");
-    else if (/down payment/i.test(q)) await page.getByRole("radio", { name: /savings/i }).first().click();
-    else { console.log("   unexpected question:", q); break; }
-    await cont.click();
+  const VALUES = { "income.take_home_monthly": "4200", "expenses.essential.total": "2900", "debts.count": "0", "savings.liquid": "6000" };
+  // Answer the question on screen (inside `scope`) by its fact key; false when no question is left.
+  async function answerOne(scope) {
+    const form = scope.locator("form[data-fact-key]").first();
+    try { await form.waitFor({ timeout: 6000 }); } catch { return false; }
+    const key = await form.getAttribute("data-fact-key");
+    const q = (await form.locator("h1, h2").first().textContent()).trim();
+    asked.push(`${key}: ${q}`);
+    if (key === "loan.down_payment_source") await form.locator("[data-option-tile]", { hasText: /savings/i }).first().click();
+    else if (VALUES[key] !== undefined) await form.locator("[data-amount-input] input").first().fill(VALUES[key]);
+    else { console.log("   unexpected question:", key, q); return false; }
+    await form.getByRole("button", { name: /^Continue$/ }).click();
     await page.waitForTimeout(700);
+    return true;
   }
+  for (let i = 0; i < 12; i++) if (!(await answerOne(page))) break;
   console.log("   questions:", asked);
   check("adaptive intake asked the 4 household questions (offer not yet added)", asked.length >= 4, String(asked.length));
   await page.screenshot({ path: `${OUT}/cp1_intake.png`, fullPage: true });
@@ -58,25 +62,21 @@ try {
   const offerText = await page.textContent("body");
   check("offer saved without error", !/something went wrong|error/i.test(offerText.slice(0, 4000)) || /saved|ready/i.test(offerText));
 
-  // the down-payment question may now be pending (two-track intake): answer it if the app asks
+  // the down-payment question may now be pending (two-track intake): UX3 asks it inline on /offer ("Before your results")
+  const inline = page.locator("section[aria-label='Before your results']");
+  if (await inline.count()) { for (let i = 0; i < 4; i++) if (!(await answerOne(inline))) break; }
   const results_btn = page.getByRole("button", { name: /See my results/ });
+  await results_btn.waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await results_btn.isEnabled().catch(() => false))) {
     await page.goto(WEB + "/intake", { waitUntil: "networkidle" });
-    for (let i = 0; i < 4; i++) {
-      const cont = page.getByRole("button", { name: /^Continue$/ });
-      try { await cont.waitFor({ timeout: 4000 }); } catch { break; }
-      const q = (await page.locator("h2").first().textContent()).trim();
-      asked.push(q);
-      if (/down payment/i.test(q)) await page.getByRole("radio", { name: /savings/i }).first().click();
-      else break;
-      await cont.click(); await page.waitForTimeout(700);
-    }
+    for (let i = 0; i < 4; i++) if (!(await answerOne(page))) break;
     await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
   }
-  check("down-payment source asked (5th blocking question)", asked.some((q) => /down payment/i.test(q)), JSON.stringify(asked));
+  check("down-payment source asked (5th blocking question)", asked.some((q) => /down.payment/i.test(q)), JSON.stringify(asked));
   await page.getByRole("button", { name: /See my results/ }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 30000 });
-  await page.waitForTimeout(1500);
+  await page.locator("[data-summary-hero]").waitFor({ timeout: 20000 });
+  await page.waitForTimeout(800);
   const dash = await page.textContent("body");
   // Blocking questions only (no refinements): left before = 4200-2900 = 1,300.00; after = 1300-375.14 = 924.86 (F14 = 0, labelled)
   for (const v of ["375.14", "22,508.29", "3,008.29", "26,508.29", "1,300", "924.86", "2,000"]) check(`dashboard shows ${v}`, dash.includes(v));

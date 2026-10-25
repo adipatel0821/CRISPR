@@ -171,7 +171,7 @@ test("highlightAlternatives on the fixture: skips savings (none improve), lower 
   ]);
   assert.equal(h[0].deltas.monthly_payment, "-55.36");
   assert.equal(h[0].sameRateAssumed, true);
-  assert.deepEqual(h[0].assumptionNotes, ["Same rate assumed — ask the lender", "Term over 60 months"]);
+  assert.deepEqual(h[0].assumptionNotes, ["Same rate assumed, ask the lender", "Term over 60 months"]);
   assert.equal(h[1].metrics.finance_charge, "1998.32");
   // never the base, never infeasible
   assert.ok(h.every((x) => x.altId !== "alt_base" && x.altId !== "alt_d3000"));

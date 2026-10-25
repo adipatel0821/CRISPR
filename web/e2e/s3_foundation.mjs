@@ -72,7 +72,8 @@ for (const [w, h] of [[1440, 900], [390, 844]]) {
     assert.equal(await page.locator("header[data-site-header]").count(), 1);
     assert.equal(await page.locator("[data-app-surface]").count(), 1);
     const bandBg = await page.locator("header[data-site-header]").evaluate((el) => getComputedStyle(el).backgroundColor);
-    if (w < 1024) assert.equal(bandBg, "rgb(42, 100, 227)");
+    // Owner palette change (2026-10-25): the frame band is black (--color-frame #111111); blue is the accent only.
+    if (w < 1024) assert.equal(bandBg, "rgb(17, 17, 17)");
     assert.equal(await page.locator("[data-primary-action]:visible").count(), 1, "one primary action on welcome");
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, "no horizontal scroll");
     assert.deepEqual(await seriousAxe(page), [], "axe serious/critical on welcome");

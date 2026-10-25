@@ -12,11 +12,11 @@ import type { ScenarioResult } from "@/lib/contracts";
 import { displayNumber, formatMoney, formatMoneyTick } from "@/lib/format";
 
 const BRAND = "#2A64E3";
-const SLATE = "#7C8BA1";
-const SHORT = "#D9483B";
-const GRID = "#E4E8EF";
-const AXIS = "#667085";
-const ZERO = "#4B5568";
+const SLATE = "#8A8A8A";
+const SHORT = "#111111";
+const GRID = "#E5E5E5";
+const AXIS = "#5C5C5C";
+const ZERO = "#404040";
 
 interface Point {
   month: number;
@@ -95,7 +95,7 @@ export function TrajectoryChart({ without, withOffer, title }: { without?: Scena
             <span
               aria-hidden
               className="size-3.5 rounded-[3px]"
-              style={{ background: `repeating-linear-gradient(135deg, ${SHORT} 0 3px, #F6C9C4 3px 6px)` }}
+              style={{ background: `repeating-linear-gradient(135deg, ${SHORT} 0 3px, #D4D4D4 3px 6px)` }}
             />
             Shortfall beyond savings, below $0
           </li>
@@ -106,11 +106,11 @@ export function TrajectoryChart({ without, withOffer, title }: { without?: Scena
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 4 }} barCategoryGap="22%">
             <defs>
               <pattern id="dt-gap-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <rect width="6" height="6" fill="#F6C9C4" />
+                <rect width="6" height="6" fill="#D4D4D4" />
                 <rect width="3" height="6" fill={SHORT} />
               </pattern>
               <pattern id="dt-gap-hatch-slate" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <rect width="6" height="6" fill="#E4E8EF" />
+                <rect width="6" height="6" fill="#E5E5E5" />
                 <rect width="3" height="6" fill={SLATE} />
               </pattern>
             </defs>
