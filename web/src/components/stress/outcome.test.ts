@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import type { DecisionReport, ScenarioResult } from "../../lib/contracts.ts";
-import { horizonMonths, runOutcome, scenarioSeverity, scenarioSummary } from "./outcome.ts";
+import { horizonMonths, orderByConsequence, runOutcome, scenarioSeverity, scenarioSummary, tileOutcome } from "./outcome.ts";
 
 const FIXTURE: DecisionReport = JSON.parse(readFileSync(new URL("../../fixtures/report.json", import.meta.url), "utf8"));
 
@@ -50,4 +50,22 @@ test("missing runs are 'Not calculated', never zero", () => {
   assert.equal(scenarioSummary({}), "This scenario wasn't calculated.");
   const noEnd = { ...(p.without as ScenarioResult), savings_end: null };
   assert.equal(runOutcome(noEnd).detail, null);
+});
+
+test("UX3: most consequential scenario first (largest shortfall with the loan); limited scenarios last", () => {
+  const ids = [...new Set(FIXTURE.scenarios.map((s) => s.scenario_id))];
+  const pairs = ids.map((id) => ({ scenarioId: id, ...pair(id) }));
+  const ordered = orderByConsequence(pairs);
+  assert.equal(ordered[0].scenarioId, "sc_job_loss");
+  assert.equal(ordered.length, pairs.length);
+  const limited = orderByConsequence(pairs, (x) => x.scenarioId === "sc_job_loss");
+  assert.equal(limited[limited.length - 1].scenarioId, "sc_job_loss");
+});
+
+test("UX3: tile outcomes are short and paired with a tone", () => {
+  const p = pair("sc_job_loss");
+  assert.deepEqual(tileOutcome(p.with, false), { text: "Runs out in month 2", tone: "shortfall" });
+  assert.deepEqual(tileOutcome(p.without, false), { text: "Lasts all 12 months", tone: "savings" });
+  assert.deepEqual(tileOutcome(p.with, true), { text: "Needs running costs", tone: "caution" });
+  assert.deepEqual(tileOutcome(undefined, false), { text: "Not calculated", tone: "neutral" });
 });
