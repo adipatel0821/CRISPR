@@ -28,12 +28,52 @@ def _one(key, value, status="provided", existing=None):
     return upd
 
 
+# CONTRACT-DRIVEN CHANGE (CP1 audit LOW-1, contracts §5): the old expectations here encoded half-up rounding
+# ("1234.565" -> "1234.57", " 375.145 " -> "375.15"). §5 says a currency value has at most 2 decimals, and /facts
+# rejects 3-dp input, so the answer path now rejects it too (re-ask) instead of silently changing the number.
 @pytest.mark.parametrize("raw,expected", [
-    ("4,200", "4200.00"), ("$4,200.00", "4200.00"), ("4200", "4200.00"), ("1234.565", "1234.57"),
-    ("1234.564", "1234.56"), ("0", "0.00"), ("4.2k", "4200.00"), (" 375.145 ", "375.15"),
+    ("4,200", "4200.00"), ("$4,200.00", "4200.00"), ("4200", "4200.00"), ("1234.56", "1234.56"),
+    ("0", "0.00"), ("4.2k", "4200.00"), (" 375.14 ", "375.14"), ("4200.5", "4200.50"),
+    ("4200.500", "4200.50"),            # trailing zero: value is exact cents, nothing is rounded
+    (4200, "4200.00"),                  # JSON integer
 ])
-def test_currency_normalization_half_up(raw, expected):
+def test_currency_normalization_exact(raw, expected):
     assert _one("income.take_home_monthly", raw).new_facts[0].value == expected
+
+
+@pytest.mark.parametrize("raw", ["1234.565", "1234.564", " 375.145 ", "4200.005", "1.234567k"])
+def test_currency_rejects_more_than_two_decimals_instead_of_rounding(raw):
+    with pytest.raises(FactValidationError) as e:
+        _one("income.take_home_monthly", raw)
+    assert "at most 2 decimal places" in e.value.message
+
+
+@pytest.mark.parametrize("raw", ["1e3", "1E3", "4.2e3", "1e-2", "$1e3"])
+def test_currency_rejects_exponent_notation(raw):
+    with pytest.raises(FactValidationError) as e:
+        _one("savings.liquid", raw)
+    assert "1000 rather than 1e3" in e.value.message
+
+
+@pytest.mark.parametrize("raw", [4200.5, 4200.0, 0.1])
+def test_currency_rejects_binary_float(raw):
+    with pytest.raises(FactValidationError) as e:
+        _one("savings.liquid", raw)
+    assert "type it as text" in e.value.message
+
+
+def test_answer_path_stores_what_the_contract_validator_stores():
+    """Every value the friendly parser accepts is byte-equal to schemas.validation.normalize_fact_value
+    of the canonical value, and the contract's own sanity bound applies on the answer path too."""
+    from schemas.validation import normalize_fact_value
+    for key, raw in [("income.take_home_monthly", "$4,200"), ("savings.liquid", "6000.1"), ("debts.count", "2"),
+                     ("vehicle.replaces_current", "Yes"), ("loan.down_payment_source", "My savings"),
+                     ("debts[d1].monthly_payment", "210"), ("debts[d1].remaining_months", "36")]:
+        v = _one(key, raw).new_facts[0].value
+        assert v == normalize_fact_value(key, v), (key, raw, v)
+    with pytest.raises(FactValidationError) as e:       # contract MAX_CURRENCY = $100M
+        _one("savings.liquid", "100000000.01")
+    assert "implausibly large" in e.value.message
 
 
 @pytest.mark.parametrize("raw", ["-1", "-0.01", "abc", "", "NaN", "Infinity"])

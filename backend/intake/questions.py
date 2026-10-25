@@ -296,6 +296,19 @@ def _answer_value(resp: QuestionResponse) -> Any:
     return resp.typed_value if resp.typed_value is not None else resp.raw_answer
 
 
+def _reject_floats(value: Any) -> None:
+    """Contracts §5: a JSON float (e.g. 4200.5) is a binary float and is never accepted as a typed value,
+    including inside a pair / estimate list. Strings ("4200.50") and integers are fine."""
+    if isinstance(value, float):
+        raise ledger_mod.float_error(value)
+    if isinstance(value, Mapping):
+        for v in value.values():
+            _reject_floats(v)
+    elif isinstance(value, (list, tuple)):
+        for v in value:
+            _reject_floats(v)
+
+
 def _split_pair(value: Any) -> tuple[Any, Any]:
     if isinstance(value, Mapping):
         a = value.get("typical", value.get("first", value.get("income.take_home_monthly")))
@@ -361,6 +374,7 @@ def apply_answer(session_id: str, question: QuestionCandidate, response: Questio
     if value is None or (isinstance(value, str) and not value.strip()):
         raise FactValidationError("Please enter an answer, or choose skip / prefer not to say.",
                                   {"question_id": question.question_id})
+    _reject_floats(value)
     original = response.raw_answer if response.raw_answer is not None else str(value)
 
     if question.kind == "currency_pair":

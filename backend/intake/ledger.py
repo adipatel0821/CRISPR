@@ -5,6 +5,11 @@
   (storage marks it superseded). Nothing is ever edited in place.
 * current_facts returns the latest non-superseded fact per key.
 * Unknown is never zero: a declined fact carries value None.
+* Contracts §5 (D0-004 / CP1 audit LOW-1): the friendly typed-answer parser below never rounds and never accepts
+  exponent notation or binary floats; every canonical value is then passed through
+  schemas.validation.normalize_fact_value so /answers and /facts store values under the same rules.
+* Lowering debts.count retires the extra debt items (highest ids first) with a `superseded` tombstone so
+  current_facts and engine.requirements.debt_requirements stop requiring them.
 """
 from __future__ import annotations
 
@@ -19,11 +24,13 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
+from engine.requirements import debt_item_ids
 from intake.errors import FactValidationError
 from intake.ontology import FactSpec, load_ontology
+from schemas import validation as contract
 from schemas.contracts import FactEvidence, FactInput, FinancialFact, Uncertainty
 
-NORMALIZER = "typed_widget@1.1"
+NORMALIZER = "typed_widget@1.2"
 CENT = Decimal("0.01")
 _TRUE = {"true", "yes", "y", "1", "t"}
 _FALSE = {"false", "no", "n", "0", "f"}
@@ -53,13 +60,23 @@ def _status(obj: Any) -> str | None:
 # ---------------------------------------------------------------------------
 # Normalization (C01 validators)
 # ---------------------------------------------------------------------------
+_PLAIN_NUMBER_RE = re.compile(r"^-?(\d+(\.\d*)?|\.\d+)$")
+_EXPONENT_RE = re.compile(r"^-?(\d+(\.\d*)?|\.\d+)e[+-]?\d+$")
+FLOAT_MESSAGE = "We couldn't read that number exactly. Please type it as text, e.g. 4200.50."
+
+
+def float_error(raw: Any) -> FactValidationError:
+    """Binary floats are never accepted for typed values (contracts §5: money is never a float)."""
+    return FactValidationError(FLOAT_MESSAGE, {"value": repr(raw), "validator": "no_float"})
+
+
 def parse_decimal(raw: Any, what: str = "amount") -> Decimal:
     if isinstance(raw, bool):
         raise FactValidationError(f"Enter a number for {what}.", {"value": raw})
+    if isinstance(raw, float):
+        raise float_error(raw)
     if isinstance(raw, (int, Decimal)):
         d = Decimal(raw)
-    elif isinstance(raw, float):
-        d = Decimal(repr(raw))
     else:
         s = str(raw).strip().lower()
         s = re.sub(r"[\s$,]", "", s)
@@ -69,6 +86,13 @@ def parse_decimal(raw: Any, what: str = "amount") -> Decimal:
             mult, s = Decimal(1000), s[:-1]
         if s.startswith("(") and s.endswith(")"):
             s = "-" + s[1:-1]
+        if _EXPONENT_RE.match(s):
+            raise FactValidationError(
+                f"Write {what} out in full, e.g. 1000 rather than 1e3.", {"value": str(raw), "validator": "no_exponent"})
+        if not _PLAIN_NUMBER_RE.match(s):
+            raise FactValidationError(
+                f"We couldn't read \"{raw}\" as a number for {what}. Enter digits only, e.g. 4200 or 4,200.",
+                {"value": str(raw)})
         try:
             d = Decimal(s) * mult
         except (InvalidOperation, ValueError):
@@ -80,12 +104,21 @@ def parse_decimal(raw: Any, what: str = "amount") -> Decimal:
     return d
 
 
+def _cap(label: str) -> str:
+    return label[:1].upper() + label[1:]
+
+
 def normalize_currency(raw: Any, label: str) -> str:
+    """Exact: an amount with non-zero digits beyond the cent is rejected (re-ask), never rounded (contracts §5)."""
     d = parse_decimal(raw, label)
     if d < 0:
-        raise FactValidationError(f"{label[:1].upper() + label[1:]} can't be negative. Enter 0 or more.",
+        raise FactValidationError(f"{_cap(label)} can't be negative. Enter 0 or more.",
                                   {"value": str(raw), "validator": "nonnegative"})
-    return str(d.quantize(CENT, rounding=ROUND_HALF_UP))
+    if d != d.quantize(CENT, rounding=ROUND_HALF_UP):
+        raise FactValidationError(
+            f"{_cap(label)} can have at most 2 decimal places (cents), e.g. 4200.50.",
+            {"value": str(raw), "validator": "max_2_decimals"})
+    return str(d.quantize(CENT))
 
 
 def normalize_integer(raw: Any, spec: FactSpec) -> str:
@@ -152,7 +185,27 @@ def normalize_value_list(raw: Any, spec: FactSpec) -> str:
     return json.dumps(out, separators=(",", ":"))
 
 
-def normalize(spec: FactSpec, raw: Any) -> str:
+def contract_value(key: str, spec: FactSpec, canonical: str) -> str:
+    """Pass an ontology-canonical value through the shared contract validator (schemas.validation, §5).
+    The friendly parser is a front end only: what is stored is what /facts would store."""
+    try:
+        checked = contract.normalize_fact_value(key, canonical)
+    except ValueError as e:
+        raise FactValidationError(f"{_cap(spec.label)} {e}.", {"value": canonical, "validator": "contract"}) from None
+    if spec.value_type == "date_value_list":
+        # same content; keep the compact canonical JSON so /answers and /facts store byte-identical values
+        if json.loads(checked) != json.loads(canonical):
+            raise FactValidationError(f"{_cap(spec.label)} could not be validated.", {"value": canonical})
+        return canonical
+    return checked
+
+
+def normalize(spec: FactSpec, raw: Any, key: str | None = None) -> str:
+    """Ontology (friendly) normalization, then the contracts §5 validator for the concrete key."""
+    return contract_value(key or spec.key, spec, _normalize_friendly(spec, raw))
+
+
+def _normalize_friendly(spec: FactSpec, raw: Any) -> str:
     if raw is None or (isinstance(raw, str) and not raw.strip()):
         raise FactValidationError(f"Enter a value for {spec.label}, or choose skip / prefer not to say.",
                                   {"value": raw})
@@ -183,7 +236,7 @@ def validate_stored(key: str, value: Any) -> str | None:
     if value is None:
         return None
     try:
-        normalize(spec, value)
+        normalize(spec, value, key)
     except FactValidationError as e:
         return e.message
     return None
@@ -254,7 +307,7 @@ def apply_inputs(session_id: str, existing: list[Any], inputs: list[FactInput | 
             raise _unknown_key_error(inp.key)
         status = inp.status
         try:
-            value = None if status == "declined" else normalize(spec, inp.value)
+            value = None if status == "declined" else normalize(spec, inp.value, inp.key)
         except FactValidationError as e:
             errors.append({"key": inp.key, "message": e.message, **(e.details if isinstance(e.details, dict) else {})})
             continue
@@ -263,8 +316,16 @@ def apply_inputs(session_id: str, existing: list[Any], inputs: list[FactInput | 
             if unc.low is None or unc.high is None:
                 errors.append({"key": inp.key, "message": "A range needs both a low and a high value."})
                 continue
-            unc = Uncertainty(kind="range", low=normalize_currency(unc.low, spec.label),
-                              high=normalize_currency(unc.high, spec.label))
+            try:
+                low, high = normalize_currency(unc.low, spec.label), normalize_currency(unc.high, spec.label)
+                low, high = contract.parse_currency(low), contract.parse_currency(high)
+            except FactValidationError as e:
+                errors.append({"key": inp.key, "message": e.message})
+                continue
+            except ValueError as e:
+                errors.append({"key": inp.key, "message": f"{_cap(spec.label)} range {e}."})
+                continue
+            unc = Uncertainty(kind="range", low=low, high=high)
         original = inp.original_representation if inp.original_representation is not None else (
             None if inp.value is None else str(inp.value))
         staged.append((inp.key, value, status, spec, original, unc))
@@ -284,8 +345,28 @@ def apply_inputs(session_id: str, existing: list[Any], inputs: list[FactInput | 
         update.new_facts.append(fact)
         current[key] = fact
         if key == "debts.count" and value is not None:
+            _retire_extra_debt_items(session_id, current, int(value), update)
             update.new_facts += _debt_placeholders(session_id, current, int(value))
     return update
+
+
+def _retire_extra_debt_items(session_id: str, current: dict[str, Any], count: int, update: LedgerUpdate) -> None:
+    """debts.count lowered below the number of existing items: keep the first `count` items (engine order
+    d1, d2, ...) and supersede every fact of the extra items, highest ids first. Append-only: each retired fact
+    gets a `superseded` tombstone that points at it, so current_facts drops it whether or not storage has
+    marked the old row yet, and engine.requirements.debt_requirements no longer requires the item."""
+    ids = debt_item_ids(current)
+    for item in reversed(ids[count:]):
+        prefix = f"debts[{item}]."
+        for key in sorted(k for k in current if k.startswith(prefix)):
+            old = current.pop(key)
+            old_id = _get(old, "fact_id")
+            tomb = make_fact(session_id, key, None, "superseded", supersedes=old_id,
+                             uncertainty=Uncertainty(kind="unknown"),
+                             display_label="Removed: you said you have fewer debts")
+            update.new_facts.append(tomb)
+            if old_id:
+                update.superseded_ids.append(old_id)
 
 
 def _debt_placeholders(session_id: str, current: dict[str, Any], count: int) -> list[FinancialFact]:
