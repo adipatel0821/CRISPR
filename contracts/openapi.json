@@ -1,0 +1,3841 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DecisionTwin API",
+    "description": "Deterministic, source-labelled auto-loan decision analysis (contracts v1.1).",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/api/v1/sessions": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Create Session",
+        "operationId": "create_session_api_v1_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/SessionCreate"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionCreated"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Read Session",
+        "operationId": "read_session_api_v1_sessions__session_id__get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Delete Session",
+        "operationId": "delete_session_api_v1_sessions__session_id__delete",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/facts": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Post Facts",
+        "operationId": "post_facts_api_v1_sessions__session_id__facts_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FactsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/next-question": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Get Next Question",
+        "operationId": "get_next_question_api_v1_sessions__session_id__next_question_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NextQuestionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/answers": {
+      "post": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Post Answer",
+        "description": "Apply one answer (or skip / decline / estimate) and return the next question.",
+        "operationId": "post_answer_api_v1_sessions__session_id__answers_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NextQuestionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/readiness": {
+      "get": {
+        "tags": [
+          "sessions"
+        ],
+        "summary": "Get Readiness",
+        "operationId": "get_readiness_api_v1_sessions__session_id__readiness_get",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnalysisReadiness"
+                  },
+                  "title": "Response Get Readiness Api V1 Sessions  Session Id  Readiness Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/offers": {
+      "post": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Post Manual Offer",
+        "operationId": "post_manual_offer_api_v1_sessions__session_id__offers_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualOfferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOffer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/documents": {
+      "post": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Upload Document",
+        "operationId": "upload_document_api_v1_sessions__session_id__documents_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_document_api_v1_sessions__session_id__documents_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{doc_id}": {
+      "get": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Get Document",
+        "operationId": "get_document_api_v1_documents__doc_id__get",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentStatus"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/documents/{doc_id}/verify": {
+      "post": {
+        "tags": [
+          "offers"
+        ],
+        "summary": "Verify Document",
+        "operationId": "verify_document_api_v1_documents__doc_id__verify_post",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Doc Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanOffer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sessions/{session_id}/analysis": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Post Analysis",
+        "operationId": "post_analysis_api_v1_sessions__session_id__analysis_post",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AnalysisRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{report_id}": {
+      "get": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Get Report",
+        "operationId": "get_report_api_v1_reports__report_id__get",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecisionReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reports/{report_id}/explain": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Explain Report",
+        "operationId": "explain_report_api_v1_reports__report_id__explain_post",
+        "parameters": [
+          {
+            "name": "report_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Report Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/config/assumptions": {
+      "get": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Get Assumptions",
+        "operationId": "get_assumptions_api_v1_config_assumptions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Assumptions Api V1 Config Assumptions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Acknowledgement": {
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "fact_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fact Ids"
+          },
+          "acknowledged_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Acknowledged At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_id"
+        ],
+        "title": "Acknowledgement"
+      },
+      "Alternative": {
+        "properties": {
+          "alt_id": {
+            "type": "string",
+            "title": "Alt Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "lever_values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Lever Values"
+          },
+          "assumption_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumption Flags"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "deltas_vs_base": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Deltas Vs Base"
+          },
+          "feasible": {
+            "type": "boolean",
+            "title": "Feasible",
+            "default": true
+          },
+          "infeasible_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Infeasible Reasons"
+          },
+          "is_base": {
+            "type": "boolean",
+            "title": "Is Base",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "alt_id",
+          "label",
+          "lever_values"
+        ],
+        "title": "Alternative"
+      },
+      "AnalysisId": {
+        "type": "string",
+        "enum": [
+          "loan_cost",
+          "cashflow_impact",
+          "reserve_impact",
+          "stress_test",
+          "alternatives",
+          "dti",
+          "equity_timeline"
+        ],
+        "title": "AnalysisId"
+      },
+      "AnalysisReadiness": {
+        "properties": {
+          "analysis_id": {
+            "$ref": "#/components/schemas/AnalysisId"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "awaiting_offer": {
+            "type": "boolean",
+            "title": "Awaiting Offer",
+            "default": false
+          },
+          "required": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Required"
+          },
+          "missing": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing"
+          },
+          "declined": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Declined"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "available"
+        ],
+        "title": "AnalysisReadiness"
+      },
+      "AnalysisRequest": {
+        "properties": {
+          "offer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Id"
+          }
+        },
+        "type": "object",
+        "title": "AnalysisRequest"
+      },
+      "Assumption": {
+        "properties": {
+          "assumption_id": {
+            "type": "string",
+            "title": "Assumption Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "source_kind": {
+            "$ref": "#/components/schemas/SourceKind",
+            "default": "assumption"
+          },
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "assumption_id",
+          "text"
+        ],
+        "title": "Assumption"
+      },
+      "Body_upload_document_api_v1_sessions__session_id__documents_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_document_api_v1_sessions__session_id__documents_post"
+      },
+      "CalculationResult": {
+        "properties": {
+          "calc_id": {
+            "type": "string",
+            "title": "Calc Id"
+          },
+          "calc_version": {
+            "type": "string",
+            "title": "Calc Version",
+            "default": "1.1.0"
+          },
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.1"
+          },
+          "profile_version": {
+            "type": "integer",
+            "title": "Profile Version",
+            "default": 0
+          },
+          "offer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Id"
+          },
+          "derived_status": {
+            "$ref": "#/components/schemas/FactStatus",
+            "default": "provided"
+          },
+          "derived_verification": {
+            "$ref": "#/components/schemas/Verification",
+            "default": "none"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Metric"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "amortization_schedule": {
+            "items": {
+              "$ref": "#/components/schemas/ScheduleRow"
+            },
+            "type": "array",
+            "title": "Amortization Schedule"
+          },
+          "flags": {
+            "items": {
+              "$ref": "#/components/schemas/Flag"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "required_inputs": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Required Inputs"
+          },
+          "assumptions_used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions Used"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "computed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Computed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "calc_id"
+        ],
+        "title": "CalculationResult"
+      },
+      "Claim": {
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "title": "Claim Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ClaimType"
+          },
+          "subject_metric": {
+            "type": "string",
+            "title": "Subject Metric"
+          },
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values"
+          },
+          "direction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down",
+                  "none"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direction"
+          },
+          "evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Evidence Ids"
+          },
+          "assumption_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumption Ids"
+          },
+          "template_id": {
+            "type": "string",
+            "title": "Template Id"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "claim_id",
+          "type",
+          "subject_metric",
+          "template_id"
+        ],
+        "title": "Claim"
+      },
+      "ClaimType": {
+        "type": "string",
+        "enum": [
+          "value",
+          "change",
+          "comparison",
+          "threshold_flag",
+          "scenario_outcome",
+          "missing"
+        ],
+        "title": "ClaimType"
+      },
+      "Conflict": {
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "fact_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fact Keys"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rule_id",
+          "fact_keys",
+          "message"
+        ],
+        "title": "Conflict"
+      },
+      "CounterfactualResult": {
+        "properties": {
+          "base_offer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Offer Id"
+          },
+          "levers": {
+            "additionalProperties": {
+              "items": {},
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Levers"
+          },
+          "deferred_levers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Deferred Levers"
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/Alternative"
+            },
+            "type": "array",
+            "title": "Alternatives"
+          },
+          "pareto_set": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Pareto Set"
+          },
+          "objectives": {
+            "items": {
+              "$ref": "#/components/schemas/Objective"
+            },
+            "type": "array",
+            "title": "Objectives"
+          },
+          "rate_sensitivity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RateSensitivity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sensitivity_ranking": {
+            "items": {
+              "$ref": "#/components/schemas/SensitivityItem"
+            },
+            "type": "array",
+            "title": "Sensitivity Ranking"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          }
+        },
+        "type": "object",
+        "title": "CounterfactualResult"
+      },
+      "DecisionReport": {
+        "properties": {
+          "report_id": {
+            "type": "string",
+            "title": "Report Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "calc_version": {
+            "type": "string",
+            "title": "Calc Version",
+            "default": "1.1.0"
+          },
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.1"
+          },
+          "data_mode": {
+            "$ref": "#/components/schemas/LlmDataMode",
+            "default": "synthetic_only"
+          },
+          "readiness": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisReadiness"
+            },
+            "type": "array",
+            "title": "Readiness"
+          },
+          "key_points": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Key Points"
+          },
+          "profile_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Profile Summary"
+          },
+          "offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LoanOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "baseline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CalculationResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "with_offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CalculationResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioResult"
+            },
+            "type": "array",
+            "title": "Scenarios"
+          },
+          "resilience": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResilienceSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "counterfactual": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CounterfactualResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "title": "Claims"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationEvidence"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "explanations": {
+            "items": {
+              "$ref": "#/components/schemas/ExplanationSection"
+            },
+            "type": "array",
+            "title": "Explanations"
+          },
+          "assumptions": {
+            "items": {
+              "$ref": "#/components/schemas/Assumption"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          },
+          "missing_information": {
+            "items": {
+              "$ref": "#/components/schemas/MissingInfoItem"
+            },
+            "type": "array",
+            "title": "Missing Information"
+          },
+          "disclaimers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Disclaimers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "report_id",
+          "session_id"
+        ],
+        "title": "DecisionReport"
+      },
+      "DecisionType": {
+        "type": "string",
+        "enum": [
+          "AUTO_LOAN",
+          "INSTALLMENT_LOAN"
+        ],
+        "title": "DecisionType"
+      },
+      "DocumentStatus": {
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "title": "Doc Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "processing",
+              "extracted",
+              "needs_choice",
+              "failed",
+              "unsupported"
+            ],
+            "title": "Status"
+          },
+          "filename": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filename"
+          },
+          "pages": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pages"
+          },
+          "is_fixture": {
+            "type": "boolean",
+            "title": "Is Fixture",
+            "default": false
+          },
+          "extraction_method": {
+            "type": "string",
+            "enum": [
+              "llm+reader",
+              "reader_only",
+              "none"
+            ],
+            "title": "Extraction Method",
+            "default": "none"
+          },
+          "offers_found": {
+            "type": "integer",
+            "title": "Offers Found",
+            "default": 0
+          },
+          "offer_labels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Offer Labels"
+          },
+          "draft_offer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LoanOffer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "doc_id",
+          "session_id",
+          "status"
+        ],
+        "title": "DocumentStatus"
+      },
+      "ExplanationEvidence": {
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "title": "Evidence Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SourceKind"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/Verification",
+            "default": "none"
+          },
+          "ref": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Ref"
+          },
+          "display_label": {
+            "type": "string",
+            "title": "Display Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evidence_id",
+          "kind",
+          "display_label"
+        ],
+        "title": "ExplanationEvidence"
+      },
+      "ExplanationSection": {
+        "properties": {
+          "section_id": {
+            "type": "string",
+            "title": "Section Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "claims": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Claims"
+          },
+          "template_text": {
+            "type": "string",
+            "title": "Template Text"
+          },
+          "narrative_text": {
+            "type": "null",
+            "title": "Narrative Text"
+          },
+          "provenance_tags": {
+            "items": {
+              "$ref": "#/components/schemas/SourceKind"
+            },
+            "type": "array",
+            "title": "Provenance Tags"
+          }
+        },
+        "type": "object",
+        "required": [
+          "section_id",
+          "template_text"
+        ],
+        "title": "ExplanationSection"
+      },
+      "FactEvidence": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SourceKind"
+          },
+          "ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ref"
+          },
+          "display_label": {
+            "type": "string",
+            "title": "Display Label"
+          },
+          "doc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doc Id"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "display_label"
+        ],
+        "title": "FactEvidence"
+      },
+      "FactInput": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "provided",
+              "estimated",
+              "declined"
+            ],
+            "title": "Status",
+            "default": "provided"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Uncertainty"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "original_representation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Representation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "FactInput",
+        "description": "One typed fact from the form path (POST /sessions/{id}/facts)."
+      },
+      "FactStatus": {
+        "type": "string",
+        "enum": [
+          "provided",
+          "estimated",
+          "assumed",
+          "missing",
+          "declined",
+          "conflicting",
+          "superseded",
+          "calculated"
+        ],
+        "title": "FactStatus"
+      },
+      "FactsRequest": {
+        "properties": {
+          "facts": {
+            "items": {
+              "$ref": "#/components/schemas/FactInput"
+            },
+            "type": "array",
+            "title": "Facts"
+          },
+          "acknowledge_rules": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Acknowledge Rules"
+          }
+        },
+        "type": "object",
+        "required": [
+          "facts"
+        ],
+        "title": "FactsRequest"
+      },
+      "FinancialFact": {
+        "properties": {
+          "fact_id": {
+            "type": "string",
+            "title": "Fact Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "value_type": {
+            "type": "string",
+            "title": "Value Type"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FactStatus"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/Verification",
+            "default": "none"
+          },
+          "source_kind": {
+            "$ref": "#/components/schemas/SourceKind",
+            "default": "user_input"
+          },
+          "uncertainty": {
+            "$ref": "#/components/schemas/Uncertainty"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FactEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "original_representation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Original Representation"
+          },
+          "normalized_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Normalized By"
+          },
+          "supersedes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fact_id",
+          "session_id",
+          "key",
+          "value_type",
+          "status"
+        ],
+        "title": "FinancialFact"
+      },
+      "FinancialProfile": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "decision_type": {
+            "$ref": "#/components/schemas/DecisionType",
+            "default": "AUTO_LOAN"
+          },
+          "selected_analyses": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisId"
+            },
+            "type": "array",
+            "title": "Selected Analyses"
+          },
+          "facts": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FinancialFact"
+            },
+            "type": "object",
+            "title": "Facts"
+          },
+          "readiness": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisReadiness"
+            },
+            "type": "array",
+            "title": "Readiness"
+          },
+          "acknowledgements": {
+            "items": {
+              "$ref": "#/components/schemas/Acknowledgement"
+            },
+            "type": "array",
+            "title": "Acknowledgements"
+          },
+          "conflicts": {
+            "items": {
+              "$ref": "#/components/schemas/Conflict"
+            },
+            "type": "array",
+            "title": "Conflicts"
+          },
+          "profile_version": {
+            "type": "integer",
+            "title": "Profile Version",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id"
+        ],
+        "title": "FinancialProfile"
+      },
+      "Flag": {
+        "properties": {
+          "flag_id": {
+            "type": "string",
+            "title": "Flag Id"
+          },
+          "triggered": {
+            "type": "boolean",
+            "title": "Triggered"
+          },
+          "informational": {
+            "type": "boolean",
+            "title": "Informational",
+            "default": false
+          },
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flag_id",
+          "triggered"
+        ],
+        "title": "Flag"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degraded"
+            ],
+            "title": "Status"
+          },
+          "db": {
+            "type": "boolean",
+            "title": "Db"
+          },
+          "llm_configured": {
+            "type": "boolean",
+            "title": "Llm Configured"
+          },
+          "data_mode": {
+            "$ref": "#/components/schemas/LlmDataMode"
+          },
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.1"
+          },
+          "calc_version": {
+            "type": "string",
+            "title": "Calc Version",
+            "default": "1.1.0"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "db",
+          "llm_configured",
+          "data_mode"
+        ],
+        "title": "HealthResponse"
+      },
+      "ItemizationItem-Input": {
+        "properties": {
+          "item": {
+            "type": "string",
+            "title": "Item"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "optional": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optional"
+          },
+          "financed": {
+            "type": "boolean",
+            "title": "Financed",
+            "default": true
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "item",
+          "amount"
+        ],
+        "title": "ItemizationItem"
+      },
+      "ItemizationItem-Output": {
+        "properties": {
+          "item": {
+            "type": "string",
+            "title": "Item"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "optional": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Optional"
+          },
+          "financed": {
+            "type": "boolean",
+            "title": "Financed",
+            "default": true
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "item",
+          "amount"
+        ],
+        "title": "ItemizationItem"
+      },
+      "LlmDataMode": {
+        "type": "string",
+        "enum": [
+          "paid",
+          "synthetic_only",
+          "off"
+        ],
+        "title": "LlmDataMode"
+      },
+      "LoanOffer": {
+        "properties": {
+          "offer_id": {
+            "type": "string",
+            "title": "Offer Id"
+          },
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "default": "Loan offer"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "document",
+              "manual"
+            ],
+            "title": "Origin"
+          },
+          "doc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doc Id"
+          },
+          "document_offers_count": {
+            "type": "integer",
+            "title": "Document Offers Count",
+            "default": 1
+          },
+          "offer_choice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Choice"
+          },
+          "product_type": {
+            "type": "string",
+            "title": "Product Type",
+            "default": "fixed_rate_amortizing"
+          },
+          "terms": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/VerifiedFinancialTerm"
+            },
+            "type": "object",
+            "title": "Terms"
+          },
+          "itemization": {
+            "items": {
+              "$ref": "#/components/schemas/ItemizationItem-Output"
+            },
+            "type": "array",
+            "title": "Itemization"
+          },
+          "derived": {
+            "$ref": "#/components/schemas/OfferDerived"
+          },
+          "unsupported_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unsupported Features"
+          },
+          "ready_for_calculation": {
+            "type": "boolean",
+            "title": "Ready For Calculation",
+            "default": false
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offer_id",
+          "session_id",
+          "origin"
+        ],
+        "title": "LoanOffer"
+      },
+      "ManualOfferRequest": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "default": "Manual offer"
+          },
+          "terms": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Terms"
+          },
+          "itemization": {
+            "items": {
+              "$ref": "#/components/schemas/ItemizationItem-Input"
+            },
+            "type": "array",
+            "title": "Itemization"
+          },
+          "confirmed": {
+            "type": "boolean",
+            "title": "Confirmed",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "terms"
+        ],
+        "title": "ManualOfferRequest",
+        "description": "POST /sessions/{id}/offers. Values are decimal strings (rates as fractions, e.g. \"0.0475\")."
+      },
+      "Metric": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "formula_id": {
+            "type": "string",
+            "title": "Formula Id"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FactStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "missing_inputs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Missing Inputs"
+          },
+          "basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "disclosed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disclosed"
+          },
+          "mismatch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mismatch"
+          },
+          "check": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pass",
+                  "warn",
+                  "fail",
+                  "not_applicable"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check"
+          },
+          "breakdown": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Breakdown"
+          },
+          "before": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Before"
+          },
+          "after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "formula_id"
+        ],
+        "title": "Metric"
+      },
+      "MissingInfoItem": {
+        "properties": {
+          "fact_key": {
+            "type": "string",
+            "title": "Fact Key"
+          },
+          "why_it_matters": {
+            "type": "string",
+            "title": "Why It Matters"
+          },
+          "ask_the_lender": {
+            "type": "boolean",
+            "title": "Ask The Lender",
+            "default": false
+          },
+          "citation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Citation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fact_key",
+          "why_it_matters"
+        ],
+        "title": "MissingInfoItem"
+      },
+      "NextQuestionResponse": {
+        "properties": {
+          "question": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/QuestionCandidate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "readiness": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisReadiness"
+            },
+            "type": "array",
+            "title": "Readiness"
+          },
+          "refinements": {
+            "items": {
+              "$ref": "#/components/schemas/QuestionCandidate"
+            },
+            "type": "array",
+            "title": "Refinements"
+          },
+          "profile_version": {
+            "type": "integer",
+            "title": "Profile Version",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "question",
+          "readiness"
+        ],
+        "title": "NextQuestionResponse"
+      },
+      "Objective": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "min",
+              "max"
+            ],
+            "title": "Direction"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "direction"
+        ],
+        "title": "Objective"
+      },
+      "OfferDerived": {
+        "properties": {
+          "trade_in_equity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade In Equity"
+          },
+          "negative_equity_rolled_in": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Equity Rolled In"
+          },
+          "principal_basis": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "stated",
+                  "derived",
+                  "assumed_pfc_zero"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Principal Basis"
+          }
+        },
+        "type": "object",
+        "title": "OfferDerived"
+      },
+      "PriorityClass": {
+        "type": "string",
+        "enum": [
+          "blocking",
+          "refinement"
+        ],
+        "title": "PriorityClass"
+      },
+      "QuestionCandidate": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "fact_key": {
+            "type": "string",
+            "title": "Fact Key"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/QuestionKind"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "choices": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choices"
+          },
+          "why_we_ask": {
+            "type": "string",
+            "title": "Why We Ask"
+          },
+          "priority_class": {
+            "$ref": "#/components/schemas/PriorityClass"
+          },
+          "blocks_analyses": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisId"
+            },
+            "type": "array",
+            "title": "Blocks Analyses"
+          },
+          "dependency_order": {
+            "type": "integer",
+            "title": "Dependency Order"
+          },
+          "refinement_effect": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RefinementEffect"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "allow_skip": {
+            "type": "boolean",
+            "title": "Allow Skip",
+            "default": true
+          },
+          "allow_estimate": {
+            "type": "boolean",
+            "title": "Allow Estimate",
+            "default": false
+          },
+          "rule_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id",
+          "fact_key",
+          "kind",
+          "text",
+          "why_we_ask",
+          "priority_class",
+          "dependency_order"
+        ],
+        "title": "QuestionCandidate"
+      },
+      "QuestionKind": {
+        "type": "string",
+        "enum": [
+          "number",
+          "currency",
+          "choice",
+          "multi_choice",
+          "yes_no",
+          "free_text",
+          "currency_pair"
+        ],
+        "title": "QuestionKind"
+      },
+      "QuestionResponse": {
+        "properties": {
+          "question_id": {
+            "type": "string",
+            "title": "Question Id"
+          },
+          "fact_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fact Key"
+          },
+          "raw_answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Answer"
+          },
+          "typed_value": {
+            "title": "Typed Value"
+          },
+          "skipped": {
+            "type": "boolean",
+            "title": "Skipped",
+            "default": false
+          },
+          "declined": {
+            "type": "boolean",
+            "title": "Declined",
+            "default": false
+          },
+          "marked_estimate": {
+            "type": "boolean",
+            "title": "Marked Estimate",
+            "default": false
+          },
+          "answered_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Answered At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question_id"
+        ],
+        "title": "QuestionResponse"
+      },
+      "RateSensitivity": {
+        "properties": {
+          "per_point_finance_charge_delta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Point Finance Charge Delta"
+          },
+          "per_point_monthly_payment_delta": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Point Monthly Payment Delta"
+          },
+          "statement_claim_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statement Claim Id"
+          }
+        },
+        "type": "object",
+        "title": "RateSensitivity"
+      },
+      "RefinementEffect": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "max_abs_change": {
+            "type": "string",
+            "title": "Max Abs Change"
+          },
+          "basis": {
+            "type": "string",
+            "title": "Basis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metric",
+          "max_abs_change",
+          "basis"
+        ],
+        "title": "RefinementEffect"
+      },
+      "ResilienceSummary": {
+        "properties": {
+          "break_even_m3": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Even M3"
+          },
+          "break_even_m6": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Break Even M6"
+          },
+          "capped": {
+            "type": "boolean",
+            "title": "Capped",
+            "default": false
+          },
+          "deficit_at_baseline": {
+            "type": "boolean",
+            "title": "Deficit At Baseline",
+            "default": false
+          },
+          "scenarios_with_shortfall": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Scenarios With Shortfall"
+          }
+        },
+        "type": "object",
+        "title": "ResilienceSummary"
+      },
+      "ScenarioMonth": {
+        "properties": {
+          "month": {
+            "type": "integer",
+            "title": "Month"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "essential": {
+            "type": "string",
+            "title": "Essential"
+          },
+          "flexible": {
+            "type": "string",
+            "title": "Flexible"
+          },
+          "debt_payments": {
+            "type": "string",
+            "title": "Debt Payments"
+          },
+          "new_payment": {
+            "type": "string",
+            "title": "New Payment"
+          },
+          "incremental_vehicle_costs": {
+            "type": "string",
+            "title": "Incremental Vehicle Costs"
+          },
+          "one_time": {
+            "type": "string",
+            "title": "One Time"
+          },
+          "net": {
+            "type": "string",
+            "title": "Net"
+          },
+          "savings_balance": {
+            "type": "string",
+            "title": "Savings Balance"
+          },
+          "unfunded_gap": {
+            "type": "string",
+            "title": "Unfunded Gap"
+          }
+        },
+        "type": "object",
+        "required": [
+          "month",
+          "income",
+          "essential",
+          "flexible",
+          "debt_payments",
+          "new_payment",
+          "incremental_vehicle_costs",
+          "one_time",
+          "net",
+          "savings_balance",
+          "unfunded_gap"
+        ],
+        "title": "ScenarioMonth"
+      },
+      "ScenarioResult": {
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "run": {
+            "$ref": "#/components/schemas/ScenarioRun"
+          },
+          "calc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calc Id"
+          },
+          "derived_status": {
+            "$ref": "#/components/schemas/FactStatus",
+            "default": "assumed"
+          },
+          "start_balance": {
+            "type": "string",
+            "title": "Start Balance"
+          },
+          "monthly_paths": {
+            "items": {
+              "$ref": "#/components/schemas/ScenarioMonth"
+            },
+            "type": "array",
+            "title": "Monthly Paths"
+          },
+          "first_shortfall_month": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Shortfall Month"
+          },
+          "months_of_runway": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months Of Runway"
+          },
+          "max_unfunded_gap": {
+            "type": "string",
+            "title": "Max Unfunded Gap",
+            "default": "0.00"
+          },
+          "recovery_month": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recovery Month"
+          },
+          "savings_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Savings End"
+          },
+          "deficit_at_baseline": {
+            "type": "boolean",
+            "title": "Deficit At Baseline",
+            "default": false
+          },
+          "assumptions": {
+            "items": {
+              "$ref": "#/components/schemas/Assumption"
+            },
+            "type": "array",
+            "title": "Assumptions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "run",
+          "start_balance"
+        ],
+        "title": "ScenarioResult"
+      },
+      "ScenarioRun": {
+        "type": "string",
+        "enum": [
+          "without_offer",
+          "with_offer"
+        ],
+        "title": "ScenarioRun"
+      },
+      "ScheduleRow": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "payment": {
+            "type": "string",
+            "title": "Payment"
+          },
+          "interest": {
+            "type": "string",
+            "title": "Interest"
+          },
+          "principal": {
+            "type": "string",
+            "title": "Principal"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "payment",
+          "interest",
+          "principal",
+          "balance"
+        ],
+        "title": "ScheduleRow"
+      },
+      "SensitivityItem": {
+        "properties": {
+          "lever": {
+            "type": "string",
+            "title": "Lever"
+          },
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "normalized_effect": {
+            "type": "string",
+            "title": "Normalized Effect"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lever",
+          "metric",
+          "normalized_effect"
+        ],
+        "title": "SensitivityItem"
+      },
+      "SessionCreate": {
+        "properties": {
+          "decision_type": {
+            "$ref": "#/components/schemas/DecisionType",
+            "default": "AUTO_LOAN"
+          },
+          "selected_analyses": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisId"
+            },
+            "type": "array",
+            "title": "Selected Analyses"
+          }
+        },
+        "type": "object",
+        "title": "SessionCreate"
+      },
+      "SessionCreated": {
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "title": "Session Id"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "data_mode": {
+            "$ref": "#/components/schemas/LlmDataMode"
+          },
+          "selected_analyses": {
+            "items": {
+              "$ref": "#/components/schemas/AnalysisId"
+            },
+            "type": "array",
+            "title": "Selected Analyses"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "session_id",
+          "token",
+          "data_mode",
+          "selected_analyses"
+        ],
+        "title": "SessionCreated"
+      },
+      "SessionView": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/FinancialProfile"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/LoanOffer"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "data_mode": {
+            "$ref": "#/components/schemas/LlmDataMode"
+          },
+          "latest_report_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Report Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "profile",
+          "data_mode"
+        ],
+        "title": "SessionView"
+      },
+      "SourceKind": {
+        "type": "string",
+        "enum": [
+          "user_input",
+          "document",
+          "calculation",
+          "assumption",
+          "ai_interpretation",
+          "external_source"
+        ],
+        "title": "SourceKind"
+      },
+      "TermAction": {
+        "properties": {
+          "term_key": {
+            "type": "string",
+            "title": "Term Key"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "confirm",
+              "correct",
+              "reject"
+            ],
+            "title": "Action"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "term_key",
+          "action"
+        ],
+        "title": "TermAction"
+      },
+      "TermCandidate": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          }
+        },
+        "type": "object",
+        "required": [
+          "value",
+          "source"
+        ],
+        "title": "TermCandidate"
+      },
+      "TermChecks": {
+        "properties": {
+          "quote_match": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Quote Match",
+            "default": "not_applicable"
+          },
+          "label_anchor": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Label Anchor",
+            "default": "not_applicable"
+          },
+          "independent_reader": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Independent Reader",
+            "default": "not_applicable"
+          },
+          "arithmetic": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Arithmetic",
+            "default": "not_applicable"
+          },
+          "itemization": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Itemization",
+            "default": "not_applicable"
+          },
+          "apr_recompute": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Apr Recompute",
+            "default": "not_applicable"
+          },
+          "range": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "warn",
+              "fail",
+              "not_applicable"
+            ],
+            "title": "Range",
+            "default": "not_applicable"
+          }
+        },
+        "type": "object",
+        "title": "TermChecks"
+      },
+      "TermEvidence": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/SourceKind"
+          },
+          "doc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doc Id"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page"
+          },
+          "label_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label Text"
+          },
+          "value_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Text"
+          },
+          "quote": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote"
+          },
+          "quote_found_in_text": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Found In Text"
+          },
+          "display_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "TermEvidence"
+      },
+      "Uncertainty": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/UncertaintyKind",
+            "default": "exact"
+          },
+          "low": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Low"
+          },
+          "high": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High"
+          }
+        },
+        "type": "object",
+        "title": "Uncertainty"
+      },
+      "UncertaintyKind": {
+        "type": "string",
+        "enum": [
+          "exact",
+          "approximate",
+          "range",
+          "unknown"
+        ],
+        "title": "UncertaintyKind"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "Verification": {
+        "type": "string",
+        "enum": [
+          "none",
+          "user_confirmed",
+          "evidence_matched",
+          "evidence_matched_user_confirmed"
+        ],
+        "title": "Verification"
+      },
+      "VerifiedFinancialTerm": {
+        "properties": {
+          "term_key": {
+            "type": "string",
+            "title": "Term Key"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "value_type": {
+            "type": "string",
+            "title": "Value Type"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FactStatus"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/Verification",
+            "default": "none"
+          },
+          "source_kind": {
+            "$ref": "#/components/schemas/SourceKind"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TermEvidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checks": {
+            "$ref": "#/components/schemas/TermChecks"
+          },
+          "alternatives_found": {
+            "items": {
+              "$ref": "#/components/schemas/TermCandidate"
+            },
+            "type": "array",
+            "title": "Alternatives Found"
+          },
+          "user_action": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "confirmed",
+                  "corrected",
+                  "rejected",
+                  "pending"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Action"
+          }
+        },
+        "type": "object",
+        "required": [
+          "term_key",
+          "value_type",
+          "status",
+          "source_kind"
+        ],
+        "title": "VerifiedFinancialTerm"
+      },
+      "VerifyRequest": {
+        "properties": {
+          "offer_choice": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offer Choice"
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/TermAction"
+            },
+            "type": "array",
+            "title": "Actions"
+          }
+        },
+        "type": "object",
+        "title": "VerifyRequest"
+      }
+    }
+  }
+}
