@@ -95,6 +95,7 @@ export function IntakeDone({
   onAdd,
   readiness,
   facts = [],
+  celebrate = false,
 }: {
   hasOffer: boolean;
   primary: React.ReactNode;
@@ -111,6 +112,8 @@ export function IntakeDone({
   readiness?: React.ReactNode;
   /** The person's current answers (for the "as you told us" picture on wide screens). */
   facts?: FinancialFact[];
+  /** True right after the intake was completed on this visit: shows the yellow celebration (never with gaps). */
+  celebrate?: boolean;
 }) {
   const gaps = skipped.length > 0;
   const month = <MonthAsTold facts={facts} className="hidden xl:block" />;
@@ -123,8 +126,13 @@ export function IntakeDone({
         actions={<ActionRow>{primary}</ActionRow>}
       >
         <div className="space-y-4">
-          <Cheer>{gaps ? "Your money: done for now." : "Your money: done. Nice work."}</Cheer>
-          <h1 className="text-pretty text-[length:var(--text-display)] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink">
+          {gaps ? (
+            // A needed answer is still missing: a plain line, no yellow badge.
+            <p className="text-[16px] font-semibold text-ink-2">Your money: done for now.</p>
+          ) : (
+            celebrate && <Cheer>Your money: done. Nice work.</Cheer>
+          )}
+          <h1 className="text-balance text-[length:var(--text-display)] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink">
             {gaps ? (
               "That's all for now"
             ) : (

@@ -1,7 +1,8 @@
 // UX3 report check: the decision report through the real API. Reference figures on screen and in the appendix,
 // the appendix collapsed and keyboard operable, print/PDF (summary only: <= 2 Letter pages; with the appendix when
-// chosen), copy checks on screen and in the PDF text, axe, one primary action, no sideways scroll, delete
-// confirmation, a refined session (running costs known), and screenshots at four viewports.
+// chosen), copy checks on screen and in the PDF text, axe, one primary action, nothing cut off at the screen edge
+// (element bounds, every <details> and the appendix open) and the primary label fits (D5-003), delete confirmation,
+// a refined session (running costs known), and screenshots at five viewports (1440, 1920, 768, 390, 360).
 //
 // Usage (playwright-core + axe-core resolvable from this file's folder; system Chrome; PyMuPDF for PDF text):
 //   WEB=http://localhost:3304 API=http://localhost:8304 OUT=./out PY=path/to/python node s3_report.mjs
@@ -9,7 +10,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { chromium } from "playwright-core";
-import { axe, copyClean, copyIssues, noHorizontalScroll, primaryActions } from "./lib/check.mjs";
+import { axe, clippedElements, copyClean, copyIssues, noHorizontalScroll, primaryActionFit, primaryActions } from "./lib/check.mjs";
 
 const require = createRequire(import.meta.url);
 const AXE = require.resolve("axe-core/axe.min.js");
@@ -228,16 +229,26 @@ try {
   }
 
   // ---------------- viewports: screenshots, scroll, primary action, axe ----------------
-  for (const [w, h] of [[1440, 900], [1920, 1080], [768, 1024], [390, 844]]) {
+  for (const [w, h] of [[1440, 900], [1920, 1080], [768, 1024], [390, 844], [360, 740]]) {
     const ctx = await context(browser, sess, w, h);
     const page = await ctx.newPage();
     await openReport(page);
     await page.screenshot({ path: `${OUT}/report_${w}x${h}_fold.png` });
     await page.screenshot({ path: `${OUT}/report_${w}x${h}_full.png`, fullPage: true });
     check(`${w}: no horizontal scroll`, await noHorizontalScroll(page));
+    // D5-003: element bounds (every <details> open) and the primary label fit; the appendix is opened too.
+    let clipped = await clippedElements(page);
+    check(`${w}: nothing cut off at the screen edge`, clipped.length === 0, clipped.slice(0, 4).join(" | "));
+    const fit = await primaryActionFit(page);
+    check(`${w}: primary action label fits, no overlap`, fit.problems.length === 0, fit.problems.join(" | "));
+    await page.getByRole("button", { name: "Show appendix" }).click();
+    await page.locator("#appendix-body").waitFor();
+    clipped = await clippedElements(page);
+    check(`${w}: appendix open, nothing cut off (tables scroll inside their cards)`, clipped.length === 0, clipped.slice(0, 4).join(" | "));
+    await page.getByRole("button", { name: "Hide appendix" }).click();
     const pa = await primaryActions(page);
     check(`${w}: one visible primary action`, pa.visible === 1, JSON.stringify(pa));
-    if (w === 390 || w === 768) {
+    if (w === 390 || w === 360 || w === 768) {
       const ax = await axe(page, AXE);
       check(`${w}: axe 0 serious/critical`, ax.serious.length === 0, JSON.stringify(ax.serious.map((v) => v.id)));
       const ci = await copyIssues(page);

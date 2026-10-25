@@ -145,9 +145,10 @@ function ScenarioDetails({ report, pair }: { report: DecisionReport; pair: Scena
     (c) => c.type === "scenario_outcome" && c.values?.scenario_id === pair.scenarioId && typeof c.text === "string" && c.text.trim(),
   );
   return (
-    // grid-cols-1 (minmax(0, 1fr)): the month table's min width scrolls inside its region instead of widening the column.
+    // grid-cols-1 (minmax(0, 1fr)) + min-w-0: on phones the month table's minimum width must not widen the column,
+    // so the table scrolls inside its own region and the assumption text wraps inside its card (D5-001).
     <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:items-start">
-      <details className="dt-disclosure group rounded-card border border-line bg-surface">
+      <details className="dt-disclosure group min-w-0 rounded-card border border-line bg-surface">
         <summary className="flex min-h-12 items-center justify-between gap-3 px-5 text-[15px] font-semibold text-ink">
           What this what-if assumes
           <ChevronDown aria-hidden className="dt-chevron size-4 text-ink-2" />
@@ -167,7 +168,7 @@ function ScenarioDetails({ report, pair }: { report: DecisionReport; pair: Scena
           )}
         </div>
       </details>
-      <details data-month-table="" className="dt-disclosure group rounded-card border border-line bg-surface">
+      <details data-month-table="" className="dt-disclosure group min-w-0 rounded-card border border-line bg-surface">
         <summary className="flex min-h-12 items-center justify-between gap-3 px-5 text-[15px] font-semibold text-ink">
           Month by month
           <ChevronDown aria-hidden className="dt-chevron size-4 text-ink-2" />

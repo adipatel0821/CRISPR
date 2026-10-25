@@ -100,7 +100,7 @@ function Options({ report }: { report: DecisionReport }) {
                   featured
                 />
               )}
-              <div className={cn("grid items-start gap-6 lg:grid-cols-2", rest.length >= 2 && "2xl:grid-cols-3")}>
+              <div className={cn("grid grid-cols-1 items-start gap-6 lg:grid-cols-2", rest.length >= 2 && "2xl:grid-cols-3")}>
                 {rest.map((c) => {
                   const alt = cf.alternatives.find((a) => a.alt_id === c.highlight.altId) ?? c.highlight.alternative;
                   return <OptionCard key={c.highlight.altId} report={report} alt={alt} base={base} slots={c.slots} headingId={`alt-${alt.alt_id}`} />;

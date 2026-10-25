@@ -13,7 +13,7 @@ export interface SourceLinkProps {
   label?: string;
   /** Visible text (default "How we got this"). */
   text?: string;
-  /** "link" (default): blue text after a small receipt badge. "quiet": small gray underlined text. */
+  /** "link" (default): blue text after a small receipt badge. "quiet": small gray underlined text after a plain receipt icon. */
   variant?: "link" | "quiet";
   className?: string;
 }
@@ -36,15 +36,18 @@ export function SourceLink({ evidence, label, text = "How we got this", variant 
           "no-print inline-flex min-h-8 items-center gap-2 rounded-sm transition-colors duration-150",
           variant === "link"
             ? "text-[15px] font-semibold text-brand-strong hover:underline hover:underline-offset-4"
-            : "text-sm text-ink-subtle underline decoration-line-strong decoration-1 underline-offset-4 hover:text-ink hover:decoration-current",
+            : "gap-1.5 text-sm text-ink-subtle underline decoration-line-strong decoration-1 underline-offset-4 hover:text-ink hover:decoration-current",
           className,
         )}
       >
-        {/* Same small receipt badge as "Every number shows its source" on the welcome page. */}
-        {variant === "link" && (
+        {/* Same small receipt badge as "Every number shows its source" on the welcome page; the quiet variant
+            carries the plain receipt icon (no yellow fill) in its own gray. */}
+        {variant === "link" ? (
           <span aria-hidden className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-sun-soft text-sun-ink">
             <ReceiptText aria-hidden className="size-3.5" strokeWidth={2.25} />
           </span>
+        ) : (
+          <ReceiptText aria-hidden className="size-3.5 shrink-0" strokeWidth={2} />
         )}
         {text}
       </PopoverTrigger>

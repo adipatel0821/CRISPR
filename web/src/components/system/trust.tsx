@@ -22,7 +22,7 @@ export function TrustLine({
 }) {
   return (
     <Tag data-trust-line="" className={cn("flex items-center gap-2.5 text-[15px] font-semibold leading-snug text-ink-2", className)}>
-      <span aria-hidden className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-sun-soft text-sun-ink">
+      <span aria-hidden className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-sun-soft text-sun-ink print:hidden">
         <Icon aria-hidden className="size-3.5" strokeWidth={2.25} />
       </span>
       <span className="min-w-0 text-balance">{children}</span>
@@ -40,12 +40,15 @@ const TRUST = [
   { icon: Trash2, text: "Delete your data any time" },
 ] as const;
 
-/** TrustStrip: the welcome page's three plain facts, three even columns on wide screens and stacked on phones. */
+/**
+ * TrustStrip: the welcome page's three plain facts. Stacked on phones; from 640 px each statement keeps its natural
+ * width on one line and the row wraps between statements, never inside one.
+ */
 export function TrustStrip({ className }: { className?: string }) {
   return (
-    <ul data-trust-strip="" aria-label="Good to know" className={cn("grid gap-3 sm:grid-cols-3 sm:gap-x-4", className)}>
+    <ul data-trust-strip="" aria-label="Good to know" className={cn("grid gap-3 sm:flex sm:flex-wrap sm:gap-x-7 sm:gap-y-3", className)}>
       {TRUST.map((t) => (
-        <TrustLine key={t.text} as="li" icon={t.icon} className="gap-2 text-[14px]">
+        <TrustLine key={t.text} as="li" icon={t.icon} className="gap-2 text-[14px] sm:whitespace-nowrap">
           {t.text}
         </TrustLine>
       ))}

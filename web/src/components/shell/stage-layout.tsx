@@ -293,7 +293,8 @@ export function ActionRow({
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2">
+        {/* Secondary items yield by wrapping, never by truncating or by squeezing the primary pill (D5-002). */}
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {back &&
             ("href" in back ? (
               <Link href={back.href} className={backCls}>
@@ -309,8 +310,9 @@ export function ActionRow({
           {secondary}
         </div>
         {/* grow (basis auto), not flex-1: when Back + a secondary action leave too little room on a phone, the
-            primary pill wraps to its own line instead of being squeezed. */}
-        {children && <div className="ml-auto flex min-w-0 grow justify-end sm:flex-none">{children}</div>}
+            primary pill wraps to its own line instead of being squeezed. No min-w-0: the pill never shrinks below
+            its label (D5-002). */}
+        {children && <div className="ml-auto flex grow justify-end sm:flex-none">{children}</div>}
       </div>
     </div>
   );

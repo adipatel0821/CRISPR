@@ -61,6 +61,10 @@ export default function IntakePage() {
   const [reloadKey, setReloadKey] = React.useState(0);
   const [running, setRunning] = React.useState(false);
   const [runError, setRunError] = React.useState<ApiError | null>(null);
+  // The intake celebration shows only right after the intake is completed on this visit (like the offer's
+  // "saved" moment): not on a return to /intake, and not while a needed answer is still missing.
+  const [celebrate, setCelebrate] = React.useState(false);
+  const wasIncomplete = React.useRef(false);
 
   React.useEffect(() => {
     if (!hasSession) return;
@@ -70,6 +74,14 @@ export default function IntakePage() {
         if (!cancelled) {
           setData({ nq, session });
           setError(null);
+          const incomplete = !!nq.question || missingFactKeys(session.profile.facts, nq.readiness).length > 0;
+          if (incomplete) {
+            wasIncomplete.current = true;
+            setCelebrate(false);
+          } else if (wasIncomplete.current) {
+            wasIncomplete.current = false;
+            setCelebrate(true);
+          }
         }
       })
       .catch((e: unknown) => {
@@ -120,11 +132,13 @@ export default function IntakePage() {
 
   function openRefinement(r: QuestionCandidate) {
     setEditing(null);
+    setCelebrate(false);
     setRefinement(r);
   }
 
   function openEdit(key: string) {
     setRefinement(null);
+    setCelebrate(false);
     setEditing(key);
   }
 
@@ -267,7 +281,16 @@ export default function IntakePage() {
             onAdd={openEdit}
             facts={answers}
             readiness={<ReadinessDetails readiness={nq.readiness} showOfferLink={!offer} />}
-            lead={lead}
+            // No visible "Saved" line here: it stacked a second yellow check above the celebration. Screen readers
+            // still hear it through the status line above.
+            lead={
+              error ? (
+                <div className="mb-6">
+                  <ErrorState error={error} onRetry={reload} />
+                </div>
+              ) : undefined
+            }
+            celebrate={celebrate}
             after={
               runError && (
                 <div className="space-y-2">

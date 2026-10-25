@@ -308,11 +308,11 @@ export function QuestionCard({
   const input = (
     <div className="space-y-3">
       {question.kind === "currency" && (
+        // No "0" placeholder: beside the "$" it read like an entered zero. An empty field reads as empty.
         <AmountInput
           id={inputId}
           value={text}
           onValueChange={setText}
-          placeholder="0"
           suffix={wording?.suffix}
           invalid={!!error}
           aria-describedby={describedBy}
@@ -326,7 +326,6 @@ export function QuestionCard({
           onValueChange={setText}
           currency={false}
           narrow
-          placeholder="0"
           invalid={!!error}
           aria-describedby={describedBy}
           autoFocus
