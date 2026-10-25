@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/*
+ * DecisionTwin design tokens. Neutral slate base, ONE accent (deep teal). Amber = informational flag,
+ * rose = deficit / warning flag. Nothing else carries colour.
+ */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: #f8fafc;        /* slate-50 */
+  --color-surface: #ffffff;
+  --color-ink: #0f172a;           /* slate-900 */
+  --color-ink-muted: #475569;     /* slate-600 */
+  --color-ink-subtle: #64748b;    /* slate-500 */
+  --color-line: #e2e8f0;          /* slate-200 */
+  --color-line-strong: #cbd5e1;   /* slate-300 */
+
+  --color-accent: #0f766e;        /* teal-700 */
+  --color-accent-strong: #115e59; /* teal-800 */
+  --color-accent-soft: #f0fdfa;   /* teal-50 */
+  --color-accent-line: #99f6e4;   /* teal-200 */
+
+  --color-info: #92400e;          /* amber-800 text */
+  --color-info-soft: #fffbeb;     /* amber-50 */
+  --color-info-line: #fcd34d;     /* amber-300 */
+
+  --color-deficit: #9f1239;       /* rose-800 text */
+  --color-deficit-soft: #fff1f2;  /* rose-50 */
+  --color-deficit-line: #fda4af;  /* rose-300 */
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
+}
+
+body {
+  position: relative; /* contain absolutely-positioned sr-only text so it can't widen the page */
+  overflow-x: clip;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* All figures align. */
+.figure,
+table,
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print: black on white, no chrome, sensible page breaks. */
+@media print {
+  @page {
+    margin: 16mm 14mm;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+  .no-print,
+  header[data-site-header],
+  footer[data-site-footer],
+  [data-banner] {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-card {
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    break-inside: avoid;
+  }
+  .print-break-before {
+    break-before: page;
+  }
+  a {
+    color: #000 !important;
+    text-decoration: none !important;
+  }
+  * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+}
+
+.print-only {
+  display: none;
+}

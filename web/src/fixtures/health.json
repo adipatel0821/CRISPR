@@ -1,0 +1,8 @@
+{
+  "status": "ok",
+  "db": true,
+  "llm_configured": false,
+  "data_mode": "synthetic_only",
+  "schema_version": "1.1",
+  "calc_version": "1.1.0"
+}

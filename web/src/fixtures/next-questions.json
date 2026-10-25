@@ -1,0 +1,960 @@
+{
+  "sequence": [
+    {
+      "question": {
+        "question_id": "q_income.take_home_monthly",
+        "fact_key": "income.take_home_monthly",
+        "kind": "currency",
+        "text": "How much take-home pay do you get in a typical month?",
+        "choices": null,
+        "why_we_ask": "Needed for: what you have left each month (cash flow, savings impact, stress tests).",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "cashflow_impact",
+          "reserve_impact",
+          "stress_test",
+          "alternatives"
+        ],
+        "dependency_order": 10,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": true,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your monthly take-home pay."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your monthly take-home pay."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your monthly take-home pay."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your monthly take-home pay."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 0
+    },
+    {
+      "question": {
+        "question_id": "q_income.variability",
+        "fact_key": "income.variability",
+        "kind": "choice",
+        "text": "How steady is your take-home pay from month to month?",
+        "choices": [
+          "stable",
+          "somewhat_variable",
+          "highly_variable"
+        ],
+        "why_we_ask": "Needed for: choosing which illustrative stress scenarios apply to you.",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "stress_test"
+        ],
+        "dependency_order": 12,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": false,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 1
+    },
+    {
+      "question": {
+        "question_id": "q_expenses.essential.total",
+        "fact_key": "expenses.essential.total",
+        "kind": "currency",
+        "text": "What do your essential bills add up to each month (rent, utilities, groceries, insurance, your current car)?",
+        "choices": null,
+        "why_we_ask": "Needed for: what you have left each month and how long savings would last.",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "cashflow_impact",
+          "reserve_impact",
+          "stress_test",
+          "alternatives"
+        ],
+        "dependency_order": 20,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": true,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs your essential monthly expenses."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 2
+    },
+    {
+      "question": {
+        "question_id": "q_debts.count",
+        "fact_key": "debts.count",
+        "kind": "number",
+        "text": "How many other debts do you make monthly payments on (cards, student loans, other loans)?",
+        "choices": null,
+        "why_we_ask": "Needed for: your monthly obligations. Enter 0 if none.",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "cashflow_impact",
+          "reserve_impact",
+          "stress_test",
+          "alternatives"
+        ],
+        "dependency_order": 30,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": false,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs whether you have existing debt payments."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs whether you have existing debt payments."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs whether you have existing debt payments."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs whether you have existing debt payments."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 3
+    },
+    {
+      "question": {
+        "question_id": "q_savings.liquid",
+        "fact_key": "savings.liquid",
+        "kind": "currency",
+        "text": "How much do you have in savings you could use in an emergency?",
+        "choices": null,
+        "why_we_ask": "Needed for: savings after the purchase and how long they would last.",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "reserve_impact",
+          "stress_test",
+          "alternatives"
+        ],
+        "dependency_order": 40,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": true,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs the savings you could use in an emergency."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs the savings you could use in an emergency."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs the savings you could use in an emergency."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 4
+    },
+    {
+      "question": {
+        "question_id": "q_loan.down_payment_source",
+        "fact_key": "loan.down_payment_source",
+        "kind": "choice",
+        "text": "Where will the down payment come from?",
+        "choices": [
+          "savings",
+          "other",
+          "none"
+        ],
+        "why_we_ask": "Needed for: savings after purchase (savings impact, stress test).",
+        "priority_class": "blocking",
+        "blocks_analyses": [
+          "reserve_impact",
+          "stress_test",
+          "alternatives"
+        ],
+        "dependency_order": 45,
+        "refinement_effect": null,
+        "allow_skip": true,
+        "allow_estimate": false,
+        "rule_id": null
+      },
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs where your down payment comes from."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs where your down payment comes from."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": false,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Needs where your down payment comes from."
+        }
+      ],
+      "refinements": [],
+      "profile_version": 5
+    },
+    {
+      "question": null,
+      "readiness": [
+        {
+          "analysis_id": "loan_cost",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "cashflow_impact",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "reserve_impact",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "stress_test",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        },
+        {
+          "analysis_id": "alternatives",
+          "available": false,
+          "awaiting_offer": true,
+          "required": [
+            "income.take_home_monthly",
+            "expenses.essential.total",
+            "debts.count",
+            "savings.liquid",
+            "loan.down_payment_source",
+            "offer.minimum_set"
+          ],
+          "missing": [
+            "offer.minimum_set"
+          ],
+          "declined": [],
+          "reason": "Waiting for a loan offer with amount, rate and term."
+        }
+      ],
+      "refinements": [
+        {
+          "question_id": "q_vehicle.replaces_current",
+          "fact_key": "vehicle.replaces_current",
+          "kind": "yes_no",
+          "text": "Will the new car replace a car you have now?",
+          "choices": null,
+          "why_we_ask": "Improves: the change in your monthly car costs.",
+          "priority_class": "refinement",
+          "blocks_analyses": [],
+          "dependency_order": 60,
+          "refinement_effect": {
+            "metric": "monthly_left_after",
+            "max_abs_change": "260.00",
+            "basis": "your current car costs, if they stop"
+          },
+          "allow_skip": true,
+          "allow_estimate": false,
+          "rule_id": null
+        },
+        {
+          "question_id": "q_expenses.flexible.total",
+          "fact_key": "expenses.flexible.total",
+          "kind": "currency",
+          "text": "Roughly how much flexible spending do you have in a month (eating out, hobbies)?",
+          "choices": null,
+          "why_we_ask": "Improves: what you have left each month. Without it, we show money left before flexible spending.",
+          "priority_class": "refinement",
+          "blocks_analyses": [],
+          "dependency_order": 62,
+          "refinement_effect": {
+            "metric": "monthly_left_after",
+            "max_abs_change": "900.00",
+            "basis": "flexible spending between $0 and your monthly leftover before this loan"
+          },
+          "allow_skip": true,
+          "allow_estimate": true,
+          "rule_id": null
+        },
+        {
+          "question_id": "q_vehicle.new_ownership_costs_monthly",
+          "fact_key": "vehicle.new_ownership_costs_monthly",
+          "kind": "currency",
+          "text": "What will insurance, fuel and upkeep for the new car cost each month?",
+          "choices": null,
+          "why_we_ask": "Improves: the true monthly cost of the new car.",
+          "priority_class": "refinement",
+          "blocks_analyses": [],
+          "dependency_order": 64,
+          "refinement_effect": null,
+          "allow_skip": true,
+          "allow_estimate": true,
+          "rule_id": null
+        },
+        {
+          "question_id": "q_income.gross_monthly",
+          "fact_key": "income.gross_monthly",
+          "kind": "currency",
+          "text": "What is your gross (before-tax) monthly income?",
+          "choices": null,
+          "why_we_ask": "Unlocks: debt-to-income ratio.",
+          "priority_class": "refinement",
+          "blocks_analyses": [],
+          "dependency_order": 70,
+          "refinement_effect": null,
+          "allow_skip": true,
+          "allow_estimate": true,
+          "rule_id": null
+        }
+      ],
+      "profile_version": 6
+    }
+  ],
+  "after_offer_readiness": [
+    {
+      "analysis_id": "loan_cost",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [
+        "offer.minimum_set"
+      ],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "cashflow_impact",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.count",
+        "offer.minimum_set"
+      ],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "reserve_impact",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.count",
+        "savings.liquid",
+        "loan.down_payment_source",
+        "offer.minimum_set"
+      ],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "stress_test",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.count",
+        "savings.liquid",
+        "loan.down_payment_source",
+        "offer.minimum_set"
+      ],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "alternatives",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.count",
+        "savings.liquid",
+        "loan.down_payment_source",
+        "offer.minimum_set"
+      ],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    }
+  ]
+}
