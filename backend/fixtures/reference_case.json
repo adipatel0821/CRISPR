@@ -1,16 +1,46 @@
 {
   "_comment": "Audited running example (contracts v1.1 header). SYNTHETIC. Expected engine outputs listed under expected.",
   "facts": [
-    {"key": "income.take_home_monthly", "value": "4200.00"},
-    {"key": "income.variability", "value": "stable"},
-    {"key": "expenses.essential.total", "value": "2900.00"},
-    {"key": "expenses.current_vehicle_costs_monthly", "value": "260.00"},
-    {"key": "vehicle.replaces_current", "value": "true"},
-    {"key": "vehicle.new_ownership_costs_monthly", "value": "310.00"},
-    {"key": "expenses.flexible.total", "value": "400.00"},
-    {"key": "debts.count", "value": "0"},
-    {"key": "savings.liquid", "value": "6000.00"},
-    {"key": "loan.down_payment_source", "value": "savings"}
+    {
+      "key": "income.take_home_monthly",
+      "value": "4200.00"
+    },
+    {
+      "key": "income.variability",
+      "value": "stable"
+    },
+    {
+      "key": "expenses.essential.total",
+      "value": "2900.00"
+    },
+    {
+      "key": "expenses.current_vehicle_costs_monthly",
+      "value": "260.00"
+    },
+    {
+      "key": "vehicle.replaces_current",
+      "value": "true"
+    },
+    {
+      "key": "vehicle.new_ownership_costs_monthly",
+      "value": "310.00"
+    },
+    {
+      "key": "expenses.flexible.total",
+      "value": "400.00"
+    },
+    {
+      "key": "debts.count",
+      "value": "0"
+    },
+    {
+      "key": "savings.liquid",
+      "value": "6000.00"
+    },
+    {
+      "key": "loan.down_payment_source",
+      "value": "savings"
+    }
   ],
   "offer": {
     "label": "Dealer offer A (synthetic)",
@@ -41,6 +71,14 @@
     "savings_after_purchase": "2000.00",
     "reserve_months_before": "2.07",
     "reserve_months_after": "0.60",
-    "first_schedule_row": {"n": 1, "payment": "375.14", "interest": "79.17", "principal": "295.97", "balance": "19704.03"}
+    "first_schedule_row": {
+      "n": 1,
+      "payment": "375.14",
+      "interest": "79.17",
+      "principal": "295.97",
+      "balance": "19704.03"
+    },
+    "itemization_check": "pass",
+    "_itemization_note": "22000.00 + 1500.00 - 4000.00 = 19500.00 = amount_financed (IMP-007)"
   }
 }

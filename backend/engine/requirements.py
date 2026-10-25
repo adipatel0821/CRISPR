@@ -20,6 +20,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from schemas.contracts import AnalysisReadiness, COMPUTABLE_STATUSES, FactStatus
+from schemas.validation import parse_decimal_count
 
 OFFER_MINIMUM_SET = "offer.minimum_set"
 DEBT_ITEM_RE = re.compile(r"^debts\[(?P<id>[A-Za-z0-9_]+)\]\.(?P<field>[a-z_]+)$")
@@ -92,8 +93,15 @@ def _value(fact: Any) -> Any:
     return fact.get("value") if isinstance(fact, Mapping) else getattr(fact, "value", None)
 
 
+_COMPUTABLE = {s.value for s in COMPUTABLE_STATUSES}
+
+
 def is_known(facts: Mapping[str, Any], key: str) -> bool:
-    return _status(facts.get(key)) in {s.value for s in COMPUTABLE_STATUSES}
+    if _status(facts.get(key)) not in _COMPUTABLE:
+        return False
+    if key == "debts.count":                      # D0-002: an invalid count is unknown, never "no debts"
+        return parse_decimal_count(_value(facts[key])) is not None
+    return True
 
 
 def is_declined(facts: Mapping[str, Any], key: str) -> bool:
@@ -120,8 +128,8 @@ def debt_requirements(facts: Mapping[str, Any]) -> list[str]:
     """Expand `debts.*.monthly_payment` into concrete keys. Unknown count => `debts.count` itself."""
     if not is_known(facts, "debts.count"):
         return ["debts.count"]
-    count = int(_decimal(_value(facts["debts.count"])) or 0)
-    if count == 0:
+    count = parse_decimal_count(_value(facts["debts.count"]))
+    if not count:
         return ["debts.count"]
     ids = debt_item_ids(facts)
     for k in range(len(ids) + 1, count + 1):          # items announced but not yet created
@@ -132,14 +140,25 @@ def debt_requirements(facts: Mapping[str, Any]) -> list[str]:
     return ["debts.count"] + [f"debts[{i}].monthly_payment" for i in ids]
 
 
-def _cash_down(offer: Any) -> Decimal | None:
+def _term_amount(offer: Any, key: str) -> Decimal | None:
+    """Value of an offer term, or None when absent or not computable (e.g. conflicting) — D0-003."""
     if offer is None:
         return None
     terms = offer.get("terms") if isinstance(offer, Mapping) else getattr(offer, "terms", {})
-    term = (terms or {}).get("cash_down")
-    if term is None:
+    term = (terms or {}).get(key)
+    if term is None or _status(term) not in _COMPUTABLE:
         return None
     return _decimal(_value(term))
+
+
+def _down_payment_source_needed(offer: Any) -> bool:
+    """Needed unless the offer is known to take nothing from the buyer's pocket at signing:
+    cash_down known == 0 AND no prepaid finance charge paid in cash (F13 subtracts both when source = savings)."""
+    cash_down = _term_amount(offer, "cash_down")
+    if cash_down is None or cash_down != 0:
+        return True
+    pfc_cash = _term_amount(offer, "pfc_paid_in_cash")
+    return pfc_cash is not None and pfc_cash > 0
 
 
 def _offer_ready(offer: Any) -> bool:
@@ -153,8 +172,7 @@ def required_facts(analysis_id: str, facts: Mapping[str, Any], offer: Any = None
     """Concrete requirement tokens for one analysis given the current facts/offer."""
     a = getattr(analysis_id, "value", analysis_id)
     cash = ["income.take_home_monthly", "expenses.essential.total", *debt_requirements(facts)]
-    cash_down = _cash_down(offer)
-    down_needed = not (cash_down is not None and cash_down == 0)   # unknown offer => still needed
+    down_needed = _down_payment_source_needed(offer)   # unknown offer => still needed
     reserve = cash + ["savings.liquid"] + (["loan.down_payment_source"] if down_needed else [])
     if a == "loan_cost":
         req: list[str] = []
@@ -165,7 +183,10 @@ def required_facts(analysis_id: str, facts: Mapping[str, Any], offer: Any = None
     elif a == "stress_test":
         req = list(reserve)
         variability = _value(facts.get("income.variability"))
-        if is_known(facts, "income.variability") and variability in VARIABLE_INCOME:
+        # IMP-009: low_month is asked (blocking) for variable income, but it serves sc_low_month only —
+        # if the user declines it, stress_test stays available and sc_low_month is skipped.
+        if (is_known(facts, "income.variability") and variability in VARIABLE_INCOME
+                and not is_declined(facts, "income.low_month")):
             req.append("income.low_month")
     elif a == "dti":
         req = ["income.gross_monthly", *debt_requirements(facts)]

@@ -795,11 +795,29 @@
       "title": "ErrorBody",
       "type": "object"
     },
+    "ErrorCode": {
+      "enum": [
+        "VALIDATION_ERROR",
+        "UNAUTHORIZED",
+        "DATA_MODE_RESTRICTED",
+        "NOT_FOUND",
+        "CONFLICTING_FACTS",
+        "UNSUPPORTED_PRODUCT",
+        "INSUFFICIENT_INFORMATION",
+        "EXTRACTION_FAILED",
+        "RATE_LIMITED",
+        "INTERNAL",
+        "NOT_IMPLEMENTED",
+        "LLM_MALFORMED_OUTPUT",
+        "LLM_UNAVAILABLE"
+      ],
+      "title": "ErrorCode",
+      "type": "string"
+    },
     "ErrorDetail": {
       "properties": {
         "code": {
-          "title": "Code",
-          "type": "string"
+          "$ref": "#/$defs/ErrorCode"
         },
         "message": {
           "title": "Message",

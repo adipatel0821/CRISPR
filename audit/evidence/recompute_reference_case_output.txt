@@ -1,0 +1,28 @@
+== reference_case.json recompute ==
+final payment n=60: 375.03 (regular 375.14); final balance 0.00
+APR (actual payment stream, 10dp) = 0.0579552795; level-payment form = 0.0579570327
+F04 breakdown sum = 26508.29 (must equal F04 26508.29); itemization residual = -500.00
+F11 savings_months_of_income before/after = 1.43 / 0.48; F07 payment/take-home = 0.0893
+  principal                  expected   20000.00  recomputed   20000.00  OK
+  monthly_payment            expected     375.14  recomputed     375.14  OK
+  total_of_payments          expected   22508.29  recomputed   22508.29  OK
+  interest                   expected    2508.29  recomputed    2508.29  OK
+  finance_charge             expected    3008.29  recomputed    3008.29  OK
+  total_paid_through_deal    expected   26508.29  recomputed   26508.29  OK
+  apr_recomputed_approx      expected    0.05796  recomputed    0.05796  OK
+  monthly_left_before        expected     900.00  recomputed     900.00  OK
+  incremental_vehicle_costs  expected      50.00  recomputed      50.00  OK
+  monthly_left_after         expected     474.86  recomputed     474.86  OK
+  savings_after_purchase     expected    2000.00  recomputed    2000.00  OK
+  reserve_months_before      expected       2.07  recomputed       2.07  OK
+  reserve_months_after       expected       0.60  recomputed       0.60  OK
+  first_schedule_row expected {'n': 1, 'payment': '375.14', 'interest': '79.17', 'principal': '295.97', 'balance': '19704.03'} recomputed (1, Decimal('375.14'), Decimal('79.17'), Decimal('295.97'), Decimal('19704.03'))  OK
+  disclosed APR term in fixture = 0.05796; |disclosed - recomputed| = 0.0000047 (<= 0.00125 => pass)
+
+== CP1 acceptance vectors (for later engine audit) ==
+  A-28 payoff 5000: Pn 21000 pay 415.83 TOP 24949.43 total_paid 28949.43 (exp 28949.43) rolled_in 0 (exp 0) OK
+  A-28 payoff 10000: Pn 26000 pay 514.83 TOP 30889.89 total_paid 31889.89 (exp 31889.89) rolled_in 2000 (exp 2000) OK
+  A-29 reserve after = 0.32 (exp 0.32) OK
+  A-30 monthly left after = 180 (exp 180) OK
+
+TOTAL MISMATCHES: 0

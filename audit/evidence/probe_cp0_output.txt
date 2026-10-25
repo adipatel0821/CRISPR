@@ -1,0 +1,60 @@
+== debts.count edge cases (cashflow_impact) ==
+[debts.count='0'] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[debts.count='2'] -> {'available': False, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'debts[d1].monthly_payment', 'debts[d2].monthly_payment', 'offer.minimum_set'], 'missing': ['debts[d1].monthly_payment', 'debts[d2].monthly_payment'], 'declined': []}
+[debts.count='1.5'] -> {'available': False, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'debts[d1].monthly_payment', 'offer.minimum_set'], 'missing': ['debts[d1].monthly_payment'], 'declined': []}
+[debts.count='0.4'] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[debts.count='-1'] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[debts.count='two'] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[debts.count='none'] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[debts.count='NaN'] -> EXCEPTION ValueError: cannot convert NaN to integer
+[debts.count='Infinity'] -> EXCEPTION OverflowError: cannot convert Infinity to integer
+[debts.count='1e3'] -> {'available': False, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'debts[d1].monthly_payment', 'debts[d2].monthly_payment', 'debts[d3].monthly_payment', 'debts[d4].monthly_payment', 'debts[d5].monthly_payment', 'debts[d6].monthly_payment', 'debts[d7].monthly_payment', 'debts[d8].monthly_payment', 'debts[d9].monthly_payment', 'debts[d10].monthly_payment', 'debts[d11].monthly_payment', 'debts[d12].monthly_payment', 'debts[d13].monthly_payment', 'debts[d14].monthly_payment', 'debts[d15].monthly_payment', 'debts[d16].monthly_payment', ...[truncated, 61966 chars]
+== debts.count=2 with item ids 'car' and 'd2' ==
+[ids car,d2] -> {'available': False, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'debts[d2].monthly_payment', 'debts[car].monthly_payment', 'offer.minimum_set'], 'missing': ['debts[d2].monthly_payment'], 'declined': []}
+== debts.count=0 but an item exists with a payment ==
+[count0+item] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+== status passed as Enum ==
+[enum status] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[FinancialFact objects] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'offer.minimum_set'], 'missing': [], 'declined': []}
+== down_payment_source condition ==
+[no offer] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source', 'offer.minimum_set']
+[cash_down=4000] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source', 'offer.minimum_set']
+[cash_down=0.00] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'offer.minimum_set']
+[cash_down=0, pfc_paid_in_cash=500] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'offer.minimum_set']
+[cash_down=0.00 but status conflicting] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'offer.minimum_set']
+[flat dict offer (fixture shape) cash_down=0.00] -> ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source', 'offer.minimum_set']
+== low_month ==
+[variability missing] -> {'available': True, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source', 'offer.minimum_set'], 'missing': [], 'declined': []}
+[variability somewhat_variable, low_month declined] -> {'available': False, 'awaiting_offer': False, 'required': ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source', 'income.low_month', 'offer.minimum_set'], 'missing': [], 'declined': ['income.low_month']}
+== contracts: money/rates as strings ==
+[FinancialFact value float] -> EXCEPTION ValidationError: 1 validation error for FinancialFact
+value
+  Input should be a valid string [type=string_type, input_value=4200.0, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+[FinancialFact value 'abc' currency] -> abc
+[FinancialFact value '-5.123' currency] -> -5.123
+[Metric value float] -> EXCEPTION ValidationError: 1 validation error for Metric
+value
+  Input should be a valid string [type=string_type, input_value=375.14, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+[ManualOfferRequest float rate] -> EXCEPTION ValidationError: 3 validation errors for ManualOfferRequest
+terms.contract_rate.str
+  Input should be a valid string [type=string_type, input_value=0.0475, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/string_type
+terms.contract_rate.int
+  Input should be a valid integer, got a number with a fractional part [type=int_from_float, input_value=0.0475, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/int_from_float
+terms.contract_rate.bool
+  Input should be a valid boolean [type=bool_type, input_value=0.0475, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.11/v/bool_type
+[ManualOfferRequest float principal 20000.0] -> {'principal': 20000}
+[VerifiedFinancialTerm term_months '500'] -> 500
+[VerifiedFinancialTerm apr '1.5'] -> 1.5
+[VerifiedFinancialTerm model_self_report] -> {'term_key': 'apr', 'value': '0.05', 'value_type': 'rate', 'status': 'provided', 'verification': <Verification.none: 'none'>, 'source_kind': 'document', 'evidence': None, 'checks': {'quote_match': 'not_applicable', 'label_anchor': 'not_applicable', 'independent_reader': 'not_applicable', 'arithmetic': 'not_applicable', 'itemization': 'not_applicable', 'apr_recompute': 'not_applicable', 'range': 'not_applicable'}, 'alternatives_found': [], 'user_action': None}
+[Uncertainty range without low/high] -> {'kind': 'range', 'low': None, 'high': None}
+[narrative_text non-null] -> EXCEPTION ValidationError: 1 validation error for ExplanationSection
+narrative_text
+  Input should be None [type=none_required, input_value='x', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.11/v/none_required
+[ErrorDetail arbitrary code] -> WHATEVER
+[KnowledgeGraphEdge dump default] -> {'edge_id': 'e', 'from_': 'a', 'to': 'b', 'edge_type': 'required_by', 'analyses': []}

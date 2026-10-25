@@ -1,0 +1,12 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.3.5, pluggy-1.7.0
+rootdir: P:\Projects\DecisionTwin\backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, hypothesis-6.131.0
+collected 4 items
+
+tests\test_contracts_smoke.py ....                                       [100%]
+
+============================== 4 passed in 0.85s ==============================
+EXIT=0

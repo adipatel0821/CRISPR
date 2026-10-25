@@ -11,10 +11,13 @@ Changing a field after CP1 requires a one-line ADR in implementation/DECISIONS.m
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from decimal import Decimal
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from schemas import validation as V
 
 SCHEMA_VERSION = "1.1"
 CALC_VERSION = "1.1.0"
@@ -146,6 +149,16 @@ class Uncertainty(_Model):
     low: str | None = None   # only for kind=range, user-given
     high: str | None = None
 
+    @model_validator(mode="after")
+    def _range_needs_bounds(self):
+        if self.kind == "range":
+            if self.low is None or self.high is None:
+                raise ValueError("a range needs both a low and a high value")
+            self.low, self.high = V.parse_currency(self.low), V.parse_currency(self.high)
+            if Decimal(self.low) > Decimal(self.high):
+                raise ValueError("range low must not exceed high")
+        return self
+
 
 class FactEvidence(_Model):
     kind: SourceKind
@@ -181,6 +194,19 @@ class FactInput(_Model):
     status: Literal["provided", "estimated", "declined"] = "provided"
     uncertainty: Uncertainty | None = None
     original_representation: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_value(self):
+        # contracts §5: typed validation for known keys; unknown keys are rejected by intake (ontology registry)
+        if self.status == "declined":
+            self.value = None
+        elif self.value is None:
+            raise ValueError("a value is required unless the fact is declined")
+        else:
+            self.value = V.normalize_fact_value(self.key, self.value)
+        if self.original_representation and len(self.original_representation) > 1000:
+            raise ValueError("original_representation must be at most 1,000 characters")
+        return self
 
 
 class FactsRequest(_Model):
@@ -385,6 +411,23 @@ class ManualOfferRequest(_Model):
     terms: dict[str, str | int | bool | None]
     itemization: list[ItemizationItem] = Field(default_factory=list)
     confirmed: bool = True   # the user affirmed the typed values -> verification user_confirmed
+
+    @field_validator("terms", mode="before")
+    @classmethod
+    def _validate_terms(cls, terms: Any) -> dict:
+        if not isinstance(terms, dict):
+            raise ValueError("terms must be an object of term_key -> value")
+        out: dict[str, str | None] = {}
+        for key, raw in terms.items():
+            if key not in TERM_VALUE_TYPES:
+                raise ValueError(f"unknown loan term '{key}'")
+            if raw is None or raw == "":
+                continue
+            try:
+                out[key] = V.TERM_PARSERS[TERM_VALUE_TYPES[key]](raw)
+            except ValueError as e:
+                raise ValueError(f"{key}: {e}") from None
+        return out
 
 
 # ---------------------------------------------------------------------------
@@ -676,8 +719,40 @@ class HealthResponse(_Model):
     calc_version: str = CALC_VERSION
 
 
+class ErrorCode(StrEnum):
+    VALIDATION_ERROR = "VALIDATION_ERROR"            # 400
+    UNAUTHORIZED = "UNAUTHORIZED"                    # 401
+    DATA_MODE_RESTRICTED = "DATA_MODE_RESTRICTED"    # 403
+    NOT_FOUND = "NOT_FOUND"                          # 404
+    CONFLICTING_FACTS = "CONFLICTING_FACTS"          # 409 (genuine contradictions only, never deficits)
+    UNSUPPORTED_PRODUCT = "UNSUPPORTED_PRODUCT"      # 422
+    INSUFFICIENT_INFORMATION = "INSUFFICIENT_INFORMATION"  # 422 (details = readiness)
+    EXTRACTION_FAILED = "EXTRACTION_FAILED"          # 422
+    RATE_LIMITED = "RATE_LIMITED"                    # 429
+    INTERNAL = "INTERNAL"                            # 500
+    NOT_IMPLEMENTED = "NOT_IMPLEMENTED"              # 501 (deferred endpoints)
+    LLM_MALFORMED_OUTPUT = "LLM_MALFORMED_OUTPUT"    # 502
+    LLM_UNAVAILABLE = "LLM_UNAVAILABLE"              # 503 (fallback_available: true)
+
+
+ERROR_HTTP_STATUS: dict[str, int] = {
+    "VALIDATION_ERROR": 400, "UNAUTHORIZED": 401, "DATA_MODE_RESTRICTED": 403, "NOT_FOUND": 404,
+    "CONFLICTING_FACTS": 409, "UNSUPPORTED_PRODUCT": 422, "INSUFFICIENT_INFORMATION": 422,
+    "EXTRACTION_FAILED": 422, "RATE_LIMITED": 429, "INTERNAL": 500, "NOT_IMPLEMENTED": 501,
+    "LLM_MALFORMED_OUTPUT": 502, "LLM_UNAVAILABLE": 503,
+}
+
+
+def data_mode_from_env(raw: str | None) -> LlmDataMode:
+    """Parse LLM_DATA_MODE leniently (case/whitespace). Invalid values fall back to the safest mode, 'off'."""
+    try:
+        return LlmDataMode((raw or "synthetic_only").strip().lower())
+    except ValueError:
+        return LlmDataMode.off
+
+
 class ErrorDetail(_Model):
-    code: str
+    code: ErrorCode
     message: str
     details: dict[str, Any] | list[Any] | None = None
     request_id: str | None = None
