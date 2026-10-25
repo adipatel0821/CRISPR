@@ -20,7 +20,7 @@ export function PopoverContent({
         sideOffset={sideOffset}
         collisionPadding={12}
         className={cn(
-          "z-50 w-[min(22rem,calc(100vw-2rem))] rounded-card border border-line bg-surface p-4 text-sm leading-relaxed text-ink shadow-soft",
+          "z-50 w-[min(22rem,calc(100vw-2rem))] rounded-card bg-surface p-4 text-sm leading-relaxed text-ink shadow-overlay",
           "origin-[var(--radix-popover-content-transform-origin)] data-[state=open]:animate-fade-in",
           className,
         )}

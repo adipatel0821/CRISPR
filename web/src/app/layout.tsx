@@ -8,15 +8,14 @@ import { DeleteDataButton } from "@/components/delete-data";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "DecisionTwin — see a car loan's real cost",
-  description:
-    "Understand a car loan's real cost and what it does to your month and your savings. Every number is traceable to its source.",
+  title: "DecisionTwin: car loan check",
+  description: "See what a car loan costs and what it leaves you each month. Every figure shows where it came from.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ffffff",
+  themeColor: "#faf9f7",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -25,22 +24,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-ink"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-control focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-ink"
         >
           Skip to content
         </a>
         <AppProvider>
           <SiteHeader />
-          {/* Results width (~960 px). Reading screens narrow themselves with <Container width="reading">. */}
-          <main id="main" className="mx-auto w-full max-w-[60rem] flex-1 px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
+          {/* One narrow centred column for every screen (about 640 px of content). */}
+          <main id="main" className="dt-column flex-1 pb-20 pt-8 sm:pt-14">
             {children}
           </main>
-          <footer data-site-footer className="border-t border-line">
-            <div className="mx-auto flex w-full max-w-[60rem] flex-col gap-3 px-4 py-6 text-xs leading-relaxed text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <p className="max-w-xl">
-                DecisionTwin does arithmetic on the figures you provide and assumptions you can see. It is not a
-                prediction and not financial advice. Consider reviewing a decision like this with someone you trust.
-              </p>
+          <footer data-site-footer className="no-print">
+            <div className="dt-column flex flex-col gap-2 border-t border-line py-6 text-sm text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <p>These are calculations from your figures, not predictions or financial advice.</p>
               <DeleteDataButton />
             </div>
           </footer>

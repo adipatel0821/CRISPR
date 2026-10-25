@@ -1,79 +1,93 @@
 @import "tailwindcss";
 
 /*
- * DecisionTwin design tokens — calm, neutral, conversational.
+ * DecisionTwin design tokens (UX2): calm, warm, quiet.
  *
- * Page is white; surfaces are soft gray; borders are hairlines used sparingly.
- * Ink is near-black; primary actions are near-black (one per screen).
- * ONE restrained accent (deep teal) for links, focus and progress.
- * Amber (info / attention) and rose (deficit / gap) are reserved for findings — nothing else carries colour.
- * Token names used before the redesign (canvas, surface, ink, line, accent, info, deficit …) are kept so every
- * existing call site keeps working.
+ * Page: warm off-white. Plain white only where a surface is needed (inputs, popovers, dialogs).
+ * Ink: charcoal. Secondary text: soft gray that still passes WCAG AA on the page and on soft surfaces.
+ * ONE understated accent (muted teal) for links, focus and the progress indicator. Nothing else uses it.
+ * Amber (attention) and rose (deficit, shortfall) are for findings only.
+ * Radius: 8 px controls, 10 px panels. Hairlines used sparingly. No gradients, no nested cards, no drop
+ * shadows on the page (floating layers get one soft elevation so they read as "on top").
+ * Type: Inter, 16 px body at 1.6, h1 28 to 30 px, secondary text never below 14 px (text-xs is lifted to 14 px).
+ * Token names from earlier versions (canvas, surface, ink, line, accent, info, deficit ...) are kept so every
+ * call site keeps working.
  */
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Surfaces */
-  --color-page: #ffffff;           /* page background */
-  --color-surface: #ffffff;        /* cards on the page */
-  --color-canvas: #f7f7f8;         /* soft-gray inset / hover surface */
-  --color-subtle: #f3f4f6;         /* slightly deeper gray (tracks, skeletons) */
+  --color-page: #faf9f7;           /* warm off-white page */
+  --color-surface: #ffffff;        /* inputs, popovers, dialogs */
+  --color-canvas: #f3f2ef;         /* soft inset (quiet panels, selected rows) */
+  --color-subtle: #ebe9e5;         /* tracks, skeletons, hover on canvas */
 
   /* Ink */
-  --color-ink: #0d0d0d;
-  --color-ink-muted: #4b4b55;      /* 8.6:1 on white */
-  --color-ink-subtle: #6b6b78;     /* 5.3:1 on white, 4.9:1 on canvas */
+  --color-ink: #1f1f1e;            /* 15.7:1 on page */
+  --color-ink-muted: #4a4945;      /* 8.6:1 on page */
+  --color-ink-subtle: #6b6a66;     /* 5.2:1 on page, 4.8:1 on canvas (never on "subtle") */
 
   /* Hairlines */
-  --color-line: #ececf1;
-  --color-line-strong: #d9d9e0;
+  --color-line: #e7e5e0;
+  --color-line-strong: #d3d0ca;
+  --color-field-line: #8f8c85;     /* input and radio boundaries, 3.4:1 on white (WCAG 1.4.11) */
 
-  /* Primary action (ChatGPT-like near-black) */
-  --color-primary: #0d0d0d;
-  --color-primary-hover: #2b2b31;
+  /* Primary action: charcoal (one per screen) */
+  --color-primary: #1f1f1e;
+  --color-primary-hover: #3a3936;
   --color-primary-ink: #ffffff;
 
-  /* The one accent: deep teal */
-  --color-accent: #0f6e64;
-  --color-accent-strong: #0b564e;
-  --color-accent-soft: #eff6f5;
-  --color-accent-line: #cfe4e0;
+  /* The one accent: muted teal (links, focus, progress) */
+  --color-accent: #2d6b66;         /* 5.9:1 on page */
+  --color-accent-strong: #24564f;  /* link text, 7.9:1 on page */
+  --color-accent-soft: #edf3f1;
+  --color-accent-line: #c9dcd7;
 
   /* Findings only: amber = attention */
-  --color-info: #8a4a0b;
-  --color-info-soft: #fdf7ee;
-  --color-info-line: #f1dcb6;
+  --color-info: #8a4a0b;           /* 6.2:1 on info-soft */
+  --color-info-soft: #fbf3e6;
+  --color-info-line: #ecd6b0;
 
-  /* Findings only: rose = deficit / unfunded gap */
-  --color-deficit: #a1203d;
-  --color-deficit-soft: #fdf2f4;
-  --color-deficit-line: #f2c9d2;
+  /* Findings only: rose = deficit / shortfall */
+  --color-deficit: #9b2c40;        /* 6.6:1 on deficit-soft */
+  --color-deficit-soft: #fbeff1;
+  --color-deficit-line: #efc9d1;
 
-  /* Type scale additions (Tailwind's text-xs … text-4xl remain) */
-  --text-display: 2rem;
-  --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.022em;
-  --text-figure: 2.25rem;
-  --text-figure--line-height: 1.1;
-  --text-figure--letter-spacing: -0.02em;
+  /* Type scale. text-xs is lifted to 14 px so no secondary text renders below 14 px. */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.5;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.55;
+  --text-base: 1rem;
+  --text-base--line-height: 1.6;
   --text-lede: 1.0625rem;
   --text-lede--line-height: 1.6;
+  --text-title: 1.875rem;          /* h1, 30 px (28 px on phones via Screen) */
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.02em;
+  --text-display: 1.875rem;        /* legacy alias of title */
+  --text-display--line-height: 1.2;
+  --text-display--letter-spacing: -0.02em;
+  --text-figure: 2.25rem;          /* the one key figure on a screen */
+  --text-figure--line-height: 1.1;
+  --text-figure--letter-spacing: -0.02em;
 
-  /* Radius: 12–16 px */
-  --radius-card: 1rem;
-  --radius-control: 0.75rem;
+  /* Radius: 8 px controls, 10 px panels */
+  --radius-card: 0.625rem;
+  --radius-control: 0.5rem;
 
-  /* One subtle shadow level */
-  --shadow-soft: 0 1px 2px rgb(13 13 13 / 0.04), 0 4px 16px rgb(13 13 13 / 0.04);
+  /* No drop shadows on the page. "soft" is a hairline ring; "overlay" lifts popovers and dialogs only. */
+  --shadow-soft: 0 0 0 1px var(--color-line);
+  --shadow-overlay: 0 0 0 1px rgb(31 31 30 / 0.06), 0 10px 30px rgb(31 31 30 / 0.1);
 
-  /* Motion */
+  /* Motion: short fades only */
   --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --animate-fade-in: dt-fade-in 220ms var(--ease-calm) both;
+  --animate-fade-in: dt-fade-in 180ms var(--ease-calm) both;
   @keyframes dt-fade-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(2px);
     }
     to {
       opacity: 1;
@@ -85,11 +99,20 @@
 :root {
   color-scheme: light;
   --motion-fast: 150ms;
-  --motion-base: 200ms;
-  --motion-slow: 220ms;
-  /* Content widths: conversational / reading vs results */
-  --width-reading: 44rem; /* 704 px */
-  --width-results: 60rem; /* 960 px */
+  --motion-base: 180ms;
+  --motion-slow: 200ms;
+  /* One reading column for every screen (content width), plus the side gutter. */
+  --width-column: 40rem; /* 640 px */
+  --gutter: 1rem;
+  /* Legacy widths now resolve to the same single column. */
+  --width-reading: 40rem;
+  --width-results: 40rem;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
 }
 
 html {
@@ -105,6 +128,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-feature-settings: "cv11", "ss01";
+  font-size: 1rem;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
 }
@@ -114,11 +138,34 @@ body {
   color: var(--color-ink);
 }
 
+/* The single centred column used by the header, every screen and the footer. */
+.dt-column {
+  width: 100%;
+  max-width: calc(var(--width-column) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
 /* All figures align. */
 .figure,
 table,
-.tabular {
+input,
+.tabular,
+[data-figure] {
   font-variant-numeric: tabular-nums;
+}
+
+/* Quiet inline link in running text (accent is reserved for links, focus and progress). */
+.dt-link {
+  color: var(--color-accent-strong);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-accent-line);
+  transition: text-decoration-color var(--motion-fast) var(--ease-calm);
+}
+.dt-link:hover {
+  text-decoration-color: currentColor;
 }
 
 :focus-visible {
@@ -127,22 +174,27 @@ table,
   border-radius: 6px;
 }
 
-/* ---------- Disclosure (<details>) ---------- */
-.dt-disclosure > summary {
+/* ---------- Disclosures (<details>): Disclosure and Reveal ---------- */
+.dt-disclosure > summary,
+.dt-reveal > summary {
   list-style: none;
   cursor: pointer;
 }
-.dt-disclosure > summary::-webkit-details-marker {
+.dt-disclosure > summary::-webkit-details-marker,
+.dt-reveal > summary::-webkit-details-marker {
   display: none;
 }
-.dt-disclosure > summary .dt-chevron {
+.dt-disclosure > summary .dt-chevron,
+.dt-reveal > summary .dt-chevron {
   transition: rotate var(--motion-base) var(--ease-calm);
 }
-.dt-disclosure[open] > summary .dt-chevron {
+.dt-disclosure[open] > summary .dt-chevron,
+.dt-reveal[open] > summary .dt-chevron {
   rotate: 180deg;
 }
-/* Smooth height + opacity where the browser supports ::details-content; instant elsewhere. */
-.dt-disclosure::details-content {
+/* Short height + opacity fade where the browser supports ::details-content; instant elsewhere. */
+.dt-disclosure::details-content,
+.dt-reveal::details-content {
   block-size: 0;
   opacity: 0;
   overflow-y: clip;
@@ -151,9 +203,15 @@ table,
     opacity var(--motion-base) var(--ease-calm),
     content-visibility var(--motion-base) allow-discrete;
 }
-.dt-disclosure[open]::details-content {
+.dt-disclosure[open]::details-content,
+.dt-reveal[open]::details-content {
   block-size: auto;
   opacity: 1;
+}
+
+/* Panels revealed by a button (QuietActions, SelectableRows) fade in. */
+.dt-panel-in {
+  animation: dt-fade-in var(--motion-base) var(--ease-calm) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -196,6 +254,19 @@ table,
   .print-break-before {
     break-before: page;
   }
+  /* Reveal / Disclosure with printOpen: the content prints even if the reader never opened it. */
+  details[data-print-open]::details-content {
+    content-visibility: visible !important;
+    block-size: auto !important;
+    opacity: 1 !important;
+  }
+  details[data-print-open] > summary .dt-chevron {
+    display: none;
+  }
+  /* Hidden panels (QuietActions, SelectableRows) marked to print. */
+  [data-print-open][hidden] {
+    display: block !important;
+  }
   a {
     color: #000 !important;
     text-decoration: none !important;
@@ -206,7 +277,8 @@ table,
     box-shadow: none !important;
     animation: none !important;
   }
-  .dt-disclosure > summary .dt-chevron {
+  .dt-disclosure > summary .dt-chevron,
+  .dt-reveal > summary .dt-chevron {
     display: none;
   }
 }

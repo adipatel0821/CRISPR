@@ -8,7 +8,7 @@ import { buttonVariants } from "./button";
 
 /* ---------------- Skeleton ---------------- */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div aria-hidden className={cn("animate-pulse rounded-control bg-subtle", className)} {...props} />;
+  return <div aria-hidden className={cn("animate-pulse rounded-control bg-subtle motion-reduce:animate-none", className)} {...props} />;
 }
 
 /* ---------------- Checkbox ---------------- */
@@ -16,7 +16,7 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof CB
   return (
     <CB.Root
       className={cn(
-        "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-line-strong bg-surface transition-colors duration-150",
+        "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-[5px] border border-field-line bg-surface transition-colors duration-150",
         "data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-white",
         className,
       )}
@@ -34,13 +34,13 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof SW.R
   return (
     <SW.Root
       className={cn(
-        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-line-strong bg-line transition-colors",
+        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border border-field-line bg-subtle transition-colors duration-150",
         "data-[state=checked]:border-accent data-[state=checked]:bg-accent",
         className,
       )}
       {...props}
     >
-      <SW.Thumb className="block size-4.5 translate-x-0.5 rounded-full bg-white shadow transition-transform data-[state=checked]:translate-x-[1.1rem]" />
+      <SW.Thumb className="block size-4.5 translate-x-0.5 rounded-full bg-white ring-1 ring-line-strong transition-transform duration-150 data-[state=checked]:translate-x-[1.1rem] data-[state=checked]:ring-0" />
     </SW.Root>
   );
 }
@@ -48,18 +48,13 @@ export function Switch({ className, ...props }: React.ComponentProps<typeof SW.R
 /* ---------------- Tabs ---------------- */
 export const Tabs = T.Root;
 export function TabsList({ className, ...props }: React.ComponentProps<typeof T.List>) {
-  return (
-    <T.List
-      className={cn("inline-flex w-full gap-1 rounded-full bg-canvas p-1 sm:w-auto", className)}
-      {...props}
-    />
-  );
+  return <T.List className={cn("inline-flex w-full gap-1 rounded-card bg-canvas p-1 sm:w-auto", className)} {...props} />;
 }
 export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof T.Trigger>) {
   return (
     <T.Trigger
       className={cn(
-        "flex-1 rounded-full px-4 py-1.5 text-sm font-medium text-ink-muted transition-colors duration-150 hover:text-ink sm:flex-none",
+        "flex-1 rounded-control px-4 py-2 text-sm font-medium text-ink-muted transition-colors duration-150 hover:text-ink sm:flex-none",
         "data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-soft",
         className,
       )}
@@ -89,10 +84,10 @@ export function ConfirmDialog({
     <AD.Root>
       <AD.Trigger asChild>{trigger}</AD.Trigger>
       <AD.Portal>
-        <AD.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px]" />
-        <AD.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-card border border-line bg-surface p-6 shadow-soft data-[state=open]:animate-fade-in">
-          <AD.Title className="text-base font-semibold text-ink">{title}</AD.Title>
-          <AD.Description className="mt-2 text-sm text-ink-muted">{description}</AD.Description>
+        <AD.Overlay className="fixed inset-0 z-50 bg-ink/30" />
+        <AD.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-card bg-surface p-6 shadow-overlay data-[state=open]:animate-fade-in">
+          <AD.Title className="text-lg font-semibold tracking-tight text-ink">{title}</AD.Title>
+          <AD.Description className="mt-2 text-base leading-relaxed text-ink-muted">{description}</AD.Description>
           <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <AD.Cancel className={buttonVariants({ variant: "secondary" })}>Cancel</AD.Cancel>
             <AD.Action

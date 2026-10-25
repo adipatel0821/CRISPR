@@ -9,7 +9,7 @@ export interface JourneyStep {
   label: string;
 }
 
-/** Results journey: Understand → Vulnerabilities → Alternatives → Decide. */
+/** Results sections, shown as quiet text links in the header: Understand, Vulnerabilities, Alternatives, Decide. */
 export const RESULTS_JOURNEY: readonly JourneyStep[] = [
   { href: "/dashboard", label: "Understand" },
   { href: "/stress", label: "Vulnerabilities" },
@@ -17,11 +17,11 @@ export const RESULTS_JOURNEY: readonly JourneyStep[] = [
   { href: "/report", label: "Decide" },
 ];
 
-/** Pre-results steps: Start → Your finances → Loan offer. */
+/** The three steps of the whole flow, shown as a plain-text step indicator on the setup screens. */
 export const SETUP_STEPS: readonly JourneyStep[] = [
-  { href: "/", label: "Start" },
   { href: "/intake", label: "Your finances" },
   { href: "/offer", label: "Loan offer" },
+  { href: "/dashboard", label: "Results" },
 ];
 
 function stepIndex(steps: readonly JourneyStep[], pathname: string): number {
@@ -33,9 +33,8 @@ export function isResultsPath(pathname: string): boolean {
 }
 
 /**
- * Slim results journey indicator. Current step is emphasised (bold ink + filled bar + aria-current),
- * previous steps are filled and clickable, later steps are muted (still links — every results page is
- * available once the report exists). Fits 360 px: labels size to content and bars fill the width.
+ * Results navigation: four quiet text links. The current section is ink with a thin accent underline
+ * (the progress indicator) and aria-current="page". Wraps instead of scrolling at 360 px.
  */
 export function JourneyIndicator({ className }: { className?: string }) {
   const pathname = usePathname() ?? "";
@@ -43,34 +42,22 @@ export function JourneyIndicator({ className }: { className?: string }) {
   if (active < 0) return null;
   return (
     <nav data-journey aria-label="Your results" className={cn("no-print", className)}>
-      <ol className="flex gap-2 sm:gap-3">
+      <ol className="flex flex-wrap items-center gap-x-5 gap-y-1">
         {RESULTS_JOURNEY.map((s, i) => {
           const current = i === active;
-          const done = i < active;
           return (
-            <li key={s.href} className="min-w-0 flex-auto">
+            <li key={s.href}>
               <Link
                 href={s.href}
-                aria-current={current ? "step" : undefined}
+                aria-current={current ? "page" : undefined}
                 className={cn(
-                  "group flex flex-col gap-1.5 rounded-md pb-1 pt-2 text-[12px] leading-none transition-colors duration-150 sm:text-[13px]",
-                  current ? "font-semibold text-ink" : done ? "text-ink-muted hover:text-ink" : "text-ink-subtle hover:text-ink",
+                  "inline-flex min-h-9 items-center rounded-sm text-sm underline-offset-[7px] transition-colors duration-150",
+                  current
+                    ? "font-medium text-ink underline decoration-accent decoration-2"
+                    : "text-ink-subtle hover:text-ink",
                 )}
               >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "h-[3px] w-full rounded-full transition-colors duration-200",
-                    current ? "bg-ink" : done ? "bg-accent" : "bg-subtle group-hover:bg-line-strong",
-                  )}
-                />
-                <span className="whitespace-nowrap">
-                  <span className="tabular mr-1 hidden text-ink-subtle sm:inline" aria-hidden>
-                    {i + 1}
-                  </span>
-                  {s.label}
-                </span>
-                {done && <span className="sr-only">(visited)</span>}
+                {s.label}
               </Link>
             </li>
           );
@@ -80,36 +67,36 @@ export function JourneyIndicator({ className }: { className?: string }) {
   );
 }
 
-/** Subtle "Step n of 3" hint for the setup screens (Start → Your finances → Loan offer). */
+/**
+ * Plain-text step indicator for the setup screens: "Your finances  Loan offer  Results".
+ * Phones show only the current step with its position ("1 of 3").
+ */
 export function SetupProgress({ className }: { className?: string }) {
   const pathname = usePathname() ?? "/";
   const active = stepIndex(SETUP_STEPS, pathname);
-  if (active < 0) return null;
+  if (active < 0 || isResultsPath(pathname)) return null;
   return (
     <nav aria-label="Progress" className={cn("no-print", className)}>
-      <ol className="flex items-center gap-1 text-[13px]">
+      <ol className="flex items-center gap-x-4 text-sm">
         {SETUP_STEPS.map((s, i) => {
           const current = i === active;
           return (
-            <li key={s.href} className={cn("items-center gap-1", current ? "flex" : "hidden md:flex")}>
-              {i > 0 && (
-                <span aria-hidden className="hidden px-1 text-line-strong md:inline">
-                  /
-                </span>
+            <li key={s.href} className={cn(current ? "flex items-center gap-1.5" : "hidden sm:block")}>
+              {current ? (
+                <>
+                  <span className="tabular text-ink-subtle sm:hidden">
+                    {i + 1} of {SETUP_STEPS.length}
+                    <span className="sr-only">:</span>
+                  </span>
+                  <span aria-current="step" className="font-medium text-ink underline decoration-accent decoration-2 underline-offset-[7px]">
+                    {s.label}
+                  </span>
+                </>
+              ) : (
+                <Link href={s.href} className="rounded-sm text-ink-subtle transition-colors duration-150 hover:text-ink">
+                  {s.label}
+                </Link>
               )}
-              <Link
-                href={s.href}
-                aria-current={current ? "step" : undefined}
-                className={cn(
-                  "rounded-md px-1.5 py-1 transition-colors duration-150",
-                  current ? "font-medium text-ink" : "text-ink-subtle hover:text-ink",
-                )}
-              >
-                <span className="tabular text-ink-subtle md:hidden">
-                  {i + 1}/{SETUP_STEPS.length}{" "}
-                </span>
-                {s.label}
-              </Link>
             </li>
           );
         })}
