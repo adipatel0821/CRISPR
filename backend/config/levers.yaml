@@ -1,0 +1,13 @@
+# Stage 5 lever domains v1.1 (ADR-020). Alternatives are what-if calculations, never offers.
+version: "1.1.0"
+levers:
+  cash_down_delta: ["0", "500", "1000", "2000"]   # bounded by savings after purchase
+  term_months: [36, 48, 60, 72]                   # same_rate_assumed on any term different from the offer
+  remove_optional_add_ons: [false, true]          # only add-ons with optional == true are ever removed
+deferred_levers: [price_change, delay_purchase]
+objectives:
+  - {metric: finance_charge, direction: min}
+  - {metric: monthly_left_after, direction: max}
+  - {metric: savings_after_purchase, direction: max}
+  - {metric: break_even_m3, direction: max}
+rate_sensitivity_points: "0.01"                   # one percentage point, as a statement (never an offer)
