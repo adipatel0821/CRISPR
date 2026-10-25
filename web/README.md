@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DecisionTwin — web
 
-## Getting Started
+Next.js 16 (App Router) + TypeScript (strict) + Tailwind v4 + Radix primitives (shadcn-style components in
+`src/components/ui`) + Recharts + lucide-react. Package manager: npm.
 
-First, run the development server:
+The UI never computes loan math. It formats the string decimals the backend sends and normalises what the
+user types (for example `"4.75"` % → `"0.0475"`, by string manipulation in `src/lib/format.ts`).
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm ci
+cp .env.example .env.local      # NEXT_PUBLIC_API_BASE, NEXT_PUBLIC_USE_FIXTURES
+npm run dev                     # http://localhost:3000 (backend expected at NEXT_PUBLIC_API_BASE)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Fixture mode (no backend): `NEXT_PUBLIC_USE_FIXTURES=1 npm run dev`. The app serves `src/fixtures/*.json` and
+labels every results page as fixture data.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | What it does |
+|---|---|
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint (next core-web-vitals + typescript) |
+| `npm run build` | production build |
+| `npm test` | unit tests for formatters, %→fraction and provenance labels (`node --test`, Node ≥ 22.18) |
+| `npm run gen:types` | regenerate `src/lib/contracts.ts` from `../contracts/schemas.json` |
 
-## Learn More
+Fixture data is generated offline and checked against the audited reference case and the Python contracts:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+P:/Projects/DecisionTwin/backend/.venv/Scripts/python.exe scripts/build_fixtures.py     # asserts vs backend/fixtures/reference_case.json
+P:/Projects/DecisionTwin/backend/.venv/Scripts/python.exe scripts/validate_fixtures.py  # DecisionReport.model_validate + claim/evidence integrity
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `src/lib/api.ts` — typed client: bearer token, `ApiError` with recovery hints, 429/503 backoff (1/2/4 s), fixture switch
+- `src/lib/contracts.ts` — generated types (fields with server defaults are marked present, as the backend serialises them)
+- `src/lib/api-types.ts` — request bodies (fields with server defaults optional)
+- `src/lib/fixture-backend.ts` — replays fixtures; records answers only
+- `src/lib/provenance.ts` — chip wording; never says "verified" (A-42)
+- `src/app/*` — `/` welcome, `/intake`, `/offer`, `/dashboard`, `/stress`, `/alternatives`, `/report`
