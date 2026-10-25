@@ -1,0 +1,14 @@
+data_mode: off
+first question: q_income.take_home_monthly income.take_home_monthly currency
+answer typed_value='-4200' -> 400 {"error":{"code":"VALIDATION_ERROR","message":"Monthly take-home pay can't be negative. Enter 0 or more.","details":{"errors":[{"key":"income.take_home_monthly","message":"Monthly take-home pay can't be negative. Enter 0
+answer typed_value='abc' -> 400 {"error":{"code":"VALIDATION_ERROR","message":"We couldn't read \"abc\" as a number for monthly take-home pay. Enter digits only, e.g. 4200 or 4,200.","details":{"errors":[{"key":"income.take_home_monthly","message":"We 
+answer typed_value='4200.005' -> 200 {"question":{"question_id":"q_expenses.essential.total","fact_key":"expenses.essential.total","kind":"currency","text":"About how much do you spend on essentials each month (housing, food, utilities, insurance, transport
+answer typed_value='4,200' -> 200 {"question":{"question_id":"q_expenses.essential.total","fact_key":"expenses.essential.total","kind":"currency","text":"About how much do you spend on essentials each month (housing, food, utilities, insurance, transport
+encrypted-ish PDF in off mode -> 422 {"error":{"code":"EXTRACTION_FAILED","message":"This PDF has no readable text (it may be a scan). Scanned documents are not supported yet; enter the terms manually.","details":{"reason":"no_text_layer","fallback":"manual_entry"},"request_id":"req_58481fc53dc04
+non-PDF bytes named .pdf -> 422 {"error":{"code":"EXTRACTION_FAILED","message":"This file is not a PDF, PNG or JPEG. Upload one of those or type the loan terms in.","details":null,"request_id":"req_47f8cfe6c4744d64"}}
+answer '4200.005': HTTP 200; stored value='4200.01' status='provided'; err=
+answer '4200.004': HTTP 200; stored value='4200.00' status='provided'; err=
+answer '1e3': HTTP 200; stored value='1000.00' status='provided'; err=
+answer 'Infinity': HTTP 400; stored value=None status=None; err=Enter a finite number for monthly take-home pay.
+answer 'NaN': HTTP 400; stored value=None status=None; err=Enter a finite number for monthly take-home pay.
+answer 4200.5: HTTP 200; stored value='4200.50' status='provided'; err=

@@ -1,0 +1,35 @@
+== A-09r baseline month_net vs independent arithmetic (debt ends after month 4) ==
+  [PASS] without_offer: 12 months equal: got=True expected=True
+  [PASS] with_offer: 12 months equal: got=True expected=True
+   scenarios: ['sc_cost_rise', 'sc_expense_spike', 'sc_income_cut', 'sc_job_loss']
+== A-09r scenario path net == month_net on unshocked months; A-33 floor/gap; A-34 pairing ==
+  [PASS] sc_cost_rise/with_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('0.00')) expected=(True, True, Decimal('0.00'))
+  [PASS] sc_cost_rise/without_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('0.00')) expected=(True, True, Decimal('0.00'))
+  [PASS] sc_expense_spike/with_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('350.28')) expected=(True, True, Decimal('350.28'))
+  [PASS] sc_expense_spike/without_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('0.00')) expected=(True, True, Decimal('0.00'))
+  [PASS] sc_income_cut/with_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('50.56')) expected=(True, True, Decimal('50.56'))
+  [PASS] sc_income_cut/without_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('0.00')) expected=(True, True, Decimal('0.00'))
+  [PASS] sc_job_loss/with_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('5575.42')) expected=(True, True, Decimal('5575.42'))
+  [PASS] sc_job_loss/without_offer: S_t>=0, balances & components recompute, max_gap: got=(True, True, Decimal('300.00')) expected=(True, True, Decimal('300.00'))
+  [PASS] sc_expense_spike without_offer unshocked months == month_net: got=True expected=True
+  [PASS] sc_expense_spike one_time month 2 == essentials: got='2900.00' expected='2900.00'
+  [PASS] start balances: without=6000.00, with=F13 2000.00: got=('6000.00', '2000.00') expected=('6000.00', '2000.00')
+  [PASS] A-34 sc_job_loss: runway without >= with: got=True expected=True
+  [PASS] A-34 sc_expense_spike: runway without >= with: got=True expected=True
+  [PASS] A-34 sc_cost_rise: runway without >= with: got=True expected=True
+  [PASS] A-34 sc_income_cut: runway without >= with: got=True expected=True
+  [PASS] A-10r every assumption text has 'Illustrative': got=True expected=True
+== A-33 floor & gap with a large shock (job loss on thin savings) ==
+     sc_job_loss/with_offer start=500.00 first_shortfall=2 max_gap=7075.42 recovery=None
+  [PASS] job loss with thin savings: all S_t >= 0: got=True expected=True
+  [PASS] job loss: shortfall recorded: got=True expected=True
+== A-11r / A-36 counterfactuals ==
+  [PASS] A-11r base alternative == base calc (payment, FC, left after, F13): got=('375.14', '3008.29', '474.86', '2000.00') expected=('375.14', '3008.29', '474.86', '2000.00')
+     term ladder: [(36, '597.18', '1998.32'), (48, '458.32', '2499.60'), (60, '375.14', '3008.29'), (72, '319.78', '3524.54')]
+  [PASS] A-11r longer term -> lower payment & higher finance charge: got=True expected=True
+  [PASS] A-38 non-native terms carry same_rate_assumed: got=True expected=True
+  [PASS] A-36 +$2,000 down: payment (independent 18000@4.75/60): got='337.62' expected='337.62'
+  [PASS] A-36 deltas: savings_after_purchase -2000.00, payment down: got=('-2000.00', True) expected=('-2000.00', True)
+  [PASS] A-37 only the verified offer id appears: got={'o_audit'} expected={'o_audit'}
+
+TOTAL: 26 PASS / 0 FAIL

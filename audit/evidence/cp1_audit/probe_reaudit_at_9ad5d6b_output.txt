@@ -1,0 +1,45 @@
+== D0-003 residual cases ==
+[cash_down 0 provided + pfc_paid_in_cash 500 CONFLICTING] -> True
+[cash_down 0 provided + pfc_paid_in_cash MISSING (value None)] -> True
+[cash_down 0 provided + pfc_paid_in_cash 0 provided] -> False
+== D0-002 extras ==
+[debts.count='1.0'] -> ['debts.count']
+[debts.count=' 2 '] -> ['debts[d1].monthly_payment', 'debts[d2].monthly_payment']
+[debts.count='51'] -> ['debts.count']
+[debts.count=''] -> ['debts.count']
+[debts.count=None] -> ['debts.count']
+== D0-004 FactInput / ManualOfferRequest ==
+[FactInput income.take_home_monthly='-100'] -> ValidationError: 1 validation error for FactInput |   Value error, income.take_home_monthly: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.00
+[FactInput income.take_home_monthly='abc'] -> ValidationError: 1 validation error for FactInput |   Value error, income.take_home_monthly: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.00
+[FactInput income.take_home_monthly='4200.00'] -> 4200.00
+[FactInput income.take_home_monthly='$4,200'] -> 4200.00
+[FactInput income.take_home_monthly='4,20,0'] -> 4200.00
+[FactInput income.take_home_monthly='4200.005'] -> ValidationError: 1 validation error for FactInput |   Value error, income.take_home_monthly: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.00
+[FactInput debts.count='1.5'] -> ValidationError: 1 validation error for FactInput |   Value error, debts.count: must be a whole number [type=value_error, input_value={'key': 'debts.count', 'value': '1.5'}
+[FactInput debts[d1].monthly_payment='-5'] -> ValidationError: 1 validation error for FactInput |   Value error, debts[d1].monthly_payment: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.0
+[FactInput loan.down_payment_source='Savings'] -> ValidationError: 1 validation error for FactInput |   Value error, loan.down_payment_source: must be one of: savings, other, none [type=value_error, input_value={'key': 'lo
+[FactInput vehicle.value_estimates='[{"date":"2027-10-01","value":"18000"}]'] -> [{"date": "2027-10-01", "value": "18000.00"}]
+[FactInput declined drops value] -> None
+[ManualOfferRequest {'term_months': 500}] -> ValidationError: 1 validation error for ManualOfferRequest | terms
+[ManualOfferRequest {'term_months': '60'}] -> {'term_months': '60'}
+[ManualOfferRequest {'contract_rate': '1.5'}] -> ValidationError: 1 validation error for ManualOfferRequest | terms
+[ManualOfferRequest {'contract_rate': '4.75'}] -> ValidationError: 1 validation error for ManualOfferRequest | terms
+[ManualOfferRequest {'apr': '0.0580'}] -> {'apr': '0.058'}
+[ManualOfferRequest {'principal': 20000.0}] -> ValidationError: 1 validation error for ManualOfferRequest | terms
+[ManualOfferRequest {'principal': '20000'}] -> {'principal': '20000.00'}
+[ManualOfferRequest {'bogus': '1'}] -> ValidationError: 1 validation error for ManualOfferRequest | terms
+[ManualOfferRequest {'variable_rate': 'no'}] -> {'variable_rate': 'false'}
+== D0-005 ==
+[data_mode_from_env(None)] -> synthetic_only
+[data_mode_from_env('PAID')] -> paid
+[data_mode_from_env(' Paid ')] -> paid
+[data_mode_from_env('garbage')] -> off
+[data_mode_from_env('off')] -> off
+[health LLM_DATA_MODE=synthetic_only] -> 200 {'status': 'ok', 'db': True, 'llm_configured': False, 'data_mode': 'synthetic_only', 'schema_version': '1.1', 'calc_version': '1.1.0'}
+[health LLM_DATA_MODE=PAID] -> 200 {'status': 'ok', 'db': True, 'llm_configured': False, 'data_mode': 'paid', 'schema_version': '1.1', 'calc_version': '1.1.0'}
+[health LLM_DATA_MODE=garbage] -> 200 {'status': 'degraded', 'db': True, 'llm_configured': False, 'data_mode': 'off', 'schema_version': '1.1', 'calc_version': '1.1.0'}
+[404 envelope, CP0 app] -> 404 {"error":{"code":"NOT_FOUND","message":"Not found.","details":null,"request_id":"req_f5f1ad19324745d3"}}
+[ErrorDetail(code='METHOD_NOT_ALLOWED') (code used by wt-4 errors.py)] -> ValidationError: 1 validation error for ErrorDetail | code
+[ErrorDetail(code='HTTP_ERROR') (wt-4 default)] -> ValidationError: 1 validation error for ErrorDetail | code
+== schemas.json sync ==
+[schemas.json in sync] True 52 models

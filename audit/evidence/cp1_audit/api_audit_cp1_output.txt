@@ -1,0 +1,41 @@
+== vertical slice through the API (reference case) ==
+  [PASS] POST facts 200 -> 200 
+  [PASS] POST manual offer 200 -> 200 
+  [PASS] offer ready_for_calculation 
+  [PASS] D0-001 via API: itemization check pass on terms {'pass', 'not_applicable'}
+  [PASS] readiness: all 5 core analyses available [('loan_cost', True), ('cashflow_impact', True), ('reserve_impact', True), ('stress_test', True), ('alternatives', True)]
+  [PASS] POST analysis 200 -> 200 
+  [PASS] report.with_offer metrics == independent recompute (13 values) {}
+  [PASS] report.baseline: F08 900.00, loan metrics missing {'monthly_left_before': '900.00', 'monthly_payment': None}
+  [PASS] report.schema/calc version, disclaimer, narrative_text null 
+  [PASS] report: 8 scenario results (4 scenarios x 2 runs), counterfactual present scenarios=8
+  [PASS] A-12r spot: every claim has >=1 evidence id or assumption id claims=34
+  [PASS] GET report by id 200 and identical payment 
+== A-27 manual typo through API ==
+  [PASS] typo offer accepted (200) and warns about payment -> 200 warnings=['PAYMENT_MISMATCH: the disclosed payment $3751.40 differs from the calculated $375.14 by $3376.26. Fees may be financed, the first period may be irregular, or a value may be mistyped.', 'PAYMENT_MISMATCH'] arith=fail
+== A-17 invalid input ==
+  [PASS] negative income -> 400 VALIDATION_ERROR -> 400 {'error': {'code': 'VALIDATION_ERROR', 'message': 'income.take_home_monthly: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.00"', 'details': {'fields': [{'field': 'income.take_home_monthly', 'message': 'income.take_home_monthly: must be a dollar amount of zero or
+  [PASS] negative income message names the field 
+  [PASS] non-numeric income -> 400 -> 400 {'error': {'code': 'VALIDATION_ERROR', 'message': 'income.take_home_monthly: must be a dollar amount of zero or more, with at most 2 decimals, e.g. "4200.00"', 'details': {'fields': [{'field': 'income.take_home_monthly', 'message': 'income.take_home_monthly: must be a dollar amount of zero or
+  [PASS] term 500 -> 400 VALIDATION_ERROR -> 400 {'error': {'code': 'VALIDATION_ERROR', 'message': 'terms.term_months: loan term must be a whole number of months between 6 and 96', 'details': {'fields': [{'field': 'terms.term_months', 'message': 'terms.term_months: loan term must be a whole number of months between 6 and 96', 'type': 'value
+  [PASS] float rate -> 400 -> 400 {'error': {'code': 'VALIDATION_ERROR', 'message': 'terms.contract_rate: must be a decimal string such as "4200.00" (numbers with fractions must be sent as strings)', 'details': {'fields': [{'field': 'terms.contract_rate', 'message': 'terms.contract_rate: must be a decimal string such as "4200
+  [PASS] unknown fact key -> 400/422 error body -> 400 {"error":{"code":"VALIDATION_ERROR","message":"Unknown fact key \"no.such.key\". Use one of the ontology keys (e.g. income.take_home_monthly, debts[d1].monthly_
+  [PASS] 50 MB upload -> 400/403/413/422 with error body, no crash -> 400 {"error":{"code":"VALIDATION_ERROR","message":"file: the upload is larger than 10 MB. Upload a smaller file or type the loan terms in.","details":{"max_bytes":10485760},"request_id":"req_34fd85bae6aa4
+  [PASS] encrypted/garbage PDF (non-fixture) -> 4xx error body, no 500 -> 403 {"error":{"code":"DATA_MODE_RESTRICTED","message":"This demo runs in synthetic-only mode, so only the bundled sample documents can be uploaded. Your own documents are never sent anywhere in this mode.
+== A-18 session isolation ==
+  [PASS] token A on session B -> 404 (no leak) -> 404 {"error":{"code":"NOT_FOUND","message":"Session not found.","details":null,"request_id":"req_974c69af2b64486c"}}
+  [PASS] missing token -> 401 UNAUTHORIZED -> 401 {'error': {'code': 'UNAUTHORIZED', 'message': 'A valid session token is required (Authorization: Bearer <token>).', 'details': None, 'request_id': 'req_5059bbfdb5974af9'}}
+  [PASS] bad token -> 401 -> 401 {'error': {'code': 'UNAUTHORIZED', 'message': 'A valid session token is required (Authorization: Bearer <token>).', 'details': None, 'request_id': 'req_0b178d55dff647f2'}}
+  [PASS] report of A with token B -> 404 -> 404
+== error envelope 404 / 405 / 501 ==
+  [PASS] unknown route 404 envelope -> 404 {'error': {'code': 'NOT_FOUND', 'message': 'Not found.', 'details': None, 'request_id': 'req_7ae4c93acfe24965'}}
+  [PASS] 405 on DELETE /health -> ErrorBody with ErrorCode member -> 405 {"error":{"code":"VALIDATION_ERROR","message":"Method Not Allowed","details":null,"request_id":"req_b8c58416ea4c456b"}}
+  [PASS] explain -> 501 -> 501 {'error': {'code': 'NOT_IMPLEMENTED', 'message': "AI narration is deferred in this version; the report's template explanations are complete.", 'details': None, 'request_id': 'req_5f343efe062043bb'}}
+  [PASS] health invalid mode -> 200 degraded/off -> 200 {"status":"degraded","db":true,"llm_configured":false,"data_mode":"off","schema_version":"1.1","calc_version":"1.1.0"}
+== A-15 DELETE purge ==
+  [PASS] DELETE session -> 204 -> 204
+  [PASS] after delete: token rejected (401/404) -> 401
+  [PASS] after delete: report gone (401/404) -> 401
+  [PASS] raw SQLite scan: no row anywhere mentions the deleted session id {}
+
+TOTAL: 33 PASS / 0 FAIL
