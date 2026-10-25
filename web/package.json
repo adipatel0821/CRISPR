@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "gen:types": "node scripts/gen-types.mjs",
-    "test": "node --test src/lib/format.test.ts src/lib/provenance.test.ts src/lib/assumptions.test.ts src/lib/insights.test.ts src/components/intake/model.test.ts src/components/offer/model.test.ts src/components/summary/select.test.ts src/components/stress/outcome.test.ts"
+    "test": "node --test src/lib/format.test.ts src/lib/provenance.test.ts src/lib/assumptions.test.ts src/lib/insights.test.ts src/components/intake/model.test.ts src/components/offer/model.test.ts src/components/summary/select.test.ts src/components/stress/outcome.test.ts src/components/alternatives/alt-view.test.ts src/components/report/report-view.test.ts"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
