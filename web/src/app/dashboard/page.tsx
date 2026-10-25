@@ -11,7 +11,8 @@ import { resultsRail } from "@/components/summary/results-rail";
  * Decision summary: one result card across the workspace. The top of the card is the result (headline, the
  * money left each month, the before / with-the-loan bars, the savings line, the running-costs caveat) and the
  * blue action; "Show all details" expands the same card in place with everything else. The blue action sits
- * in the card from 1024 px up and docks to the bottom of the screen below that; exactly one is shown.
+ * in the card from 1280 px up and docks to the bottom of the screen below that (also from 1024 to 1279 px,
+ * where the stacked result pushes the card's own action below the first screen); exactly one is shown.
  */
 export default function DashboardPage() {
   return (
@@ -20,7 +21,7 @@ export default function DashboardPage() {
         <StageLayout
           {...resultsRail(report, "summary")}
           actions={
-            <ActionRow className="lg:hidden">
+            <ActionRow className="lg:sticky lg:bg-surface/95 lg:py-3 lg:!shadow-dock xl:hidden">
               <PrimaryAction href="/stress">See the stress test</PrimaryAction>
             </ActionRow>
           }

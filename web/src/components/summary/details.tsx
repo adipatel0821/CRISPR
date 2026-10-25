@@ -191,10 +191,14 @@ function LoanCost({ report }: { report: DecisionReport }) {
   );
 }
 
-/** "Where the $26,508.29 goes": the backend breakdown of the total, one zero-based scale, plus the note amounts. */
-const BREAKDOWN_PARTS: { key: string; label: string }[] = [
-  { key: "cash_price", label: "Car price" },
-  { key: "taxes_title_fees", label: "Taxes, title and fees" },
+/**
+ * "Where the $26,508.29 goes": the backend breakdown of the total, one zero-based scale, plus the note amounts.
+ * `known` parts are left out of the backend breakdown when the offer doesn't state them, so they read "Not known";
+ * the others are always sent and are left out here when they are $0.00 (no add-ons, nothing rolled in).
+ */
+const BREAKDOWN_PARTS: { key: string; label: string; known?: boolean }[] = [
+  { key: "cash_price", label: "Car price", known: true },
+  { key: "taxes_title_fees", label: "Taxes, title and fees", known: true },
   { key: "add_ons", label: "Add-ons" },
   { key: "prior_loan_balance_rolled_in", label: "Old loan balance rolled in" },
   { key: "finance_charge", label: "Finance charge" },
@@ -206,16 +210,31 @@ function MoneyBreakdown({ report }: { report: DecisionReport }) {
   const principal = report.offer?.terms.principal?.value ?? null;
   const financed = report.offer?.terms.amount_financed?.value ?? null;
   const rows: BarDatum[] = [];
+  const unknown: string[] = [];
   for (const p of BREAKDOWN_PARTS) {
     const raw = total?.breakdown?.[p.key];
     const n = displayNumber(raw);
-    if (n === null) continue;
+    if (n === null) {
+      if (p.known && total?.breakdown) unknown.push(p.label);
+      continue;
+    }
+    if (n === 0) continue;
     rows.push({ label: p.label, value: n, display: formatMoney(raw), tone: "slate" });
   }
-  if (rows.length === 0 && !(principal && financed)) return null;
+  if (rows.length === 0 && unknown.length === 0 && !(principal && financed)) return null;
   return (
     <Section id="money-breakdown" icon={BarChart3} title={total?.value ? `Where the ${formatMoney(total.value)} goes` : "Where the money goes"}>
       {rows.length > 0 && <ValueBars rows={rows} title="Parts of the total paid through the deal" titleHidden size="md" />}
+      {unknown.length > 0 && (
+        <ul data-breakdown-unknown="" className={cn("space-y-2", rows.length > 0 && "mt-4")}>
+          {unknown.map((label) => (
+            <li key={label} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5">
+              <span className="text-[15px] font-semibold text-ink-2">{label}</span>
+              <span className="text-[15px] font-semibold text-ink">Not known</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {principal && financed && (
         <p className="mt-5 text-[15px] leading-relaxed text-ink-2">
           Principal (the amount of the note) <Strong>{formatMoney(principal)}</Strong>. Amount financed <Strong>{formatMoney(financed)}</Strong>.
@@ -273,13 +292,23 @@ function LookNextItem({ report, piece, concern, heading }: { report: DecisionRep
   );
 }
 
+/**
+ * The concern shown under "What to look at next", or null. The running-costs gap already sits beside the big
+ * figure, so it isn't repeated there.
+ */
+export function mainConcern(report: DecisionReport): SummaryPiece | null {
+  const concern = resolvePiece(report, decisionSummary(report).concern);
+  return concern && concern.kind !== "running_costs_missing" ? concern : null;
+}
+
 function LookNext({ report }: { report: DecisionReport }) {
   const raw = decisionSummary(report);
   const concern = resolvePiece(report, raw.concern);
   const next = resolvePiece(report, raw.next);
+  const main = mainConcern(report);
   // The running-costs gap already sits beside the big figure; don't repeat it here.
   const items: { piece: SummaryPiece; heading: string }[] = [];
-  if (concern && concern.kind !== "running_costs_missing") items.push({ piece: concern, heading: "The main concern" });
+  if (main) items.push({ piece: main, heading: "The main concern" });
   if (next && next.kind !== "running_costs_missing") items.push({ piece: next, heading: "Worth exploring" });
   if (items.length === 0) {
     return (
@@ -464,8 +493,12 @@ function AllSources({ report }: { report: DecisionReport }) {
   if (other.length) groups.splice(groups.length - 1, 0, { kind: "other", title: "Other sources", list: other });
   const calc = groups.find((g) => g.kind === "calculation");
   const listed = groups.filter((g) => g.kind !== "calculation");
+  // The same calculation runs for several figures (before and with the loan, each scenario); it is named once,
+  // and every count below is the number of items listed under it.
+  const calcNames = calc ? [...new Set(calc.list.map((e) => sourceSubject(report, e)).filter(Boolean))] : [];
+  const shown = listed.reduce((n, g) => n + g.list.length, 0) + calcNames.length;
   return (
-    <Block id="sources" title={`Every source (${report.evidence.length})`}>
+    <Block id="sources" title={`Every source (${shown})`}>
       {listed.length > 0 && (
         <div className="grid gap-x-10 gap-y-6 sm:grid-cols-2 xl:grid-cols-4 [&>*]:min-w-0">
           {listed.map((g) => (
@@ -489,13 +522,13 @@ function AllSources({ report }: { report: DecisionReport }) {
           ))}
         </div>
       )}
-      {calc && (
+      {calc && calcNames.length > 0 && (
         <div className={listed.length ? "pt-3" : undefined}>
           <h3 className="mb-2 text-sm font-semibold text-ink">
-            {calc.title} <span className="font-normal text-ink-3">({calc.list.length})</span>
+            {calc.title} <span className="font-normal text-ink-3">({calcNames.length})</span>
           </h3>
-          <p className="max-w-[72rem] text-sm leading-relaxed text-ink-2">
-            {[...new Set(calc.list.map((e) => sourceSubject(report, e)).filter(Boolean))].join(" · ")}
+          <p data-calc-sources="" className="max-w-[72rem] text-sm leading-relaxed text-ink-2">
+            {calcNames.join(" · ")}
           </p>
         </div>
       )}

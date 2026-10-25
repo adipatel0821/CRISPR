@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Gauge, PiggyBank, TriangleAlert } from "lucide-react";
 import type { DecisionReport, ExplanationEvidence } from "@/lib/contracts";
+import { plain } from "@/lib/copy";
 import { displayNumber, formatMoney } from "@/lib/format";
 import { comparable, runningCostsMissing, RUNNING_COSTS_HREF } from "@/lib/insights";
 import { claimsAbout, evidenceForMetric, isAvailable, metric, withOfferMetric } from "@/lib/report";
@@ -86,7 +87,8 @@ function MonthResult({ report }: { report: DecisionReport }) {
   if (!isAvailable(report, "cashflow_impact")) return <UnavailableSection report={report} analysisId="cashflow_impact" />;
   const before = metric(report, "monthly_left_before");
   const after = withOfferMetric(report, "monthly_left_after");
-  const basis = after?.label ?? before?.label ?? null;
+  // A backend label ("before discretionary spending"), so it goes through the copy cleaner like all backend text.
+  const basis = plain(after?.label ?? before?.label ?? null) || null;
   const afterN = displayNumber(after?.value);
   const beforeN = displayNumber(before?.value);
   const beforeKnown = comparable(before?.value) !== null;
@@ -161,7 +163,8 @@ function MonthResult({ report }: { report: DecisionReport }) {
 
 /**
  * The result, always visible at the top of the card: a short headline, the big figure, the bars, the savings
- * line and the one primary action (from 1024 px up; below that it docks to the bottom of the screen).
+ * line and the one primary action (from 1280 px up, where it fits on the first screen; below that it docks to
+ * the bottom of the screen).
  */
 export function CardTop({ report }: { report: DecisionReport }) {
   return (
@@ -179,15 +182,15 @@ export function CardTop({ report }: { report: DecisionReport }) {
       <div className="mt-8 sm:mt-10">
         <MonthResult report={report} />
       </div>
-      {/* Without a savings line, this row only carries the action, which docks to the bottom below 1024 px. */}
+      {/* Without a savings line, this row only carries the action, which docks to the bottom below 1280 px. */}
       <div
         className={cn(
-          "mt-8 flex flex-col gap-6 border-t border-line pt-7 lg:flex-row lg:items-center lg:justify-between lg:gap-10",
-          !hasSavingsLine(report) && "hidden lg:flex",
+          "mt-8 flex flex-col gap-6 border-t border-line pt-7 xl:flex-row xl:items-center xl:justify-between xl:gap-10",
+          !hasSavingsLine(report) && "hidden xl:flex",
         )}
       >
         <SavingsLine report={report} />
-        <div className="no-print hidden shrink-0 lg:ml-auto lg:block">
+        <div className="no-print hidden shrink-0 xl:ml-auto xl:block">
           <PrimaryAction href="/stress">See the stress test</PrimaryAction>
         </div>
       </div>
