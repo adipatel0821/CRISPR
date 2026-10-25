@@ -1,0 +1,6 @@
+answer '4200.005': HTTP 400; stored value=None status=None; err=Monthly take-home pay can have at most 2 decimal places (cents), e.g. 4200.50.
+answer '4200.004': HTTP 400; stored value=None status=None; err=Monthly take-home pay can have at most 2 decimal places (cents), e.g. 4200.50.
+answer '1e3': HTTP 400; stored value=None status=None; err=Write monthly take-home pay out in full, e.g. 1000 rather than 1e3.
+answer 'Infinity': HTTP 400; stored value=None status=None; err=We couldn't read "Infinity" as a number for monthly take-home pay. Enter digits only, e.g. 4200 or 4,200.
+answer 'NaN': HTTP 400; stored value=None status=None; err=We couldn't read "NaN" as a number for monthly take-home pay. Enter digits only, e.g. 4200 or 4,200.
+answer 4200.5: HTTP 400; stored value=None status=None; err=We couldn't read that number exactly. Please type it as text, e.g. 4200.50.

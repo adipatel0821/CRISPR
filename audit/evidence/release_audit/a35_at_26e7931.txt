@@ -1,0 +1,3 @@
+deficit (take-home 2500): break_even_m3=0.00 m6=0.00 capped=False deficit_at_baseline=True shortfalls={'without_offer': ['sc_expense_spike', 'sc_income_cut', 'sc_job_loss'], 'with_offer': ['sc_expense_spike', 'sc_income_cut', 'sc_job_loss', 'sc_cost_rise']}
+large savings (5,000,000): break_even_m3=1.00 m6=1.00 capped=True deficit_at_baseline=False shortfalls={'without_offer': [], 'with_offer': []}
+reference: break_even_m3=0.37 m6=0.29 capped=False deficit_at_baseline=False shortfalls={'without_offer': [], 'with_offer': ['sc_job_loss']}

@@ -1,0 +1,102 @@
+== A-07r CFPB en-753 ($20,000 @ 4.75%) + worksheet ($15,800 @ 3.5%, 48) ==
+  [PASS] 20000@0.0475/36 payment: engine='597.18' expected=Decimal('597.18')
+  [PASS] 20000@0.0475/36 TOP: engine='21498.32' expected=Decimal('21498.32')
+  [PASS] 20000@0.0475/36 interest: engine='1498.32' expected=Decimal('1498.32')
+  [PASS] 20000@0.0475/36 schedule rows/final balance/final payment: engine=(36, '0.00', '597.02') expected=(36, '0.00', '597.02')
+  [PASS] 20000@0.0475/36 every row byte-equal: engine=True expected=True
+  [PASS] 20000@0.0475/48 payment: engine='458.32' expected=Decimal('458.32')
+  [PASS] 20000@0.0475/48 TOP: engine='21999.60' expected=Decimal('21999.60')
+  [PASS] 20000@0.0475/48 interest: engine='1999.60' expected=Decimal('1999.60')
+  [PASS] 20000@0.0475/48 schedule rows/final balance/final payment: engine=(48, '0.00', '458.56') expected=(48, '0.00', '458.56')
+  [PASS] 20000@0.0475/48 every row byte-equal: engine=True expected=True
+  [PASS] 20000@0.0475/60 payment: engine='375.14' expected=Decimal('375.14')
+  [PASS] 20000@0.0475/60 TOP: engine='22508.29' expected=Decimal('22508.29')
+  [PASS] 20000@0.0475/60 interest: engine='2508.29' expected=Decimal('2508.29')
+  [PASS] 20000@0.0475/60 schedule rows/final balance/final payment: engine=(60, '0.00', '375.03') expected=(60, '0.00', '375.03')
+  [PASS] 20000@0.0475/60 every row byte-equal: engine=True expected=True
+  [PASS] 20000@0.0475/72 payment: engine='319.78' expected=Decimal('319.78')
+  [PASS] 20000@0.0475/72 TOP: engine='23024.54' expected=Decimal('23024.54')
+  [PASS] 20000@0.0475/72 interest: engine='3024.54' expected=Decimal('3024.54')
+  [PASS] 20000@0.0475/72 schedule rows/final balance/final payment: engine=(72, '0.00', '320.16') expected=(72, '0.00', '320.16')
+  [PASS] 20000@0.0475/72 every row byte-equal: engine=True expected=True
+  [PASS] 15800@0.035/48 payment: engine='353.22' expected=Decimal('353.22')
+  [PASS] 15800@0.035/48 TOP: engine='16954.80' expected=Decimal('16954.80')
+  [PASS] 15800@0.035/48 interest: engine='1154.80' expected=Decimal('1154.80')
+  [PASS] 15800@0.035/48 schedule rows/final balance/final payment: engine=(48, '0.00', '353.46') expected=(48, '0.00', '353.46')
+  [PASS] 15800@0.035/48 every row byte-equal: engine=True expected=True
+== Reference case full compute (contracts §3.7) ==
+  [PASS] principal: engine='20000.00' expected='20000.00'
+  [PASS] monthly_payment: engine='375.14' expected='375.14'
+  [PASS] total_of_payments: engine='22508.29' expected='22508.29'
+  [PASS] interest: engine='2508.29' expected='2508.29'
+  [PASS] finance_charge: engine='3008.29' expected='3008.29'
+  [PASS] total_paid_through_deal: engine='26508.29' expected='26508.29'
+  [PASS] apr_recomputed: engine='0.05796' expected='0.05796'
+  [PASS] monthly_left_before: engine='900.00' expected='900.00'
+  [PASS] incremental_vehicle_costs: engine='50.00' expected='50.00'
+  [PASS] monthly_left_after: engine='474.86' expected='474.86'
+  [PASS] savings_after_purchase: engine='2000.00' expected='2000.00'
+  [PASS] reserve_months_before: engine='2.07' expected='2.07'
+  [PASS] reserve_months_after: engine='0.60' expected='0.60'
+  [PASS] payment_to_take_home: engine='0.0893' expected='0.0893'
+  [PASS] ltv: engine='0.909' expected='0.909'
+  [PASS] F11 before/after: engine=('1.43', '0.48') expected=('1.43', '0.48')
+  [PASS] F04 breakdown sums to total: engine=Decimal('26508.29') expected=Decimal('26508.29')
+  [PASS] dti_total missing (no gross): engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] A-31 equity_timeline missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] A-24 no PAYMENT_MISMATCH, mismatch 0.00: engine=(False, '0.00') expected=(False, '0.00')
+  [PASS] RESERVE_LT_1_MONTH triggered (0.60): engine=True expected=True
+  [PASS] APR exactly 5 dp string: engine='0.05796' expected='0.05796'
+  [PASS] apr check pass: engine='pass' expected='pass'
+== A-24 variant: AF + PFC stated, no principal (derived) ==
+  [PASS] principal derived: engine=('20000.00', 'derived') expected=('20000.00', 'derived')
+  [PASS] payment = disclosed: engine=('375.14', False) expected=('375.14', False)
+  [PASS] AF only -> assumed_pfc_zero + mismatch flag reveals fee: engine=('assumed_pfc_zero', True, True) expected=('assumed_pfc_zero', True, True)
+== A-28 trade-in accounting (itemization-derived principal, IMP-008) ==
+  [PASS] payoff 5000.00 principal: engine='21000.00' expected='21000.00'
+  [PASS] payoff 5000.00 total_paid_through_deal (plan 28949.43): engine='28949.43' expected='28949.43'
+  [PASS] payoff 5000.00 plan value: engine='28949.43' expected='28949.43'
+  [PASS] payoff 5000.00 rolled-in: engine='0.00' expected='0.00'
+  [PASS] payoff 5000.00 negative_equity_at_start: engine='0.00' expected='0.00'
+  [PASS] payoff 10000.00 principal: engine='26000.00' expected='26000.00'
+  [PASS] payoff 10000.00 total_paid_through_deal (plan 31889.89): engine='31889.89' expected='31889.89'
+  [PASS] payoff 10000.00 plan value: engine='31889.89' expected='31889.89'
+  [PASS] payoff 10000.00 rolled-in: engine='2000.00' expected='2000.00'
+  [PASS] payoff 10000.00 negative_equity_at_start: engine='1000.00' expected='1000.00'
+== A-29 savings after purchase / reserve after ==
+  [PASS] payment 0% = 250.00: engine='250.00' expected='250.00'
+  [PASS] F13 = 1000.00: engine='1000.00' expected='1000.00'
+  [PASS] reserve after = 1000/3150 = 0.32: engine='0.32' expected='0.32'
+== A-30 replacement netting ==
+  [PASS] payment 420.00: engine='420.00' expected='420.00'
+  [PASS] monthly_left_after = 180.00: engine='180.00' expected='180.00'
+== A-32 deficit computed and flagged ==
+  [PASS] monthly_left_before = -1300.00: engine='-1300.00' expected='-1300.00'
+  [PASS] DEFICIT_BEFORE_LOAN / AFTER flags: engine=(True, True) expected=(True, True)
+== A-27 manual typo ($3,751.40 vs $375.14) ==
+  [PASS] PAYMENT_MISMATCH triggered: engine=(True, '-3376.26') expected=(True, '-3376.26')
+  [PASS] offer_checks.payment_mismatch: engine='-3376.26' expected='-3376.26'
+== D0-001 itemization (IMP-007) ==
+  [PASS] reference itemization: engine='pass' expected='pass'
+  [PASS] cash_price +2.00 -> non-pass: engine=True expected=True
+     (value returned: 'warn')
+  [PASS] AF-only offer itemization: engine='pass' expected='pass'
+  [PASS] manual path terms[*].checks.itemization == pass: engine={'pass'} expected={'pass'}
+  [PASS] manual path ready_for_calculation: engine=True expected=True
+== Missing-value handling (unknown never zero) ==
+  [PASS] no flexible -> F08 = 1300.00 labelled 'before discretionary spending': engine=('1300.00', 'before discretionary spending') expected=('1300.00', 'before discretionary spending')
+     no new-car costs -> F14='0.00' label='assumes the new car costs the same to run as your current one' assumptions_used=['a_no_running_costs'] derived_status='assumed' F09='524.86'
+  [PASS] no new-car costs -> a_no_running_costs recorded: engine=True expected=True
+  [PASS] no new-car costs -> F14 labelled: engine=True expected=True
+  [PASS] debt payment missing -> monthly_left_before missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] debt payment missing -> monthly_left_after missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] debt payment missing -> reserve_months_before missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] debt payment missing -> reserve_months_after missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] debt payment missing -> missing_inputs names the item: engine=True expected=True
+  [PASS] negative F13 computed (2500-4000): engine='-1500.00' expected='-1500.00'
+  [PASS] negative F13 -> RESERVE_LT_1_MONTH: engine=True expected=True
+     negative F13 -> reserve_months_after='-0.45' warnings=['The cash paid at signing is larger than the savings you reported; savings after the purchase are negative.']
+  [PASS] declined savings -> F13 missing: engine=(None, 'missing') expected=(None, 'missing')
+  [PASS] estimated input propagates to derived_status: engine='estimated' expected='estimated'
+
+TOTAL: 87 PASS / 0 FAIL

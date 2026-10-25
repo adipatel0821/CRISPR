@@ -1,0 +1,14 @@
+== D1-001 verification tests ==
+  [PASS] (1) new costs missing -> derived_status assumed: got='assumed' expected='assumed'
+  [PASS] (1) values unchanged F09/F14: got=('524.86', '0.00') expected=('524.86', '0.00')
+  [PASS] (1) precise label when replacing: got='assumes the new car costs the same to run as your current one' expected='assumes the new car costs the same to run as your current one'
+  [PASS] (2) full reference household -> provided: got='provided' expected='provided'
+  [PASS] (3) new costs given, replaces_current absent -> assumed: got='assumed' expected='assumed'
+  [PASS] (4) new costs missing, not replacing -> label not included: got='new-car running costs not included' expected='new-car running costs not included'
+== LOW-2 disputed pfc_paid_in_cash ==
+  [PASS] F04 missing with offer.pfc_paid_in_cash: got=(None, True) expected=(None, True)
+  [PASS] F13 missing with offer.pfc_paid_in_cash: got=(None, True) expected=(None, True)
+  [PASS] provided pfc_paid_in_cash 0 -> F13 2000.00, F04 26508.29: got=('2000.00', '26508.29') expected=('2000.00', '26508.29')
+  [PASS] source=other + disputed pfc -> F13 = savings (not subtracted): got='6000.00' expected='6000.00'
+
+TOTAL: 10 PASS / 0 FAIL

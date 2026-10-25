@@ -1,0 +1,27 @@
+== tracked-file secret scan ==
+exit=1 (1 = no match)
+== full history scan (git log -p --all) ==
+exit=1 (1 = no match)
+== .env files tracked? ==
+.env.example
+web/.env.example
+== .env.example ==
+# Copy to .env (never commit .env)
+# off | synthetic_only | paid   (default synthetic_only; paid requires a human to confirm Gemini paid-tier terms)
+LLM_DATA_MODE=synthetic_only
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
+DATABASE_URL=sqlite:///./data/decisiontwin.db
+CORS_ORIGINS=http://localhost:3000
+NEXT_PUBLIC_API_BASE=http://localhost:8000
+== ignore coverage ==
+.gitignore:9:.env	.env
+.gitignore:9:.env	backend/.env
+web/.gitignore:34:.env*	web/.env.local
+.gitignore:14:backend/data/	backend/data/x.db
+.gitignore:4:.venv/	backend/.venv
+web/.gitignore:4:/node_modules	web/node_modules/x
+.gitignore:23:.claude/worktrees/	.claude/worktrees/x
+preflight from http://localhost:3000 -> 200 ACAO= http://localhost:3000 ACAC= None
+preflight from https://evil.example -> 400 ACAO= None ACAC= None
+raw token stored in DB: False | token length bytes: 43

@@ -1,0 +1,74 @@
+== Ground truth vs auditor's own text extraction ==
+  [PASS] contract_standard.pdf: sha256 matches manifest 
+  [PASS] contract_standard.pdf: every ground-truth value is printed in the PDF text []
+  [PASS] dealer_worksheet_two_options.pdf: sha256 matches manifest 
+  [PASS] dealer_worksheet_two_options.pdf: every ground-truth value is printed in the PDF text []
+  [PASS] contract_blank_apr.pdf: sha256 matches manifest 
+  [PASS] contract_blank_apr.pdf: every ground-truth value is printed in the PDF text []
+  [PASS] contract_variable_rate.pdf: sha256 matches manifest 
+  [PASS] contract_variable_rate.pdf: every ground-truth value is printed in the PDF text []
+  [PASS] contract_balloon.pdf: sha256 matches manifest 
+  [FAIL] contract_balloon.pdf: every ground-truth value is printed in the PDF text [('term_months', '60')]
+  [PASS] contract_prompt_injection.pdf: sha256 matches manifest 
+  [PASS] contract_prompt_injection.pdf: every ground-truth value is printed in the PDF text []
+  [PASS] contract_no_balloon_ssn.pdf: sha256 matches manifest 
+  [PASS] contract_no_balloon_ssn.pdf: every ground-truth value is printed in the PDF text []
+
+== A-05r reader accuracy (synthetic_only, no API key -> reader_only) ==
+   contract_standard.pdf: method=reader_only status=extracted apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=[] ready=False
+   dealer_worksheet_two_options.pdf: status=needs_choice offers_found=2 labels=['OPTION A - 60 MONTHS', 'OPTION B - 72 MONTHS']
+   contract_blank_apr.pdf: method=reader_only status=extracted apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=[] ready=False
+   contract_variable_rate.pdf: method=reader_only status=unsupported apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=['variable_rate'] ready=False
+   contract_balloon.pdf: method=reader_only status=unsupported apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=['balloon_payment'] ready=False
+   contract_prompt_injection.pdf: method=reader_only status=extracted apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=[] ready=False
+   contract_no_balloon_ssn.pdf: method=reader_only status=extracted apr=ok finance_charge=ok amount_financed=ok total_of_payments=ok monthly_payment=ok unsupported=[] ready=False
+  [PASS] A-05r reader accuracy on the five TILA fields: 30/30 (n = 6 single-offer fixtures) 
+  [PASS] blank-APR fixture -> apr null 
+
+== A-06r two-option chooser ==
+  [PASS] worksheet -> needs_choice with 2 offers status=needs_choice n=2
+  [PASS] not computable before a choice 
+  [PASS] choice 1 -> term 60, payment 375.14 got ('60', '375.14')
+  [PASS] choice 2 -> term 72, payment 319.78 got ('72', '319.78')
+
+== A-08 unsupported products / A-25 negation ==
+  [PASS] contract_variable_rate.pdf: unsupported variable_rate, not ready unsupported=['variable_rate'] status=unsupported
+  [PASS] contract_balloon.pdf: unsupported balloon_payment, not ready unsupported=['balloon_payment'] status=unsupported
+  [PASS] A-25 'No balloon payment' -> not blocked unsupported=[] balloon=false
+
+== A-14 injection (reader path and a compromised-LLM path) ==
+  [PASS] values unchanged: apr 0.0580, finance_charge 3008.29 got ('0.058', '3008.29')
+  [PASS] INSTRUCTION_TEXT_IGNORED warning ['INSTRUCTION_TEXT_IGNORED']
+  [PASS] event logged (prompt_injection_suspected) 
+  [PASS] compromised LLM says APR 0% -> APR never becomes 0 (conflicting or reader value) apr status=conflicting value=None method=llm+reader
+  [PASS] compromised LLM says FC $0 -> FC never becomes 0 fc status=conflicting value=None
+  [PASS] conflict blocks computation 
+
+== A-15 redaction: SSN fixture through the real LLMClient (fake transport captures the outbound prompt) ==
+  [PASS] an LLM request was attempted (fixture allowed in synthetic_only) prompts=2
+  [PASS] outbound prompt does not contain '123-45-6789' 
+  [PASS] outbound prompt does not contain '6789' 
+  [PASS] outbound prompt does not contain 'sample.buyer@example.com' 
+  [PASS] outbound prompt does not contain '010-4477' 
+  [PASS] outbound prompt does not contain '4417 1234 5678 9113' 
+  [PASS] logs (DEBUG and up) do not contain '123-45-6789' 
+  [PASS] logs (DEBUG and up) do not contain 'sample.buyer@example.com' 
+  [PASS] logs (DEBUG and up) do not contain '4417 1234' 
+  [PASS] logs (DEBUG and up) do not contain '19,500' 
+  [PASS] logs (DEBUG and up) do not contain '375.14' 
+  [PASS] call records are metadata only records=['malformed']
+
+== Data-mode gate inside llm/client.py ==
+  [PASS] mode=synthetic_only fixture=False -> sent=False (sent prompt redacted: True)
+  [PASS] mode=off fixture=True -> sent=False (sent prompt redacted: True)
+  [PASS] mode=synthetic_only fixture=True -> sent=True (sent prompt redacted: True)
+  [PASS] mode=paid fixture=False -> sent=True (sent prompt redacted: True)
+  [PASS] get_llm_client with LLM_DATA_MODE=None -> synthetic_only 
+  [PASS] get_llm_client with LLM_DATA_MODE='' -> synthetic_only 
+  [PASS] get_llm_client with LLM_DATA_MODE='PAID' -> paid 
+  [PASS] get_llm_client with LLM_DATA_MODE='paid ' -> paid 
+  [PASS] get_llm_client with LLM_DATA_MODE='garbage' -> synthetic_only 
+  [PASS] get_llm_client with LLM_DATA_MODE='Paid-tier' -> synthetic_only 
+  [PASS] A-26 modified (non-fixture) PDF in a synthetic_only session refused even with a paid client DataModeRestricted
+
+TOTAL: 51 PASS / 1 FAIL

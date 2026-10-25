@@ -1,0 +1,4 @@
+run 1: doc_flow exit=0 (32 pass / 0 fail) manual_flow exit=0 (25 pass / 0 fail); total wall time 66s; flows 64s
+run 2: doc_flow exit=0 (32 pass / 0 fail) manual_flow exit=0 (25 pass / 0 fail); total wall time 66s; flows 64s
+run 3: doc_flow exit=0 (32 pass / 0 fail) manual_flow exit=0 (25 pass / 0 fail); total wall time 66s; flows 64s
+cleanup: after each run listeners on 3000/8000 stopped (run1 pids 25444,28272; run2 17052,25376; run3 12312,16616); final check: ports 3000/8000 free, 0 leftover next/uvicorn processes

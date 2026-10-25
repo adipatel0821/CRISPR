@@ -1,0 +1,34 @@
+  [PASS] welcome shows data-mode banner
+  [PASS] start -> /intake
+   questions: [
+  'About how much take-home pay (after taxes) do you get in a typical month?',
+  'About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?',
+  'How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none',
+  'About how much savings could you use in an emergency (checking, savings, cash)?',
+  'Where will your down payment come from?'
+]
+  [PASS] adaptive intake asked the 4 household questions (offer not yet added)
+  [PASS] offer saved without error
+  [PASS] down-payment source asked (5th blocking question)
+  [PASS] dashboard shows 375.14
+  [PASS] dashboard shows 22,508.29
+  [PASS] dashboard shows 3,008.29
+  [PASS] dashboard shows 26,508.29
+  [PASS] dashboard shows 1,300
+  [PASS] dashboard shows 924.86
+  [PASS] dashboard shows 2,000
+  [PASS] savings before shown as $6,000 (not "Not known")
+  [PASS] labels unknown flexible spending / running costs
+  [PASS] dashboard is live data (no fixture banner)
+  [PASS] no 'verified' wording on dashboard
+  [PASS] assumption chip on monthly-left-after / running costs
+  [PASS] no assumption chip on the loan-cost figures (all provided)
+  [PASS] /stress renders results
+  [PASS] stress labelled illustrative
+  [PASS] /alternatives renders results
+  [PASS] alternatives show same-rate label
+  [PASS] /report renders results
+  [PASS] dashboard has no horizontal scroll at 360px
+  [PASS] no browser console errors
+
+RESULT: PASS (25/25)

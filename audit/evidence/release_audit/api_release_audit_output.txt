@@ -1,0 +1,35 @@
+== A-15: SSN fixture through the API (synthetic_only, real LLMClient + recording transport) ==
+  [PASS] upload SSN fixture -> 200 extracted -> 200 extracted
+  [PASS] LLM request attempted (fixture allowed) prompts=2
+  [PASS] outbound LLM prompt has no SSN/email/phone/account 
+  [PASS] response body has no SSN 
+  [PASS] captured logs (all levels) have no SSN/email/account 
+  [PASS] raw DB scan: no SSN/email/account stored anywhere {}
+     table row counts after upload: {'sessions': 1, 'facts': 0, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 1, 'offers': 0, 'reports': 0, 'llm_calls': 0, 'idempotency': 0}
+  [FAIL] llm_calls audit row persisted for the LLM call (system_architecture §5: 'logged to llm_calls') llm_calls=0 (client recorded calls)
+  [PASS] verify document -> offer -> 200 True
+  [PASS] analysis from the document offer -> 200 with payment 375.14 -> 200 
+     rows mentioning the session before DELETE: {'sessions': 1, 'facts': 1, 'documents': 1, 'offers': 1, 'reports': 1, 'llm_calls': 1} counts={'sessions': 1, 'facts': 5, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 1, 'offers': 1, 'reports': 1, 'llm_calls': 1, 'idempotency': 0}
+  [PASS] DELETE -> 204 -> 204
+  [PASS] after DELETE: no row in ANY table mentions the session (incl. llm_calls) {} counts={'sessions': 0, 'facts': 0, 'acknowledgements': 0, 'skips': 0, 'question_log': 0, 'documents': 0, 'offers': 0, 'reports': 0, 'llm_calls': 0, 'idempotency': 0}
+  [PASS] no INFO-level log line contains the household or loan figures []
+
+TOTAL: 11 PASS / 1 FAIL
+
+== A-13: LLM_DATA_MODE=off full flow (typed answers + document reader + manual offer + report) ==
+  [PASS] session data_mode off 
+     typed questions asked: ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source']
+  [PASS] typed widgets answer every blocking question without an LLM ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source']
+  [PASS] off mode: fixture document -> reader_only extraction -> 200 reader_only
+  [PASS] manual offer -> ready -> 200
+  [PASS] complete report in off mode (with_offer, 8 scenarios, counterfactual, claims) -> 200 
+  [PASS] health: llm_configured false in off mode {'status': 'ok', 'db': True, 'llm_configured': False, 'data_mode': 'off', 'schema_version': '1.1', 'calc_version': '1.1.0'}
+  [PASS] no INFO-level log line contains the household or loan figures []
+
+TOTAL: 7 PASS / 0 FAIL
+
+== A-26: synthetic_only + non-fixture upload ==
+  [PASS] modified PDF -> 403 DATA_MODE_RESTRICTED with explanation -> 403 {"error":{"code":"DATA_MODE_RESTRICTED","message":"This demo runs in synthetic-only mode, so only the bundled sample documents can be uploaded. Your own documen
+  [PASS] no INFO-level log line contains the household or loan figures []
+
+TOTAL: 2 PASS / 0 FAIL
