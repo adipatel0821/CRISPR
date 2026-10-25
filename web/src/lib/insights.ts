@@ -125,7 +125,8 @@ function changePiece(report: DecisionReport): SummaryPiece | null {
       claimIds: [cash.claim_id],
       evidenceIds: [...cash.evidence_ids],
       href: "/dashboard",
-      figure: { before: strOrNull(v.before), after: strOrNull(v.after) },
+      // live claims carry monthly_left_before/after; fixtures may carry before/after
+      figure: { before: strOrNull(v.before ?? v.monthly_left_before), after: strOrNull(v.after ?? v.monthly_left_after) },
     };
   }
   // 2. Template from the metrics (before = monthly_left_before, after = monthly_left_after).
@@ -197,8 +198,28 @@ export function worstGapScenario(report: DecisionReport): ScenarioResult | null 
   return worst;
 }
 
-function scenarioClaim(report: DecisionReport, scenarioId: string): Claim | undefined {
-  return report.claims.find((c) => c.type === "scenario_outcome" && c.values?.scenario_id === scenarioId && claimText(c));
+/**
+ * The backend emits one scenario claim per run (cl_scn_<id>_without_offer / _with_offer). Concerns are about the
+ * WITH-loan path, so match the run explicitly (values.run, or the claim-id suffix) — never fall back to the other run.
+ */
+export function scenarioClaim(
+  report: DecisionReport,
+  scenarioId: string,
+  run: "with_offer" | "without_offer" = "with_offer",
+): Claim | undefined {
+  const runOf = (c: Claim): string | null =>
+    typeof c.values?.run === "string"
+      ? (c.values.run as string)
+      : c.claim_id.endsWith("_without_offer")
+        ? "without_offer"
+        : c.claim_id.endsWith("_with_offer")
+          ? "with_offer"
+          : null;
+  const candidates = report.claims.filter(
+    (c) => c.type === "scenario_outcome" && c.values?.scenario_id === scenarioId && claimText(c),
+  );
+  // exact run first; then a combined claim that names no run (it describes both); never the other run's claim
+  return candidates.find((c) => runOf(c) === run) ?? candidates.find((c) => runOf(c) === null);
 }
 
 function gapPiece(report: DecisionReport): SummaryPiece | null {

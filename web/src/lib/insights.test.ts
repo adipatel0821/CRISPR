@@ -11,6 +11,7 @@ import {
   runningCostsMissing,
   worstGapScenario,
   RUNNING_COSTS_TEXT,
+  scenarioClaim,
 } from "./insights.ts";
 import type { Alternative, CounterfactualResult, DecisionReport } from "./contracts.ts";
 
@@ -241,4 +242,40 @@ test("limitations / runningCostsMissing: corrected engine signals via derived + 
   r.with_offer!.metrics.incremental_vehicle_costs.status = "assumed";
   assert.equal(runningCostsMissing(r), true);
   assert.ok(limitations(r).some((x) => x.id === "a_no_running_costs"));
+});
+
+// Regression (merge review of the UX redesign): live reports carry one scenario claim per run; the concern must use the
+// WITH-loan claim, and the cash-flow figure must read the live field names.
+test("scenarioClaim matches the requested run, never the other one", () => {
+  const r = clone();
+  const base = { type: "scenario_outcome", subject_metric: "savings_balance", direction: null, evidence_ids: [], assumption_ids: [], template_id: "t" };
+  r.claims = [
+    { ...base, claim_id: "cl_scn_sc_x_without_offer", values: { scenario_id: "sc_x", run: "without_offer" }, text: "Without this loan your savings stay above zero." },
+    { ...base, claim_id: "cl_scn_sc_x_with_offer", values: { scenario_id: "sc_x", run: "with_offer" }, text: "With this loan the unfunded gap reaches $1,000." },
+  ] as DecisionReport["claims"];
+  assert.equal(scenarioClaim(r, "sc_x")?.claim_id, "cl_scn_sc_x_with_offer");
+  assert.equal(scenarioClaim(r, "sc_x", "without_offer")?.claim_id, "cl_scn_sc_x_without_offer");
+  r.claims = r.claims.filter((c) => c.claim_id.endsWith("without_offer"));
+  assert.equal(scenarioClaim(r, "sc_x"), undefined);
+});
+
+test("cash-flow change figure reads live monthly_left_before/after values", () => {
+  const r = clone();
+  r.key_points = ["cl_live_cash"];
+  r.claims = [{ claim_id: "cl_live_cash", type: "change", subject_metric: "monthly_left_after", direction: "down", evidence_ids: [], assumption_ids: [],
+    template_id: "t_kp_cashflow", values: { monthly_left_before: "900.00", monthly_left_after: "474.86" },
+    text: "Your monthly leftover goes from $900 to $475." }] as DecisionReport["claims"];
+  const change = decisionSummary(r).change;
+  assert.equal(change?.figure?.before, "900.00");
+  assert.equal(change?.figure?.after, "474.86");
+});
+
+test("scenarioClaim accepts a combined claim with no run marker, but not the other run's claim", () => {
+  const r = clone();
+  const base = { type: "scenario_outcome", subject_metric: "savings_balance", direction: null, evidence_ids: [], assumption_ids: [], template_id: "t" };
+  r.claims = [
+    { ...base, claim_id: "cl_scn_sc_y_without_offer", values: { scenario_id: "sc_y", run: "without_offer" }, text: "Without this loan your savings stay above zero." },
+    { ...base, claim_id: "cl_stress_y", values: { scenario_id: "sc_y" }, text: "With this loan the gap reaches $10; without it, savings last." },
+  ] as DecisionReport["claims"];
+  assert.equal(scenarioClaim(r, "sc_y")?.claim_id, "cl_stress_y");
 });

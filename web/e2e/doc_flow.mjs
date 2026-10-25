@@ -61,7 +61,7 @@ async function answerQuestions(page, max = 12) {
 
 async function openUploadTab(page) {
   await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: /Upload a document/ }).click();
+  await page.getByRole("tab", { name: /Upload a document|Upload contract/ }).click();
 }
 
 async function upload(page, file) {

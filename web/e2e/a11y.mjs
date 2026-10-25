@@ -19,7 +19,8 @@ const check = (name, ok, detail = "") => {
 };
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
-const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+// reducedMotion: the app disables fade/slide transitions, so axe measures settled colours (mid-fade opacity gives false contrast hits)
+const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: "reduce" });
 const page = await ctx.newPage();
 
 async function axe(label) {
@@ -96,11 +97,13 @@ try {
 
   // 3. Offer — keyboard: tabs (arrow keys), Choose a file (Enter -> file chooser), Confirm all, Save
   await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: /Type the terms/ }).waitFor();
+  await page.getByRole("tab", { name: /Type the terms|Enter terms/ }).waitFor();
   total += await axe("/offer (manual tab)");
-  check("kbd: offer tabs reachable", await tabTo(/tab\|.*Type the terms/));
+  check("kbd: offer tabs reachable", await tabTo(/tab\|.*(Type the terms|Enter terms)/));
   await page.keyboard.press("ArrowRight");
-  const sel = await page.getByRole("tab", { name: /Upload a document/ }).getAttribute("aria-selected");
+  const upTab = page.getByRole("tab", { name: /Upload a document|Upload contract/ });
+  let sel = null;   // poll: the selection re-renders asynchronously after the key press
+  for (let i = 0; i < 20 && sel !== "true"; i++) { sel = await upTab.getAttribute("aria-selected"); if (sel !== "true") await page.waitForTimeout(100); }
   check("kbd: ArrowRight selects the Upload tab", sel === "true");
   total += await axe("/offer (upload tab)");
   check("kbd: Choose a file reachable", await tabTo(/^BUTTON\|.*Choose a file/));

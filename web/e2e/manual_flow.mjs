@@ -47,6 +47,9 @@ try {
     "Principal (amount of the note)": "20000", "Amount financed": "19500", "Prepaid finance charges": "500",
     "APR": "5.796", "Contract (interest) rate": "4.75", "Term (months)": "60", "Monthly payment on the contract": "375.14",
   };
+  await page.getByLabel("Cash price of the car", { exact: true }).waitFor({ timeout: 15000 });
+  { const more = page.locator("summary", { hasText: "More details" });   // UX redesign: advanced terms are disclosed
+    if (await more.count() && !(await more.first().evaluate((el) => el.parentElement?.open))) await more.first().click(); }
   for (const [label, v] of Object.entries(fields)) await page.getByLabel(label, { exact: true }).fill(v);
   const confirm = page.locator("#offer-confirm");
   if (await confirm.count()) { if (!(await confirm.isChecked().catch(() => false))) await confirm.click(); }
