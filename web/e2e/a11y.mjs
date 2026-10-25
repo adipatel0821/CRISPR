@@ -75,17 +75,20 @@ try {
   await page.waitForURL(/\/intake/, { timeout: 15000 });
 
   // 2. Intake — keyboard only (type into the focused field, Enter / Space on Continue)
+  // UX3: the question is the h1 of form[data-fact-key]; the answer is chosen by fact key.
   await page.getByRole("button", { name: /^Continue$/ }).waitFor({ timeout: 10000 });
   total += await axe("/intake");
   const asked = [];
+  const VALUES = { "income.take_home_monthly": "4200", "expenses.essential.total": "2900", "debts.count": "0", "savings.liquid": "6000" };
   for (let i = 0; i < 6; i++) {
-    const cont = page.getByRole("button", { name: /^Continue$/ });
-    try { await cont.waitFor({ timeout: 4000 }); } catch { break; }
-    const q = (await page.locator("h2").first().textContent()).trim();
-    asked.push(q);
-    const val = /take-home/i.test(q) ? "4200" : /essential/i.test(q) ? "2900" : /debt/i.test(q) ? "0" : /savings/i.test(q) ? "6000" : null;
+    const form = page.locator("form[data-fact-key]").first();
+    try { await form.waitFor({ timeout: 4000 }); } catch { break; }
+    const key = await form.getAttribute("data-fact-key");
+    const q = `${key}: ${(await form.locator("h1, h2").first().textContent()).trim()}`;
+    const val = VALUES[key] ?? null;
     if (val === null) break;
-    const okField = await tabTo(/^INPUT\|/);
+    asked.push(q);
+    const okField = await tabTo(/^INPUT\|(text|number|textbox)\|/);
     if (!okField) { check(`kbd: field for "${q}" reachable`, false); break; }
     await page.keyboard.type(val);
     const okBtn = await tabTo(/^BUTTON\|.*Continue/);
@@ -95,20 +98,27 @@ try {
   }
   check("kbd: 4 household questions answered by keyboard", asked.length >= 4, JSON.stringify(asked));
 
-  // 3. Offer — keyboard: tabs (arrow keys), Choose a file (Enter -> file chooser), Confirm all, Save
+  // 3. Offer — keyboard: method tiles (native radios, arrow keys), Choose a file (Enter -> file chooser), Confirm all, Save
+  // UX3: the method tabs became radio tiles "Upload the contract" / "Enter the numbers" (Enter the numbers selected by default).
   await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: /Type the terms|Enter terms/ }).waitFor();
-  total += await axe("/offer (manual tab)");
-  check("kbd: offer tabs reachable", await tabTo(/tab\|.*(Type the terms|Enter terms)/));
-  await page.keyboard.press("ArrowRight");
-  const upTab = page.getByRole("tab", { name: /Upload a document|Upload contract/ });
-  let sel = null;   // poll: the selection re-renders asynchronously after the key press
-  for (let i = 0; i < 20 && sel !== "true"; i++) { sel = await upTab.getAttribute("aria-selected"); if (sel !== "true") await page.waitForTimeout(100); }
-  check("kbd: ArrowRight selects the Upload tab", sel === "true");
-  total += await axe("/offer (upload tab)");
+  await page.getByRole("radio", { name: /Enter the numbers/ }).waitFor();
+  total += await axe("/offer (enter the numbers)");
+  check("kbd: offer method tiles reachable", await tabTo(/radio\|.*Enter the numbers/));
+  const upRadio = page.getByRole("radio", { name: /Upload the contract/ });
+  let sel = false;   // arrow keys move through the radio group; poll because the selection re-renders asynchronously
+  for (let k = 0; k < 2 && !sel; k++) {
+    await page.keyboard.press("ArrowRight");
+    for (let i = 0; i < 20 && !sel; i++) { sel = await upRadio.isChecked(); if (!sel) await page.waitForTimeout(100); }
+  }
+  check("kbd: arrow key selects Upload the contract", sel);
+  total += await axe("/offer (upload the contract)");
   check("kbd: Choose a file reachable", await tabTo(/^BUTTON\|.*Choose a file/));
   check("kbd: focus indicator visible on Choose a file", await focusVisible());
-  const [chooser] = await Promise.all([page.waitForEvent("filechooser", { timeout: 5000 }), page.keyboard.press("Enter")]);
+  // register the file-chooser interception before the key press (Promise.all raced it and could miss the event)
+  const chooserP = page.waitForEvent("filechooser", { timeout: 8000 });
+  await page.waitForTimeout(300);
+  await page.keyboard.press("Enter");
+  const chooser = await chooserP;
   await chooser.setFiles(path.join(DOCS, "contract_standard.pdf"));
   await page.getByRole("heading", { name: /Check what we read/ }).waitFor({ timeout: 20000 });
   total += await axe("/offer (verification table)");
@@ -116,9 +126,10 @@ try {
   await page.keyboard.press("Enter");
   check("kbd: Save checked offer reachable", await tabTo(/^BUTTON\|.*Save checked offer/));
   await page.keyboard.press("Space");
-  await page.getByRole("button", { name: /See my results/ }).waitFor({ timeout: 15000 });
+  // UX3: with the down-payment question still open, the saved offer asks it inline ("Before your results") instead of See my results
+  await page.locator("[data-saved-offer], section[aria-label='Before your results']").first().waitFor({ timeout: 15000 });
 
-  // down-payment question (two-track intake)
+  // down-payment question (two-track intake), answered by keyboard on the intake stage
   await page.goto(WEB + "/intake", { waitUntil: "networkidle" });
   const cont = page.getByRole("button", { name: /^Continue$/ });
   if (await cont.isVisible().catch(() => false)) {
@@ -135,13 +146,20 @@ try {
   check("kbd: See my results reachable", await tabTo(/^BUTTON\|.*See my results/));
   await page.keyboard.press("Enter");
   await page.waitForURL(/\/dashboard/, { timeout: 30000 });
-  await page.getByText("What the loan costs").first().waitFor({ timeout: 15000 });
+  await page.locator("[data-summary-hero]").waitFor({ timeout: 20000 });
   const dash = await page.textContent("body");
   check("kbd: keyboard-only journey reaches the dashboard with 375.14 and savings after 2,000.00",
     dash.includes("375.14") && dash.includes("2,000.00"));
 
   // 4. Results pages
   total += await axe("/dashboard");
+  // The summary is one result card: the sources sit behind "Show all details", so open it with the keyboard first.
+  check("kbd: Show all details reachable", await tabTo(/^BUTTON\|.*Show all details/));
+  check("kbd: focus indicator visible on Show all details", await focusVisible());
+  await page.keyboard.press("Enter");
+  await page.locator('[data-card-details][data-state="open"]').waitFor({ timeout: 5000 });
+  check('kbd: Enter opens the details (aria-expanded="true")', (await page.locator("[data-card-toggle]").getAttribute("aria-expanded")) === "true");
+  total += await axe("/dashboard (details open)");
   check("kbd: a source chip opens with Enter", await tabTo(/Source for Monthly payment/));
   await page.keyboard.press("Enter");
   check("kbd: popover visible", await page.locator("[data-radix-popper-content-wrapper]").first().isVisible());

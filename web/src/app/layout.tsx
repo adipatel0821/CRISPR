@@ -1,49 +1,47 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/app-context";
-import { SiteHeader } from "@/components/site-header";
-import { DeleteDataButton } from "@/components/delete-data";
+import { LegacyJourney, SiteHeader } from "@/components/site-header";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+/* One family for the whole product. Variable font (200 to 800); tabular figures via font-variant-numeric. */
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "DecisionTwin — see a car loan's real cost",
+  title: "DecisionTwin: see what a car loan does to your month",
   description:
-    "Understand a car loan's real cost and what it does to your month and your savings. Every number is traceable to its source.",
+    "See a car loan's real cost and what it leaves you each month and in savings. Every number links to its source.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ffffff",
+  themeColor: "#111111",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={jakarta.variable}>
       <body className="flex min-h-dvh flex-col antialiased">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:text-primary-ink"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-cta focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-cta-ink"
         >
           Skip to content
         </a>
         <AppProvider>
+          {/* The blue band runs behind the header and the top of the application surface. */}
+          <div data-brand-band aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-frame" />
           <SiteHeader />
-          {/* Results width (~960 px). Reading screens narrow themselves with <Container width="reading">. */}
-          <main id="main" className="mx-auto w-full max-w-[60rem] flex-1 px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
-            {children}
-          </main>
-          <footer data-site-footer className="border-t border-line">
-            <div className="mx-auto flex w-full max-w-[60rem] flex-col gap-3 px-4 py-6 text-xs leading-relaxed text-ink-subtle sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <p className="max-w-xl">
-                DecisionTwin does arithmetic on the figures you provide and assumptions you can see. It is not a
-                prediction and not financial advice. Consider reviewing a decision like this with someone you trust.
-              </p>
-              <DeleteDataButton />
-            </div>
-          </footer>
+          <div
+            data-app-surface
+            className="relative z-10 mx-auto flex w-full flex-1 flex-col bg-surface shadow-surface lg:w-[var(--app-width)] lg:rounded-t-[var(--radius-surface)]"
+          >
+            <LegacyJourney />
+            <main id="main" className="flex w-full min-w-0 flex-1 flex-col">
+              {children}
+            </main>
+          </div>
         </AppProvider>
       </body>
     </html>

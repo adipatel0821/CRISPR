@@ -24,19 +24,19 @@ import type { Alternative, ScenarioResult } from "@/lib/contracts";
 import { displayNumber, formatMoney, formatMoneyTick } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const ACCENT = "#0f766e";
-const CONTEXT = "#64748b";
-const GRID = "#e2e8f0";
-const AXIS = "#64748b";
+const ACCENT = "#2A64E3";
+const CONTEXT = "#737373";
+const GRID = "#E5E5E5";
+const AXIS = "#5C5C5C";
 
 /* ------------------------------------------------------------------ */
 /* Stacked breakdown bar: "Where does the total paid through the deal go?" */
 /* ------------------------------------------------------------------ */
 const BREAKDOWN_ORDER: { key: string; label: string; color: string }[] = [
-  { key: "cash_price", label: "Cash price", color: "#334155" },
-  { key: "taxes_title_fees", label: "Taxes, title & fees", color: "#64748b" },
-  { key: "add_ons", label: "Add-ons", color: "#94a3b8" },
-  { key: "prior_loan_balance_rolled_in", label: "Rolled-in old loan balance", color: "#cbd5e1" },
+  { key: "cash_price", label: "Cash price", color: "#262626" },
+  { key: "taxes_title_fees", label: "Taxes, title & fees", color: "#5C5C5C" },
+  { key: "add_ons", label: "Add-ons", color: "#8A8A8A" },
+  { key: "prior_loan_balance_rolled_in", label: "Rolled-in old loan balance", color: "#BDBDBD" },
   { key: "finance_charge", label: "Finance charge (cost of borrowing)", color: ACCENT },
 ];
 
@@ -182,7 +182,8 @@ export function SavingsPathChart({ without, withOffer }: { without?: ScenarioRes
 export function PathTable({ without, withOffer, caption }: { without?: ScenarioResult; withOffer?: ScenarioResult; caption: string }) {
   const rows = (withOffer ?? without)?.monthly_paths ?? [];
   return (
-    <div className="overflow-x-auto">
+    // Focusable so keyboard users can scroll the table sideways on narrow screens.
+    <div className="overflow-x-auto rounded-sm" tabIndex={0} role="region" aria-label={caption}>
       <table className="w-full min-w-[28rem] text-xs">
         <caption className="sr-only">{caption}</caption>
         <thead>
@@ -303,7 +304,7 @@ export function AlternativesScatter({ alternatives, pareto }: { alternatives: Al
                       stroke="#ffffff"
                       strokeWidth={2}
                     />
-                    <text x={cx + r + 6} y={cy + 4} fontSize={12} fill="#0f172a" fontWeight={600}>
+                    <text x={cx + r + 6} y={cy + 4} fontSize={12} fill="#111111" fontWeight={600}>
                       Your offer
                     </text>
                   </g>

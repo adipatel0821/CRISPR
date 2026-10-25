@@ -8,6 +8,7 @@ import type { Alternative, CounterfactualResult } from "../../lib/contracts.ts";
 import { formatMoney, formatSignedMoney } from "../../lib/format.ts";
 import { comparable, type HighlightedAlternative, type HighlightSlot } from "../../lib/insights.ts";
 import { ASSUMPTION_FLAG_TEXT } from "../../lib/report.ts";
+import { plain } from "../../lib/copy.ts";
 
 export const SLOT_ORDER: readonly HighlightSlot[] = ["preserveSavings", "lowerPayment", "lowerTotalCost"];
 
@@ -173,7 +174,7 @@ export function tradeOffSentence(alt: Alternative): string {
 
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
-  const unknownNote = unknown.length ? ` We can't say how it changes ${list(unknown)} — that figure isn't known.` : "";
+  const unknownNote = unknown.length ? ` We can't say how it changes ${list(unknown)}, because that figure isn't known.` : "";
   if (gains.length && costs.length) return `${cap(list(gains))}, but ${list(costs)}.${unknownNote}`;
   if (gains.length) return unknown.length
     ? `${cap(list(gains))}.${unknownNote}`
@@ -185,7 +186,7 @@ export function tradeOffSentence(alt: Alternative): string {
 /** Plain-language text for each assumption flag (backend flags, plus lever-implied ones if unflagged). */
 export const ALT_FLAG_TEXT: Record<string, string> = {
   ...ASSUMPTION_FLAG_TEXT,
-  same_rate_assumed: "Same rate assumed — ask the lender",
+  same_rate_assumed: "Same rate assumed, ask the lender",
   extra_down_from_savings: "Extra down payment comes from savings",
   optional_add_ons_removed: "Optional add-ons removed",
   term_gt_60: "Term over 60 months",
@@ -197,7 +198,145 @@ export function assumptionBadges(alt: Alternative): string[] {
   const downN = comparable(leverStr(lv.cash_down_delta));
   if (downN !== null && downN > 0 && !flags.includes("extra_down_from_savings")) flags.push("extra_down_from_savings");
   if (lv.remove_optional_add_ons === true && !flags.includes("optional_add_ons_removed")) flags.push("optional_add_ons_removed");
-  return flags.map((f) => ALT_FLAG_TEXT[f] ?? f.replace(/_/g, " "));
+  return flags.map((f) => plain(ALT_FLAG_TEXT[f] ?? f.replace(/_/g, " ")));
+}
+
+/* ------------------------------------------------------------------------------------------------ */
+/* UX3 option cards: one headline figure per card, the benefit and the trade-off in plain words.      */
+/* Every amount is a backend string (metrics / deltas_vs_base), only formatted here.                  */
+/* ------------------------------------------------------------------------------------------------ */
+
+export type CompareKey = DeltaItem["key"];
+
+export interface Headline {
+  /** The metric the card leads with. */
+  key: CompareKey;
+  /** What the big number is ("Monthly payment"). */
+  label: string;
+  /** The alternative's own figure, formatted ("$319.78"). */
+  value: string;
+  /** Quiet unit after the figure ("a month"). */
+  unit: string;
+  /** The benefit against your offer, from the backend delta ("$55.36 a month less than your offer"). */
+  benefit: string | null;
+}
+
+const SLOT_METRIC: Record<HighlightSlot, CompareKey> = {
+  preserveSavings: "savings_after_purchase",
+  lowerPayment: "monthly_payment",
+  lowerTotalCost: "finance_charge",
+};
+
+/** The slot a card leads with: the first of its slots in SLOT_ORDER. */
+export function leadSlot(slots: HighlightSlot[]): HighlightSlot {
+  return SLOT_ORDER.find((s) => slots.includes(s)) ?? slots[0] ?? "lowerPayment";
+}
+
+/** Headline figure for an option card, chosen by the slot it won. */
+export function headline(alt: Alternative, slot: HighlightSlot): Headline {
+  const key = SLOT_METRIC[slot];
+  const d = alt.deltas_vs_base?.[key] ?? null;
+  const n = comparable(d);
+  const amount = n !== null && n !== 0 ? abs(d as string) : null;
+  const lower = n !== null && n < 0;
+  if (key === "monthly_payment") {
+    return {
+      key,
+      label: "Monthly payment",
+      value: formatMoney(alt.metrics?.monthly_payment ?? null),
+      unit: "a month",
+      benefit: amount ? `${amount} a month ${lower ? "less" : "more"} than your offer` : null,
+    };
+  }
+  if (key === "finance_charge") {
+    return {
+      key,
+      label: "Finance charge",
+      value: formatMoney(alt.metrics?.finance_charge ?? null),
+      unit: "over the loan",
+      benefit: amount ? `${amount} ${lower ? "less" : "more"} in finance charges than your offer` : null,
+    };
+  }
+  return {
+    key,
+    label: "Savings after the purchase",
+    value: formatMoney(alt.metrics?.savings_after_purchase ?? null),
+    unit: "left in savings",
+    benefit: amount ? `${amount} ${lower ? "less" : "more"} left in savings than with your offer` : null,
+  };
+}
+
+/**
+ * The cost side of an option in one sentence, from deltas_vs_base only ("You pay $516.25 more in finance
+ * charges."). Null when nothing we show gets worse. Unknown deltas are named, never called "no change".
+ */
+export function tradeOffOnly(alt: Alternative): string | null {
+  const d = alt.deltas_vs_base ?? {};
+  const costs: string[] = [];
+  const pay = comparable(d.monthly_payment);
+  if (pay !== null && pay > 0) costs.push(`your payment rises by ${abs(d.monthly_payment as string)} a month`);
+  const fc = comparable(d.finance_charge);
+  if (fc !== null && fc > 0) costs.push(`you pay ${abs(d.finance_charge as string)} more in finance charges`);
+  const sav = comparable(d.savings_after_purchase);
+  if (sav !== null && sav < 0) costs.push(`${abs(d.savings_after_purchase as string)} more comes out of your savings`);
+  const unknown: string[] = [];
+  if (pay === null) unknown.push("the monthly payment");
+  if (fc === null) unknown.push("the finance charge");
+  if (sav === null) unknown.push("your savings");
+  const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+  const parts: string[] = [];
+  if (costs.length) {
+    const s = list(costs);
+    parts.push(`${s.charAt(0).toUpperCase()}${s.slice(1)}.`);
+  }
+  if (unknown.length) parts.push(`We can't say how it changes ${list(unknown)}, because that figure isn't known.`);
+  return parts.length ? parts.join(" ") : null;
+}
+
+export interface CompareRow {
+  key: CompareKey;
+  label: string;
+  /** Formatted backend values. */
+  offer: string;
+  option: string;
+  /** Backend numbers for the bar length only (null when unknown). */
+  offerN: number | null;
+  optionN: number | null;
+  direction: DeltaDirection;
+  /** "$55.36 less", "$516.25 more", "No change" or "Not known" (from the backend delta). */
+  change: string;
+}
+
+const COMPARE_DEFS: { key: CompareKey; label: string }[] = [
+  { key: "monthly_payment", label: "Monthly payment" },
+  { key: "finance_charge", label: "Finance charge" },
+  { key: "savings_after_purchase", label: "Savings after the purchase" },
+];
+
+/** Your offer vs the option for the three figures, all from backend metrics and deltas (no arithmetic). */
+export function compareRows(alt: Alternative, base?: Alternative): CompareRow[] {
+  return COMPARE_DEFS.map(({ key, label }) => {
+    const d = alt.deltas_vs_base?.[key] ?? null;
+    const n = comparable(d);
+    const direction: DeltaDirection = n === null ? "unknown" : n === 0 ? "same" : n < 0 ? "lower" : "higher";
+    const offerS = base?.metrics?.[key] ?? null;
+    const optionS = alt.metrics?.[key] ?? null;
+    return {
+      key,
+      label,
+      offer: formatMoney(offerS),
+      option: formatMoney(optionS),
+      offerN: comparable(offerS),
+      optionN: comparable(optionS),
+      direction,
+      change:
+        direction === "unknown"
+          ? "Not known"
+          : direction === "same"
+            ? "No change"
+            : `${abs(d as string)} ${direction === "lower" ? "less" : "more"}`,
+    };
+  });
 }
 
 /** Formula evidence ids behind an alternative's figures (same formulas as your offer). */

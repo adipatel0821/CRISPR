@@ -40,20 +40,20 @@ async function start(page) {
   await page.waitForURL(/\/intake/, { timeout: 15000 });
 }
 
-async function answerQuestions(page, max = 12) {
+// UX3: the question is the h1 (h2 when inline on /offer) of form[data-fact-key]; answer by fact key.
+const VALUES = { "income.take_home_monthly": "4200", "expenses.essential.total": "2900", "debts.count": "0", "savings.liquid": "6000" };
+async function answerQuestions(page, max = 12, scope = page) {
   const asked = [];
   for (let i = 0; i < max; i++) {
-    const cont = page.getByRole("button", { name: /^Continue$/ });
-    try { await cont.waitFor({ timeout: 5000 }); } catch { break; }
-    const q = (await page.locator("h2").first().textContent()).trim();
-    asked.push(q);
-    if (/take-home/i.test(q)) await page.getByLabel(q).fill("4200");
-    else if (/essential/i.test(q)) await page.getByLabel(q).fill("2900");
-    else if (/debt/i.test(q)) await page.getByLabel(q).fill("0");
-    else if (/savings/i.test(q) && !/down payment/i.test(q)) await page.getByLabel(q).fill("6000");
-    else if (/down payment/i.test(q)) await page.getByRole("radio", { name: /savings/i }).first().click();
-    else { console.log("   unexpected question:", q); break; }
-    await cont.click();
+    const form = scope.locator("form[data-fact-key]").first();
+    try { await form.waitFor({ timeout: 5000 }); } catch { break; }
+    const key = await form.getAttribute("data-fact-key");
+    const q = (await form.locator("h1, h2").first().textContent()).trim();
+    asked.push(`${key}: ${q}`);
+    if (key === "loan.down_payment_source") await form.locator("[data-option-tile]", { hasText: /savings/i }).first().click();
+    else if (VALUES[key] !== undefined) await form.locator("[data-amount-input] input").first().fill(VALUES[key]);
+    else { console.log("   unexpected question:", key, q); break; }
+    await form.getByRole("button", { name: /^Continue$/ }).click();
     await page.waitForTimeout(600);
   }
   return asked;
@@ -61,7 +61,9 @@ async function answerQuestions(page, max = 12) {
 
 async function openUploadTab(page) {
   await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: /Upload a document|Upload contract/ }).click();
+  // UX3: the method is a radio tile ("Upload the contract" / "Enter the numbers"), the native radio covers the tile
+  await page.getByRole("radio", { name: /Upload the contract/ }).click();
+  await page.locator("[data-drop-zone]").waitFor({ timeout: 10000 });
 }
 
 async function upload(page, file) {
@@ -75,7 +77,11 @@ async function confirmAllAndSave(page) {
 }
 
 async function answerPendingAndRun(page, asked) {
+  // UX3: a pending blocking question is asked inline on /offer ("Before your results")
+  const inline = page.locator("section[aria-label='Before your results']");
+  if (await inline.count()) asked.push(...(await answerQuestions(page, 4, inline)));
   const btn = page.getByRole("button", { name: /See my results/ });
+  await btn.waitFor({ timeout: 10000 }).catch(() => {});
   if (!(await btn.isEnabled().catch(() => false))) {
     await page.goto(WEB + "/intake", { waitUntil: "networkidle" });
     asked.push(...(await answerQuestions(page, 4)));
@@ -83,7 +89,7 @@ async function answerPendingAndRun(page, asked) {
   }
   await page.getByRole("button", { name: /See my results/ }).click();
   await page.waitForURL(/\/dashboard/, { timeout: 30000 });
-  await page.getByText("What the loan costs").first().waitFor({ timeout: 15000 });
+  await page.locator("[data-summary-hero]").waitFor({ timeout: 20000 });
   await page.waitForTimeout(800);
 }
 
@@ -109,7 +115,8 @@ try {
     await page.getByRole("heading", { name: /Check what we read/ }).waitFor({ timeout: 20000 });
     const t = await page.locator("section[aria-labelledby=verify-heading]").textContent();
     for (const v of ["$375.14", "$22,508.29", "$3,008.29", "$19,500.00", "$20,000.00"]) check(`A: verification table shows ${v}`, t.includes(v));
-    check("A: verbatim quote shown with page", /“FINANCE CHARGE The dollar amount the credit will cost you\. \$3,008\.29” — page 1/.test(t), t.slice(0, 300));
+    // UX3 copy: the page suffix is ", page 1" (no dash); same quote, same page
+    check("A: verbatim quote shown with page", /“FINANCE CHARGE The dollar amount the credit will cost you\. \$3,008\.29”, page 1/.test(t), t.slice(0, 300));
     check("A: check results shown (quote match / APR recompute passed)", /passed/.test(t) && /APR/i.test(t));
     check("A: chips say 'From your document', never 'verified'", /From your document, p\.1/.test(t) && !/\bverified\b/i.test(t));
     await page.screenshot({ path: `${OUT}/doc_A_verify.png`, fullPage: true });
@@ -117,7 +124,7 @@ try {
     const summary = await page.textContent("main");
     check("A: saved offer summary shows confirmed document values", /375\.14/.test(summary) && !/\bverified\b/i.test(summary));
     await answerPendingAndRun(page, asked);
-    check("A: down-payment source question asked", asked.some((q) => /down payment/i.test(q)), JSON.stringify(asked));
+    check("A: down-payment source question asked", asked.some((q) => /down.payment/i.test(q)), JSON.stringify(asked));
     const dash = await page.textContent("body");
     for (const v of ["375.14", "22,508.29", "3,008.29"]) check(`A: dashboard shows ${v}`, dash.includes(v));
     check("A: dashboard shows a document-sourced evidence label", /From your document, p\.1/.test(dash));
@@ -127,7 +134,10 @@ try {
     console.log("   report derived_status:", report.with_offer?.derived_status, "assumptions_used:", JSON.stringify(report.with_offer?.assumptions_used));
     const docEv = (report.evidence || []).filter((e) => e.kind === "document");
     check("A: report carries document evidence", docEv.length > 0, String(docEv.length));
-    // popover on Monthly payment lists the document quote
+    // popover on Monthly payment lists the document quote. The summary is one result card: its sources sit behind
+    // "Show all details", so the card is opened first.
+    await page.getByRole("button", { name: "Show all details", exact: true }).click();
+    await page.locator('[data-card-details][data-state="open"]').waitFor({ timeout: 5000 });
     await page.getByRole("button", { name: /Source for Monthly payment/ }).click();
     const pop = await page.locator("[data-radix-popper-content-wrapper]").first().textContent().catch(() => "");
     check("A: monthly payment source popover lists the document quote", /From your document/.test(pop) && /page 1/.test(pop), pop.slice(0, 200));
@@ -180,7 +190,7 @@ try {
     check("C: no save / See-my-results path for an unsupported offer",
       (await page.getByRole("button", { name: /See my results|Save checked offer|Confirm all/ }).count()) === 0);
     await page.screenshot({ path: `${OUT}/doc_C_unsupported.png`, fullPage: true });
-    await alert.getByRole("button", { name: /Type the terms instead/ }).click();
+    await alert.getByRole("button", { name: /Enter the numbers instead/ }).click();
     await page.getByLabel("Cash price of the car", { exact: true }).waitFor({ timeout: 5000 });
     check("C: manual fallback opens the manual form", await page.getByLabel("Cash price of the car", { exact: true }).isVisible());
     await page.context().close();

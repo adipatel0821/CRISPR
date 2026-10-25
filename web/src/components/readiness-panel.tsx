@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CheckCircle2, CircleDashed, Clock, EyeOff } from "lucide-react";
 import type { AnalysisReadiness } from "@/lib/contracts";
+import { plain } from "@/lib/copy";
 import { factLabel } from "@/lib/labels";
 import { ANALYSIS_LABELS } from "@/lib/report";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,7 @@ export function ReadinessList({ readiness }: { readiness: AnalysisReadiness[] })
             <div className="min-w-0">
               <p className="text-sm font-medium text-ink">{ANALYSIS_LABELS[r.analysis_id] ?? r.analysis_id}</p>
               <p className={cn("text-xs", s.tone)}>{s.label}</p>
-              {!r.available && r.reason && <p className="text-xs text-ink-subtle">{r.reason}</p>}
+              {!r.available && r.reason && <p className="text-xs text-ink-subtle">{plain(r.reason)}</p>}
               {r.declined.length > 0 && (
                 <p className="text-xs text-ink-subtle">You chose not to share: {r.declined.map(factLabel).join(", ")}</p>
               )}

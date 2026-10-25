@@ -1,83 +1,139 @@
 @import "tailwindcss";
 
 /*
- * DecisionTwin design tokens — calm, neutral, conversational.
- *
- * Page is white; surfaces are soft gray; borders are hairlines used sparingly.
- * Ink is near-black; primary actions are near-black (one per screen).
- * ONE restrained accent (deep teal) for links, focus and progress.
- * Amber (info / attention) and rose (deficit / gap) are reserved for findings — nothing else carries colour.
- * Token names used before the redesign (canvas, surface, ink, line, accent, info, deficit …) are kept so every
- * existing call site keeps working.
+ * DecisionTwin UX3 identity: a confident blue frame, one warm yellow call to action, a large white application
+ * surface, big blue result figures. Contrast (WCAG AA, checked by hand with the relative-luminance formula):
+ *   Monochrome palette (owner request 2026-10-25 10:23 ET: grey, white and black). Measured WCAG ratios:
+ *   white on brand/cta #111111 18.9:1 · ink #111111 on canvas #F2F2F2 16.9:1 · ink-2 #404040 on white 10.4:1
+ *   ink-3 #5C5C5C on white 6.7:1, on canvas 6.0:1, on tint #F0F0F0 5.9:1 · shortfall-ink #111111 on #E8E8E8 15.4:1
+ *   caution #404040 on #F0F0F0 9.1:1 · fills need 3:1: savings / chart-slate-strong #737373 4.7:1, chart-slate #8A8A8A 3.5:1
+ *   Blue accent (owner request 10:35 ET), used only for: primary action, progress and current step, selected choices,
+ *   links and focus, the result figure and the "with the loan" series. White on #2A64E3 5.2:1 · #2A64E3 on white 5.2:1
+ *   · #1C4FC4 on white 7.1:1 · #2A64E3 on tint #EAF1FF 4.6:1 · as a fill on white 5.2:1. The frame stays black (#111111).
+ *   Bright yellow (owner request 11:20 ET) #FFD43B: primary action pill and playful accents. Black on #FFD43B 13.3:1,
+ *   on hover #F5C400 11.5:1, on soft #FFF4C2 17:1. Yellow is a fill only (1.5:1 on white): never yellow text on white.
+ *   Meaning is never carried by colour alone: findings use icons, labels and weight.
+ * Token names from earlier versions (page, canvas, ink-muted, accent, info, deficit ...) are kept and remapped so
+ * every existing call site keeps working.
  */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Plus Jakarta Sans from next/font (layout.tsx sets --font-jakarta on <html>). Every var() here needs a fallback:
+     one undefined var() without one (the old --font-inter) voids the whole list and every screen fell back to the
+     system font. */
+  --font-sans: var(--font-jakarta, system-ui), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Identity */
+  --color-frame: #111111;      /* header band and the band behind the surface */
+  --color-brand: #2a64e3;
+  --color-brand-strong: #1c4fc4;
+  --color-brand-tint: #eaf1ff;
+  --color-brand-line: #c9dafb;
+  --color-sun: #ffd43b;        /* bright yellow: playful accents, highlights, completed checks (fills only, never text on white) */
+  --color-sun-strong: #f5c400;
+  --color-sun-soft: #fff4c2;
+  --color-sun-ink: #111111;
+  --color-cta: #ffd43b;
+  --color-cta-hover: #f5c400;
+  --color-cta-ink: #111111;
+
+  /* Meaning (always paired with an icon or words) */
+  --color-savings: #737373;        /* fills */
+  --color-savings-ink: #262626;    /* text */
+  --color-savings-soft: #f0f0f0;
+  --color-shortfall: #111111;      /* fills */
+  --color-shortfall-ink: #111111;  /* text */
+  --color-shortfall-soft: #e8e8e8;
+  --color-caution: #404040;
+  --color-caution-soft: #f0f0f0;
+  --color-caution-line: #d4d4d4;
+
+  /* Charts: "without the loan" slate, "with the loan" brand blue */
+  --color-chart-slate: #8a8a8a;
+  --color-chart-slate-strong: #737373;
 
   /* Surfaces */
-  --color-page: #ffffff;           /* page background */
-  --color-surface: #ffffff;        /* cards on the page */
-  --color-canvas: #f7f7f8;         /* soft-gray inset / hover surface */
-  --color-subtle: #f3f4f6;         /* slightly deeper gray (tracks, skeletons) */
+  --color-page: #ffffff;
+  --color-surface: #ffffff;
+  --color-canvas: #f2f2f2;
+  --color-subtle: #f5f5f5;
 
   /* Ink */
-  --color-ink: #0d0d0d;
-  --color-ink-muted: #4b4b55;      /* 8.6:1 on white */
-  --color-ink-subtle: #6b6b78;     /* 5.3:1 on white, 4.9:1 on canvas */
+  --color-ink: #111111;
+  --color-ink-2: #404040;
+  --color-ink-3: #5c5c5c;
+  --color-ink-muted: #404040;
+  --color-ink-subtle: #5c5c5c;
 
   /* Hairlines */
-  --color-line: #ececf1;
-  --color-line-strong: #d9d9e0;
+  --color-line: #e5e5e5;
+  --color-line-strong: #d4d4d4;
 
-  /* Primary action (ChatGPT-like near-black) */
-  --color-primary: #0d0d0d;
-  --color-primary-hover: #2b2b31;
+  /* Former names, remapped */
+  --color-primary: #2a64e3;
+  --color-primary-hover: #1c4fc4;
   --color-primary-ink: #ffffff;
+  --color-accent: #2a64e3;
+  --color-accent-strong: #1c4fc4;
+  --color-accent-soft: #eaf1ff;
+  --color-accent-line: #c9dafb;
+  --color-info: #404040;
+  --color-info-soft: #f0f0f0;
+  --color-info-line: #d4d4d4;
+  --color-deficit: #111111;
+  --color-deficit-soft: #e8e8e8;
+  --color-deficit-line: #cfcfcf;
 
-  /* The one accent: deep teal */
-  --color-accent: #0f6e64;
-  --color-accent-strong: #0b564e;
-  --color-accent-soft: #eff6f5;
-  --color-accent-line: #cfe4e0;
-
-  /* Findings only: amber = attention */
-  --color-info: #8a4a0b;
-  --color-info-soft: #fdf7ee;
-  --color-info-line: #f1dcb6;
-
-  /* Findings only: rose = deficit / unfunded gap */
-  --color-deficit: #a1203d;
-  --color-deficit-soft: #fdf2f4;
-  --color-deficit-line: #f2c9d2;
-
-  /* Type scale additions (Tailwind's text-xs … text-4xl remain) */
-  --text-display: 2rem;
-  --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.022em;
-  --text-figure: 2.25rem;
+  /* Type scale (Tailwind's text-xs ... text-4xl remain) */
+  --text-hero: clamp(2.5rem, 4vw, 4rem);
+  --text-hero--line-height: 1.08;
+  --text-hero--letter-spacing: -0.02em;
+  --text-result: clamp(3.5rem, 7vw, 6.25rem);
+  --text-result--line-height: 1;
+  --text-result--letter-spacing: -0.03em;
+  --text-title: clamp(1.5rem, 2vw, 2rem);
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.015em;
+  --text-display: clamp(2rem, 3.2vw, 3rem);
+  --text-display--line-height: 1.12;
+  --text-display--letter-spacing: -0.02em;
+  --text-figure: 2.5rem;
   --text-figure--line-height: 1.1;
   --text-figure--letter-spacing: -0.02em;
-  --text-lede: 1.0625rem;
+  --text-lede: 1.125rem;
   --text-lede--line-height: 1.6;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
 
-  /* Radius: 12–16 px */
+  /* Radius */
   --radius-card: 1rem;
   --radius-control: 0.75rem;
+  --radius-surface: 1rem;
 
-  /* One subtle shadow level */
-  --shadow-soft: 0 1px 2px rgb(13 13 13 / 0.04), 0 4px 16px rgb(13 13 13 / 0.04);
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.05), 0 6px 20px rgb(0 0 0 / 0.06);
+  --shadow-surface: 0 2px 6px rgb(0 0 0 / 0.06), 0 24px 60px rgb(0 0 0 / 0.08);
+  --shadow-dock: 0 -6px 24px rgb(0 0 0 / 0.08);
 
   /* Motion */
   --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --animate-fade-in: dt-fade-in 220ms var(--ease-calm) both;
+  --animate-fade-in: dt-fade-in 240ms var(--ease-calm) both;
   @keyframes dt-fade-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  --animate-grow-x: dt-grow-x 600ms var(--ease-calm) both;
+  @keyframes dt-grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
     }
   }
 }
@@ -86,10 +142,17 @@
   color-scheme: light;
   --motion-fast: 150ms;
   --motion-base: 200ms;
-  --motion-slow: 220ms;
-  /* Content widths: conversational / reading vs results */
-  --width-reading: 44rem; /* 704 px */
-  --width-results: 60rem; /* 960 px */
+  --motion-slow: 240ms;
+  /* Layout: the application surface and the stage layout (no narrow page columns any more). */
+  --app-width: min(96vw, 1760px);
+  --header-height: 4rem;
+  --rail-width: clamp(280px, 24%, 400px);
+  --workspace-pad: clamp(32px, 4vw, 80px);
+  /* Comfortable measure for text blocks inside wide compositions (about 65 characters). */
+  --measure: 40rem;
+  /* Kept for old call sites: no longer narrow page widths. */
+  --width-reading: 52rem;
+  --width-results: 100%;
 }
 
 html {
@@ -101,16 +164,16 @@ html {
 body {
   position: relative; /* contain absolutely-positioned sr-only text so it can't widen the page */
   overflow-x: clip;
-  background: var(--color-page);
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
+  font-size: 1.0625rem;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--color-accent-line);
+  background: var(--color-brand-line);
   color: var(--color-ink);
 }
 
@@ -118,13 +181,76 @@ body {
 .figure,
 table,
 .tabular {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-brand-strong);
   outline-offset: 2px;
   border-radius: 6px;
+}
+/* On the blue band, focus rings are white. */
+[data-on-brand] :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* Quiet text link used inside sentences. */
+.dt-link {
+  color: var(--color-brand-strong);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: 2px;
+}
+.dt-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---------- Bright yellow moments (fills only; the text on them stays ink) ---------- */
+/* Highlighter: a marker stroke behind a few words. It follows line wraps (each line gets its own stroke) and
+   draws in once from left to right. With reduced motion the global rule below makes it appear at once. */
+.dt-mark {
+  color: inherit;
+  background-image: linear-gradient(
+    to bottom,
+    transparent 0 46%,
+    var(--color-sun) 46% 92%,
+    transparent 92% 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: left center;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  border-radius: 0.3em 0.15em 0.35em 0.2em;
+  padding-inline: 0.14em;
+  margin-inline: -0.06em;
+  animation: dt-mark-in 700ms var(--ease-calm) 200ms both;
+}
+@keyframes dt-mark-in {
+  from {
+    background-size: 0% 100%;
+  }
+  to {
+    background-size: 100% 100%;
+  }
+}
+/* A short, calm scale in for the yellow check on finished steps. */
+.dt-pop {
+  animation: dt-pop 420ms var(--ease-calm) both;
+}
+@keyframes dt-pop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
 }
 
 /* ---------- Disclosure (<details>) ---------- */
@@ -156,7 +282,32 @@ table,
   opacity: 1;
 }
 
+/* Pages on StageLayout carry their own navigation in the rail. */
+body:has([data-stage-layout]) [data-legacy-journey] {
+  display: none;
+}
+
+/* Bars grow from zero once; reduced motion shows them at full length straight away. */
+.dt-bar {
+  transform-origin: left center;
+}
+.dt-bar[data-negative] {
+  transform-origin: right center;
+}
+
+/* Radix renders a hidden form input after each checkbox and pulls it back over the button by its own width. In
+   our flex rows it already starts at the row's start, so the pull put it 20 px left of the row: off screen at 360
+   and 390 px. It stays invisible (opacity 0) and ignores the pointer; this keeps it on top of the button. */
+button[role="checkbox"] + input[type="checkbox"][aria-hidden="true"] {
+  transform: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* No delay either: the highlighter and the yellow check are simply there. */
+  .dt-mark,
+  .dt-pop {
+    animation: none !important;
+  }
   *,
   *::before,
   *::after {
@@ -181,8 +332,23 @@ table,
   header[data-site-header],
   footer[data-site-footer],
   nav[data-journey],
+  [data-stage-rail],
+  [data-action-row],
+  [data-brand-band],
   [data-banner] {
     display: none !important;
+  }
+  [data-app-surface] {
+    width: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    min-height: 0 !important;
+  }
+  [data-stage-layout] {
+    display: block !important;
+  }
+  [data-stage-workspace] {
+    padding: 0 !important;
   }
   .print-only {
     display: block !important;

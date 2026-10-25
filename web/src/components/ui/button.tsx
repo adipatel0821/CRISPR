@@ -13,8 +13,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /** The one primary action on a screen: near-black. */
-        primary: "bg-primary text-primary-ink hover:bg-primary-hover",
+        /** The one call to action per screen (PrimaryAction uses it): sun-yellow pill, ink text. */
+        cta: "bg-cta font-bold text-cta-ink shadow-[0_1px_0_rgb(27_36_51/0.08)] hover:bg-cta-hover",
+        /** Strong secondary action: brand blue. Never more than one per screen next to the yellow pill. */
+        primary: "bg-primary font-semibold text-primary-ink hover:bg-primary-hover",
         /** Quiet bordered action. */
         secondary: "border border-line-strong bg-surface text-ink hover:bg-canvas",
         /** Soft gray fill, no border. */
@@ -27,6 +29,7 @@ const buttonVariants = cva(
         sm: "h-8 px-3.5 text-[13px]",
         md: "h-10 px-5",
         lg: "h-12 px-6 text-[15px]",
+        xl: "h-14 px-8 text-[17px] [&_svg]:size-5",
         icon: "size-9",
       },
     },

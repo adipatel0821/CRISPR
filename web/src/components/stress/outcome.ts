@@ -70,3 +70,66 @@ export function scenarioSummary(pair: { with?: ScenarioResult; without?: Scenari
   if (!short(w) && short(wo)) return `Without the loan, ${lower(wo.headline)}; with it, ${lower(w.headline)}.`;
   return `With the loan, ${lower(w.headline)}; without it, ${lower(wo.headline)}.`;
 }
+
+/* ------------------------------------------------------------------------------------------------ */
+/* UX3: order scenarios by consequence and describe each one for a tile. Comparisons only.          */
+/* ------------------------------------------------------------------------------------------------ */
+
+export interface PairLike {
+  scenarioId: string;
+  with?: ScenarioResult;
+  without?: ScenarioResult;
+}
+
+/** Parse a backend decimal string for COMPARISON only (never shown, never combined). */
+function rank(s: string | null | undefined): number {
+  if (s === null || s === undefined) return 0;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function runOutMonth(r?: ScenarioResult): number {
+  return r?.first_shortfall_month === null || r?.first_shortfall_month === undefined ? Number.POSITIVE_INFINITY : r.first_shortfall_month;
+}
+
+/**
+ * Most consequential first: the largest shortfall beyond savings WITH the loan, then the earliest month savings
+ * run out with the loan, then the largest shortfall without it, then the lowest savings at the end with the loan.
+ * Scenarios that can't be shown (`isLimited`) go last. Values are only compared.
+ */
+export function orderByConsequence<P extends PairLike>(pairs: P[], isLimited: (p: P) => boolean = () => false): P[] {
+  const cmp = (x: number, y: number) => (x === y ? 0 : x < y ? -1 : 1);
+  return pairs
+    .map((p, i) => ({ p, i }))
+    .sort((a, b) => {
+      const la = isLimited(a.p) ? 1 : 0;
+      const lb = isLimited(b.p) ? 1 : 0;
+      return (
+        cmp(la, lb) ||
+        cmp(rank(b.p.with?.max_unfunded_gap), rank(a.p.with?.max_unfunded_gap)) ||
+        cmp(runOutMonth(a.p.with), runOutMonth(b.p.with)) ||
+        cmp(rank(b.p.without?.max_unfunded_gap), rank(a.p.without?.max_unfunded_gap)) ||
+        cmp(rank(a.p.with?.savings_end), rank(b.p.with?.savings_end)) ||
+        cmp(a.i, b.i)
+      );
+    })
+    .map((x) => x.p);
+}
+
+export type TileTone = "shortfall" | "savings" | "caution" | "neutral";
+
+/** Two to five words for a scenario tile, about the run WITH the loan. */
+export function tileOutcome(run: ScenarioResult | undefined | null, limited: boolean): { text: string; tone: TileTone } {
+  if (limited) return { text: "Needs running costs", tone: "caution" };
+  const o = runOutcome(run);
+  if (o.state === "gap" || o.state === "depleted") {
+    return run?.first_shortfall_month
+      ? { text: `Runs out in month ${run.first_shortfall_month}`, tone: "shortfall" }
+      : { text: "Falls short", tone: "shortfall" };
+  }
+  if (o.state === "holds") {
+    const h = horizonMonths(run);
+    return { text: h ? `Lasts all ${h} months` : "Holds up", tone: "savings" };
+  }
+  return { text: "Not calculated", tone: "neutral" };
+}

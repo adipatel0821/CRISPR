@@ -2,45 +2,35 @@
 
 import { FixtureNotice } from "@/components/banners";
 import { ReportGate } from "@/components/report-gate";
-import { decisionTitle } from "@/components/report-parts";
-import { Container, PageIntro, PrimaryAction, SecondaryLink } from "@/components/system";
-import { DecisionInsights } from "@/components/summary/decision-insights";
-import { Commitment } from "@/components/summary/commitment";
-import { MonthAndSavings } from "@/components/summary/month-savings";
-import { SummaryDetails } from "@/components/summary/details";
+import { ActionRow, StageLayout } from "@/components/shell";
+import { PrimaryAction } from "@/components/system";
+import { ResultCard } from "@/components/summary/card";
+import { resultsRail } from "@/components/summary/results-rail";
 
-/** Decision summary (journey step "Understand"): three answers, the commitment, your month — details on demand. */
+/**
+ * Decision summary: one result card across the workspace. The top of the card is the result (headline, the
+ * money left each month, the before / with-the-loan bars, the savings line, the running-costs caveat) and the
+ * yellow action (the shared PrimaryAction pill, as on every screen); "Show all details" expands the same card in
+ * place with everything else. The yellow action sits in the card from 1280 px up and docks to the bottom of the screen below that (also from 1024 to 1279 px,
+ * where the stacked result pushes the card's own action below the first screen); exactly one is shown.
+ */
 export default function DashboardPage() {
   return (
     <ReportGate>
       {(report) => (
-        <Container width="reading" className="space-y-12 sm:space-y-14">
-          <div className="space-y-6">
+        <StageLayout
+          {...resultsRail(report, "summary")}
+          actions={
+            <ActionRow className="lg:sticky lg:bg-surface/95 lg:py-3 lg:!shadow-dock xl:hidden">
+              <PrimaryAction href="/stress">See the stress test</PrimaryAction>
+            </ActionRow>
+          }
+        >
+          <div className="w-full space-y-6">
             <FixtureNotice />
-            <PageIntro
-              eyebrow={report.offer?.label ? `Decision summary · ${report.offer.label}` : "Decision summary"}
-              title={decisionTitle(report)}
-              lede="What this loan changes, what deserves a closer look, and where to go next."
-            />
-            <DecisionInsights report={report} />
+            <ResultCard report={report} />
           </div>
-
-          <Commitment report={report} />
-          <MonthAndSavings report={report} />
-          <SummaryDetails report={report} />
-
-          <div className="no-print space-y-4 border-t border-line pt-8">
-            <p className="text-pretty text-[15px] leading-relaxed text-ink-muted">
-              Next, we run a few illustrative what-ifs — a lost paycheck, a surprise bill — with and without this loan.
-            </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <PrimaryAction href="/stress">Next: see how it holds up</PrimaryAction>
-              <SecondaryLink href="/report" arrow={false} className="self-center sm:self-auto">
-                Printable report
-              </SecondaryLink>
-            </div>
-          </div>
-        </Container>
+        </StageLayout>
       )}
     </ReportGate>
   );

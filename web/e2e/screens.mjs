@@ -86,14 +86,18 @@ const STATES = [
   { name: "12_report", path: "/report", sess: [5, true, true] },
   { name: "13_report_print", path: "/report", sess: [5, true, true], print: true },
 ];
-const WIDTHS = [{ w: 1280, h: 900 }, { w: 390, h: 844 }];
+// env WIDTHS="1440x900,1920x1080,768x1024,390x844" (default: 1280x900 and 390x844)
+const WIDTHS = (process.env.WIDTHS || "1280x900,390x844").split(",").map((v) => {
+  const [w, h] = v.split("x").map(Number);
+  return { w, h };
+});
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const results = [];
 for (const st of STATES) {
   const sess = st.sess ? await prepare(st.sess) : null;
   for (const { w, h } of WIDTHS) {
-    if (st.print && w !== 1280) continue;
+    if (st.print && w !== WIDTHS[0].w) continue;
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, reducedMotion: "reduce" });
     if (sess) {
       await ctx.addInitScript((s) => {

@@ -149,7 +149,7 @@ test("next without a comparison claim uses highlights (template only from backen
   assert.equal(n.kind, "alternative");
   // concern is a gap (cash flow) -> prefer keep-savings (none improve) then lower payment = 72 months
   assert.equal(n.altId, "alt_t72");
-  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36, raises the finance charge by $516.25 (same rate assumed — ask the lender).");
+  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36, raises the finance charge by $516.25 (same rate assumed, so ask the lender).");
   onlyBackendNumbers(n.text, r);
 });
 
@@ -171,7 +171,7 @@ test("highlightAlternatives on the fixture: skips savings (none improve), lower 
   ]);
   assert.equal(h[0].deltas.monthly_payment, "-55.36");
   assert.equal(h[0].sameRateAssumed, true);
-  assert.deepEqual(h[0].assumptionNotes, ["Same rate assumed — ask the lender", "Term over 60 months"]);
+  assert.deepEqual(h[0].assumptionNotes, ["Same rate assumed, ask the lender", "Term over 60 months"]);
   assert.equal(h[1].metrics.finance_charge, "1998.32");
   // never the base, never infeasible
   assert.ok(h.every((x) => x.altId !== "alt_base" && x.altId !== "alt_d3000"));
