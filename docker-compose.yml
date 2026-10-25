@@ -1,0 +1,37 @@
+# DecisionTwin — `docker compose up --build` (web :3000, api :8000).
+# NOTE: not executed on the build machine (Docker not installed; IMP-006). The native run path in README.md is the
+# tested path. Requires Docker Compose v2.24+ (optional env_file) and BuildKit (per-Dockerfile .dockerignore).
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: sqlite:////app/data/decisiontwin.db
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      LLM_DATA_MODE: ${LLM_DATA_MODE:-synthetic_only}
+    ports:
+      - "8000:8000"
+    volumes:
+      - api-data:/app/data
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      dockerfile: ../deploy/web.Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: http://localhost:8000
+    environment:
+      NEXT_PUBLIC_API_BASE: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  api-data: {}
