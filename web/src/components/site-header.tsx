@@ -3,54 +3,54 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useApp } from "@/lib/app-context";
-import { Badge } from "@/components/ui/badge";
 import { JourneyIndicator, SetupProgress, isResultsPath } from "@/components/system/journey";
+import { Wordmark } from "@/components/shell/twin-mark";
+import { HeaderActions } from "@/components/shell/more-menu";
 
-/** Quiet wordmark: two overlapping rings (the "twin") + name. */
-function Wordmark() {
-  return (
-    <Link href="/" className="flex items-center gap-2 rounded-md text-[15px] font-semibold tracking-tight text-ink">
-      <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" strokeWidth="2">
-        <circle cx="9" cy="12" r="6" className="stroke-ink" />
-        <circle cx="15" cy="12" r="6" className="stroke-accent" />
-      </svg>
-      DecisionTwin
-    </Link>
-  );
-}
-
+/**
+ * Full-width blue band: mark + wordmark on the left, quiet actions on the right ("How it works", menu with
+ * Start over and Delete my data). Progress lives in each screen's stage rail, not here.
+ */
 export function SiteHeader() {
-  const pathname = usePathname() ?? "/";
   const { fixtures } = useApp();
-  const results = isResultsPath(pathname);
-
   return (
-    <header
-      data-site-header
-      className="sticky top-0 z-40 border-b border-line bg-page/90 backdrop-blur supports-[backdrop-filter]:bg-page/75"
-    >
-      <div className="mx-auto w-full max-w-[60rem] px-4 sm:px-6">
-        <div className="flex h-14 items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2.5">
+    <header data-site-header data-on-brand="" className="relative z-20 bg-brand lg:bg-transparent">
+      <div className="mx-auto flex h-[var(--header-height)] w-full items-center justify-between gap-3 px-4 sm:px-6 lg:w-[var(--app-width)] lg:px-2">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link href="/" aria-label="DecisionTwin, home" className="rounded-md">
             <Wordmark />
-            {fixtures && (
-              <Badge tone="info" title="Showing bundled example data, not a live analysis">
-                Example data
-              </Badge>
-            )}
-          </div>
-          {!results && <SetupProgress />}
+          </Link>
+          {fixtures && (
+            <span
+              title="Showing bundled example data, not a live analysis"
+              className="hidden rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold text-white sm:inline"
+            >
+              Example data
+            </span>
+          )}
         </div>
-        {results && <JourneyIndicator className="-mt-1 pb-2" />}
+        <HeaderActions />
       </div>
     </header>
   );
 }
 
 /**
- * Former results tabs. The journey indicator in the header now carries this navigation, so this renders
- * nothing; it is kept so existing imports keep compiling.
+ * Journey navigation for screens that are not on StageLayout yet (results journey or setup steps). It hides
+ * itself (CSS, globals) as soon as a page renders a StageLayout, whose rail carries the navigation instead.
  */
+export function LegacyJourney() {
+  const pathname = usePathname() ?? "/";
+  if (pathname === "/") return null;
+  const results = isResultsPath(pathname);
+  return (
+    <div data-legacy-journey="" className="border-b border-line px-4 pb-2 pt-3 sm:px-6 lg:px-[var(--workspace-pad)]">
+      {results ? <JourneyIndicator /> : <SetupProgress />}
+    </div>
+  );
+}
+
+/** Former results tabs. Navigation now lives in the stage rail; kept so existing imports keep compiling. */
 export function ResultsTabs() {
   return null;
 }

@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 /* ------------------------------------------------------------------------------------------------
- * Container — content widths. "reading" ≈ 704 px for conversational screens, "results" ≈ 960 px.
+ * Container: legacy page wrapper for screens not yet on StageLayout. It adds the page padding itself.
+ * Inside StageLayout do not use it (the workspace already has padding and no width cap).
  * ---------------------------------------------------------------------------------------------- */
 export function Container({
   width = "results",
@@ -14,7 +15,11 @@ export function Container({
 }: React.HTMLAttributes<HTMLDivElement> & { width?: "reading" | "results" }) {
   return (
     <div
-      className={cn("mx-auto w-full", width === "reading" ? "max-w-[44rem]" : "max-w-[60rem]", className)}
+      className={cn(
+        "mx-auto w-full px-4 py-8 sm:px-6 sm:py-12",
+        width === "reading" ? "max-w-[52rem]" : "max-w-[80rem]",
+        className,
+      )}
       {...props}
     />
   );
@@ -195,6 +200,7 @@ export function PrimaryAction({
   className,
   ...aria
 }: PrimaryActionProps) {
+  // The one yellow pill per screen. data-primary-action lets checks count it.
   const cls = cn(block && "w-full sm:w-auto", className);
   const inner = (
     <>
@@ -202,17 +208,27 @@ export function PrimaryAction({
       {arrow && <ArrowRight aria-hidden />}
     </>
   );
+  const btnSize = size === "lg" ? "xl" : "lg";
   if (href && !disabled) {
     return (
-      <Button asChild size={size} className={cls}>
-        <Link href={href} {...aria}>
+      <Button asChild variant="cta" size={btnSize} className={cls}>
+        <Link href={href} data-primary-action="" {...aria}>
           {inner}
         </Link>
       </Button>
     );
   }
   return (
-    <Button type={type} size={size} className={cls} onClick={onClick} disabled={disabled} {...aria}>
+    <Button
+      type={type}
+      variant="cta"
+      size={btnSize}
+      className={cls}
+      onClick={onClick}
+      disabled={disabled}
+      data-primary-action=""
+      {...aria}
+    >
       {inner}
     </Button>
   );

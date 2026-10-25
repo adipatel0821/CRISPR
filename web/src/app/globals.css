@@ -1,83 +1,126 @@
 @import "tailwindcss";
 
 /*
- * DecisionTwin design tokens — calm, neutral, conversational.
- *
- * Page is white; surfaces are soft gray; borders are hairlines used sparingly.
- * Ink is near-black; primary actions are near-black (one per screen).
- * ONE restrained accent (deep teal) for links, focus and progress.
- * Amber (info / attention) and rose (deficit / gap) are reserved for findings — nothing else carries colour.
- * Token names used before the redesign (canvas, surface, ink, line, accent, info, deficit …) are kept so every
- * existing call site keeps working.
+ * DecisionTwin UX3 identity: a confident blue frame, one warm yellow call to action, a large white application
+ * surface, big blue result figures. Contrast (WCAG AA, checked by hand with the relative-luminance formula):
+ *   white on brand #2A64E3 5.2:1 · brand-strong #1C4FC4 on white 7.1:1, on brand-tint 6.3:1
+ *   brand #2A64E3 on brand-tint #EAF1FF 4.6:1 · ink #1B2433 on cta #FFCE4A 10.5:1
+ *   ink-2 #4B5568 on white 7.5:1 · ink-3 #667085 on white 5.0:1, on canvas 4.6:1 (never on brand-tint)
+ *   savings-ink #0B7A54 on white 5.4:1 · shortfall-ink #B8382C on white 5.8:1 · caution #9A5B00 on #FFF4DC 5.0:1
+ *   fills (bars, icons) need 3:1: savings #0E8A5F 4.4:1, shortfall #D9483B 4.3:1, chart-slate-strong #7C8BA1 3.5:1
+ * Token names from earlier versions (page, canvas, ink-muted, accent, info, deficit ...) are kept and remapped so
+ * every existing call site keeps working.
  */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: var(--font-jakarta), var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Identity */
+  --color-brand: #2a64e3;
+  --color-brand-strong: #1c4fc4;
+  --color-brand-tint: #eaf1ff;
+  --color-brand-line: #c9dafb;
+  --color-cta: #ffce4a;
+  --color-cta-hover: #f5bf2e;
+  --color-cta-ink: #1b2433;
+
+  /* Meaning (always paired with an icon or words) */
+  --color-savings: #0e8a5f;        /* fills */
+  --color-savings-ink: #0b7a54;    /* text */
+  --color-savings-soft: #e7f5ef;
+  --color-shortfall: #d9483b;      /* fills */
+  --color-shortfall-ink: #b8382c;  /* text */
+  --color-shortfall-soft: #fdeeec;
+  --color-caution: #9a5b00;
+  --color-caution-soft: #fff4dc;
+  --color-caution-line: #f3d9a4;
+
+  /* Charts: "without the loan" slate, "with the loan" brand blue */
+  --color-chart-slate: #94a3b8;
+  --color-chart-slate-strong: #7c8ba1;
 
   /* Surfaces */
-  --color-page: #ffffff;           /* page background */
-  --color-surface: #ffffff;        /* cards on the page */
-  --color-canvas: #f7f7f8;         /* soft-gray inset / hover surface */
-  --color-subtle: #f3f4f6;         /* slightly deeper gray (tracks, skeletons) */
+  --color-page: #ffffff;
+  --color-surface: #ffffff;
+  --color-canvas: #f4f6fa;
+  --color-subtle: #edf0f5;
 
   /* Ink */
-  --color-ink: #0d0d0d;
-  --color-ink-muted: #4b4b55;      /* 8.6:1 on white */
-  --color-ink-subtle: #6b6b78;     /* 5.3:1 on white, 4.9:1 on canvas */
+  --color-ink: #1b2433;
+  --color-ink-2: #4b5568;
+  --color-ink-3: #667085;
+  --color-ink-muted: #4b5568;
+  --color-ink-subtle: #667085;
 
   /* Hairlines */
-  --color-line: #ececf1;
-  --color-line-strong: #d9d9e0;
+  --color-line: #e4e8ef;
+  --color-line-strong: #cdd3dd;
 
-  /* Primary action (ChatGPT-like near-black) */
-  --color-primary: #0d0d0d;
-  --color-primary-hover: #2b2b31;
+  /* Former names, remapped */
+  --color-primary: #2a64e3;
+  --color-primary-hover: #1c4fc4;
   --color-primary-ink: #ffffff;
+  --color-accent: #2a64e3;
+  --color-accent-strong: #1c4fc4;
+  --color-accent-soft: #eaf1ff;
+  --color-accent-line: #c9dafb;
+  --color-info: #9a5b00;
+  --color-info-soft: #fff4dc;
+  --color-info-line: #f3d9a4;
+  --color-deficit: #b8382c;
+  --color-deficit-soft: #fdeeec;
+  --color-deficit-line: #f5c7c1;
 
-  /* The one accent: deep teal */
-  --color-accent: #0f6e64;
-  --color-accent-strong: #0b564e;
-  --color-accent-soft: #eff6f5;
-  --color-accent-line: #cfe4e0;
-
-  /* Findings only: amber = attention */
-  --color-info: #8a4a0b;
-  --color-info-soft: #fdf7ee;
-  --color-info-line: #f1dcb6;
-
-  /* Findings only: rose = deficit / unfunded gap */
-  --color-deficit: #a1203d;
-  --color-deficit-soft: #fdf2f4;
-  --color-deficit-line: #f2c9d2;
-
-  /* Type scale additions (Tailwind's text-xs … text-4xl remain) */
-  --text-display: 2rem;
-  --text-display--line-height: 1.15;
-  --text-display--letter-spacing: -0.022em;
-  --text-figure: 2.25rem;
+  /* Type scale (Tailwind's text-xs ... text-4xl remain) */
+  --text-hero: clamp(2.5rem, 4vw, 4rem);
+  --text-hero--line-height: 1.08;
+  --text-hero--letter-spacing: -0.02em;
+  --text-result: clamp(3.5rem, 7vw, 6.25rem);
+  --text-result--line-height: 1;
+  --text-result--letter-spacing: -0.03em;
+  --text-title: clamp(1.5rem, 2vw, 2rem);
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.015em;
+  --text-display: clamp(2rem, 3.2vw, 3rem);
+  --text-display--line-height: 1.12;
+  --text-display--letter-spacing: -0.02em;
+  --text-figure: 2.5rem;
   --text-figure--line-height: 1.1;
   --text-figure--letter-spacing: -0.02em;
-  --text-lede: 1.0625rem;
+  --text-lede: 1.125rem;
   --text-lede--line-height: 1.6;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.6;
 
-  /* Radius: 12–16 px */
+  /* Radius */
   --radius-card: 1rem;
   --radius-control: 0.75rem;
+  --radius-surface: 1rem;
 
-  /* One subtle shadow level */
-  --shadow-soft: 0 1px 2px rgb(13 13 13 / 0.04), 0 4px 16px rgb(13 13 13 / 0.04);
+  --shadow-soft: 0 1px 2px rgb(27 36 51 / 0.05), 0 6px 20px rgb(27 36 51 / 0.06);
+  --shadow-surface: 0 2px 6px rgb(16 40 110 / 0.08), 0 24px 60px rgb(16 40 110 / 0.1);
+  --shadow-dock: 0 -6px 24px rgb(27 36 51 / 0.08);
 
   /* Motion */
   --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  --animate-fade-in: dt-fade-in 220ms var(--ease-calm) both;
+  --animate-fade-in: dt-fade-in 240ms var(--ease-calm) both;
   @keyframes dt-fade-in {
     from {
       opacity: 0;
-      transform: translateY(4px);
+      transform: translateY(6px);
     }
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  --animate-grow-x: dt-grow-x 600ms var(--ease-calm) both;
+  @keyframes dt-grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
     }
   }
 }
@@ -86,10 +129,17 @@
   color-scheme: light;
   --motion-fast: 150ms;
   --motion-base: 200ms;
-  --motion-slow: 220ms;
-  /* Content widths: conversational / reading vs results */
-  --width-reading: 44rem; /* 704 px */
-  --width-results: 60rem; /* 960 px */
+  --motion-slow: 240ms;
+  /* Layout: the application surface and the stage layout (no narrow page columns any more). */
+  --app-width: min(96vw, 1760px);
+  --header-height: 4rem;
+  --rail-width: clamp(280px, 24%, 400px);
+  --workspace-pad: clamp(32px, 4vw, 80px);
+  /* Comfortable measure for text blocks inside wide compositions (about 65 characters). */
+  --measure: 40rem;
+  /* Kept for old call sites: no longer narrow page widths. */
+  --width-reading: 52rem;
+  --width-results: 100%;
 }
 
 html {
@@ -101,16 +151,16 @@ html {
 body {
   position: relative; /* contain absolutely-positioned sr-only text so it can't widen the page */
   overflow-x: clip;
-  background: var(--color-page);
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
+  font-size: 1.0625rem;
   line-height: 1.6;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--color-accent-line);
+  background: var(--color-brand-line);
   color: var(--color-ink);
 }
 
@@ -118,13 +168,29 @@ body {
 .figure,
 table,
 .tabular {
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-brand-strong);
   outline-offset: 2px;
   border-radius: 6px;
+}
+/* On the blue band, focus rings are white. */
+[data-on-brand] :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* Quiet text link used inside sentences. */
+.dt-link {
+  color: var(--color-brand-strong);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  border-radius: 2px;
+}
+.dt-link:hover {
+  text-decoration-thickness: 2px;
 }
 
 /* ---------- Disclosure (<details>) ---------- */
@@ -156,6 +222,19 @@ table,
   opacity: 1;
 }
 
+/* Pages on StageLayout carry their own navigation in the rail. */
+body:has([data-stage-layout]) [data-legacy-journey] {
+  display: none;
+}
+
+/* Bars grow from zero once; reduced motion shows them at full length straight away. */
+.dt-bar {
+  transform-origin: left center;
+}
+.dt-bar[data-negative] {
+  transform-origin: right center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -181,8 +260,23 @@ table,
   header[data-site-header],
   footer[data-site-footer],
   nav[data-journey],
+  [data-stage-rail],
+  [data-action-row],
+  [data-brand-band],
   [data-banner] {
     display: none !important;
+  }
+  [data-app-surface] {
+    width: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    min-height: 0 !important;
+  }
+  [data-stage-layout] {
+    display: block !important;
+  }
+  [data-stage-workspace] {
+    padding: 0 !important;
   }
   .print-only {
     display: block !important;

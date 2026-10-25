@@ -117,6 +117,29 @@ export function ProvenanceChip({
   );
 }
 
+/** Accessible name for a source trigger: "Source for {label}: {primary source}. Show details". */
+export function sourceAriaLabel(evidence: ExplanationEvidence[], label?: string): string {
+  if (evidence.length === 0) return "Source not stated";
+  const primary = evidence.find((e) => e.kind === "calculation") ?? evidence[0];
+  return `Source for ${label ?? "this number"}: ${evidenceChip(primary).label}. Show details`;
+}
+
+/** The popover body: heading + every evidence item (same content as the chip's popover). */
+export function EvidenceList({ evidence, label }: { evidence: ExplanationEvidence[]; label?: string }) {
+  return (
+    <>
+      <p className="mb-3 text-xs font-medium text-ink-subtle">
+        Where {label ? `“${label}”` : "this number"} comes from
+      </p>
+      <ul className="space-y-3">
+        {evidence.map((e) => (
+          <EvidenceDetail key={e.evidence_id} e={e} />
+        ))}
+      </ul>
+    </>
+  );
+}
+
 /** Print-friendly footnote marker list of evidence ids. */
 export function EvidenceFootnote({ evidence }: { evidence: ExplanationEvidence[] }) {
   if (!evidence.length) return null;
