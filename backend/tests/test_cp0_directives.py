@@ -39,6 +39,16 @@ def test_readiness_never_raises_for_any_count_text(text):
 
 
 # ---- D0-003 -------------------------------------------------------------------------------------------
+def test_down_source_needed_when_pfc_cash_conflicting():
+    o = _offer(pfc_cash="500.00")
+    o.terms["pfc_paid_in_cash"].status = "conflicting"
+    assert "loan.down_payment_source" in required_facts("reserve_impact", BASE, o)
+
+
+def test_down_source_omitted_when_pfc_cash_zero():
+    assert "loan.down_payment_source" not in required_facts("reserve_impact", BASE, _offer(pfc_cash="0.00"))
+
+
 def _offer(cash_down_status="provided", pfc_cash=None):
     terms = {"cash_down": {"term_key": "cash_down", "value": "0.00", "value_type": "currency",
                            "status": cash_down_status, "source_kind": "user_input"}}

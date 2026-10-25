@@ -157,8 +157,11 @@ def _down_payment_source_needed(offer: Any) -> bool:
     cash_down = _term_amount(offer, "cash_down")
     if cash_down is None or cash_down != 0:
         return True
+    terms = (offer.get("terms") if isinstance(offer, Mapping) else getattr(offer, "terms", {})) or {}
+    if "pfc_paid_in_cash" not in terms:
+        return False
     pfc_cash = _term_amount(offer, "pfc_paid_in_cash")
-    return pfc_cash is not None and pfc_cash > 0
+    return pfc_cash is None or pfc_cash > 0     # present but disputed/unknown => still needed (D0-003 reopen)
 
 
 def _offer_ready(offer: Any) -> bool:

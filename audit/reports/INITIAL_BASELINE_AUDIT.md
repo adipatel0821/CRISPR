@@ -91,3 +91,14 @@ Status: **YELLOW**.
 - `audit/evidence/probe_cp0.py` + `probe_cp0_output.txt`: black-box readiness/contract probes. Run from `backend/` with `PYTHONPATH=.`.
 - `audit/evidence/recompute_reference_case.py` + `recompute_reference_case_output.txt`: independent Decimal recompute, 0 mismatches. Run: `backend/.venv/Scripts/python.exe -I audit/evidence/recompute_reference_case.py backend/fixtures/reference_case.json`.
 - Directives: `audit/directives/D0-001.md` … `D0-005.md`.
+
+---
+
+## Addendum: re-audit of fix commit 780c472 (2026-10-24 20:32 EDT)
+- Main-checkout pytest: **35 passed**, 1 harmless starlette DeprecationWarning (`audit/evidence/pytest_main_780c472.txt`). Probe re-run: `probe_cp0_output_780c472.txt`. Supplementary probes: `probe_reaudit_780c472.py` / `_output.txt`. Recompute: still 0 mismatches.
+- **D0-001 BLOCKED.** IMP-007 and the fixture expectation are in place; the offer_checks implementation is awaiting the Agent 1/2 merge.
+- **D0-002 VERIFIED.**
+- **D0-003 REOPENED (LOW).** A *conflicting* `pfc_paid_in_cash` of 500 with cash_down 0 still drops `loan.down_payment_source`. This is a one-line fix.
+- **D0-004 VERIFIED** at CP0 schema scope; the API-level A-17 check is pending CP1.
+- **D0-005 VERIFIED** at CP0 contract scope.
+- **Merge hazard for CP1:** Agent 4's `api/errors.py` still emits `METHOD_NOT_ALLOWED` and `HTTP_ERROR`. With the typed `ErrorDetail`, those now raise inside the error handler, so 405s and unmapped HTTP errors would become unstructured 500s. Agent 4's relocated health route must also use `data_mode_from_env`.
