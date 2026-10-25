@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /* ================================================================================================
- * Small print-safe bars for the report. Drawn as SVG rects with fill attributes, so they survive the
+ * Small print-safe bars for the report. Drawn as SVG rects with token fills, so they survive the
  * print stylesheet (which clears backgrounds and forces black text) and print without "background
  * graphics". Every bar starts at zero and all rows in one chart share one scale. `value` (a backend
  * number) only sets the length; `display` (a formatted backend value) is what people read.
@@ -22,14 +22,15 @@ export interface ReportBarRow {
   note?: React.ReactNode;
 }
 
+// Colour tokens only (globals.css), so the bars follow the palette; the labels carry the meaning.
 const FILL: Record<ReportBarTone, string> = {
-  before: "#7C8BA1",
-  after: "#2A64E3",
-  cost: "#C77700",
-  total: "#1B2433",
+  before: "var(--color-chart-slate-strong)",
+  after: "var(--color-brand)",
+  cost: "var(--color-ink-2)",
+  total: "var(--color-ink-3)",
 };
-const NEGATIVE = "#D9483B";
-const TRACK = "#EDF0F5";
+const NEGATIVE = "var(--color-shortfall)";
+const TRACK = "var(--color-line)";
 
 export function ReportBars({
   rows,
@@ -70,7 +71,7 @@ export function ReportBars({
                 <span className="figure text-[17px] font-extrabold tracking-[-0.01em] text-ink print:text-[10pt]">{r.display}</span>
               </div>
               <svg aria-hidden width="100%" height={h} className="mt-1.5 block overflow-visible print:mt-0.5" focusable="false">
-                <rect x="0" y="0" width="100%" height={h} rx={h / 2} fill={TRACK} />
+                <rect x="0" y="0" width="100%" height={h} rx={h / 2} style={{ fill: TRACK }} />
                 {known && w > 0 && (
                   <rect
                     x={`${x}%`}
@@ -78,11 +79,11 @@ export function ReportBars({
                     width={`${w}%`}
                     height={h}
                     rx={h / 2}
-                    fill={negative ? NEGATIVE : FILL[r.tone]}
+                    style={{ fill: negative ? NEGATIVE : FILL[r.tone] }}
                     className="dt-report-bar"
                   />
                 )}
-                {lo < 0 && <rect x={`${zero}%`} y={-3} width="2" height={h + 6} fill="#4B5568" />}
+                {lo < 0 && <rect x={`${zero}%`} y={-3} width="2" height={h + 6} style={{ fill: "var(--color-ink-2)" }} />}
               </svg>
             </li>
           );
