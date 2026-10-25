@@ -3,7 +3,7 @@
  * goes. NO loan math: every value returned is a backend string formatted for reading; decimal strings are
  * parsed only to COMPARE them (to pick which delta to show). Dependency-light for `node --test`.
  */
-import type { Alternative, DecisionReport } from "../../lib/contracts.ts";
+import type { Alternative, Claim, DecisionReport } from "../../lib/contracts.ts";
 import { formatMonths, formatMoney, formatSignedMoney } from "../../lib/format.ts";
 import { comparable, type SummaryPiece } from "../../lib/insights.ts";
 
@@ -61,12 +61,16 @@ export function pieceFigure(report: DecisionReport, piece: SummaryPiece | null, 
   if (!piece) return null;
   const f = piece.figure ?? {};
   switch (piece.kind) {
-    case "cashflow_change":
-      if (comparable(f.after) === null) return null;
+    case "cashflow_change": {
+      // the claim may carry before/after under its own keys; fall back to the metrics themselves
+      const after = comparable(f.after) !== null ? f.after : withOffer(report, "monthly_left_after");
+      const before = comparable(f.before) !== null ? f.before : baseline(report, "monthly_left_before");
+      if (comparable(after) === null) return null;
       return {
-        value: formatMoney(f.after),
-        caption: comparable(f.before) !== null ? `left each month, from ${formatMoney(f.before)}` : "left each month",
+        value: formatMoney(after),
+        caption: comparable(before) !== null ? `left each month, from ${formatMoney(before)}` : "left each month",
       };
+    }
     case "savings_change":
       if (comparable(f.after) === null) return null;
       return {
@@ -136,4 +140,23 @@ export function pieceLink(piece: SummaryPiece | null): PieceLink | null {
     default:
       return { href: piece.href, label: "Learn more" };
   }
+}
+
+/**
+ * The scenario_outcome claim for a scenario's run WITH the loan. The backend may emit one claim per run
+ * (values.run); a claim without a run field is accepted as describing the scenario as a whole.
+ */
+export function withLoanScenarioClaim(report: DecisionReport, scenarioId: string): Claim | null {
+  const claims = report.claims.filter(
+    (c) => c.type === "scenario_outcome" && c.values?.scenario_id === scenarioId && typeof c.text === "string" && c.text.trim(),
+  );
+  return claims.find((c) => c.values?.run === "with_offer") ?? claims.find((c) => c.values?.run === undefined) ?? null;
+}
+
+/** For scenario-based pieces, make sure the sentence describes the run with the loan (not the run without it). */
+export function resolvePiece(report: DecisionReport, piece: SummaryPiece | null): SummaryPiece | null {
+  if (!piece || !piece.scenarioId || (piece.kind !== "unfunded_gap" && piece.kind !== "stress_scenario")) return piece;
+  const c = withLoanScenarioClaim(report, piece.scenarioId);
+  if (!c || piece.claimIds.includes(c.claim_id)) return piece;
+  return { ...piece, text: c.text as string, claimIds: [c.claim_id], evidenceIds: [...c.evidence_ids] };
 }

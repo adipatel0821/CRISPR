@@ -2,12 +2,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { decisionSummary } from "../../lib/insights.ts";
+import { decisionSummary, type SummaryPiece } from "../../lib/insights.ts";
 import type { DecisionReport } from "../../lib/contracts.ts";
-import { alternativeFigure, pieceAlternative, pieceFigure, pieceLink } from "./select.ts";
+import { alternativeFigure, pieceAlternative, pieceFigure, pieceLink, resolvePiece, withLoanScenarioClaim } from "./select.ts";
 
 const FIXTURE: DecisionReport = JSON.parse(readFileSync(new URL("../../fixtures/report.json", import.meta.url), "utf8"));
 const clone = (): DecisionReport => JSON.parse(JSON.stringify(FIXTURE));
+const piece = (kind: SummaryPiece["kind"], extra: Partial<SummaryPiece> = {}): SummaryPiece => ({
+  kind, text: "", title: "", tone: "attention", claimIds: [], evidenceIds: [], href: "/dashboard", ...extra,
+});
 
 function onlyBackendNumbers(text: string, report: DecisionReport) {
   const corpus = JSON.stringify(report);
@@ -50,12 +53,11 @@ test("alternativeFigure prefers savings for cash concerns and cost otherwise", (
 
 test("flag-based pieces show the related backend metric; running costs has no figure", () => {
   const r = clone();
-  const reserve = { kind: "reserve_low", text: "", title: "", tone: "attention", claimIds: [], evidenceIds: [], href: "/dashboard" } as const;
-  assert.deepEqual(pieceFigure(r, { ...reserve }), { value: "0.60 months", caption: "of expenses your savings would cover" });
-  assert.deepEqual(pieceFigure(r, { ...reserve, kind: "term_long" }), { value: "60 months", caption: "loan term" });
-  assert.deepEqual(pieceFigure(r, { ...reserve, kind: "payment_mismatch" }), { value: "$375.14", caption: "payment on the contract" });
-  assert.equal(pieceFigure(r, { ...reserve, kind: "running_costs_missing" }), null);
-  assert.deepEqual(pieceLink({ ...reserve, kind: "running_costs_missing", href: "/intake" }), { href: "/intake", label: "Add running costs" });
+  assert.deepEqual(pieceFigure(r, piece("reserve_low")), { value: "0.60 months", caption: "of expenses your savings would cover" });
+  assert.deepEqual(pieceFigure(r, piece("term_long")), { value: "60 months", caption: "loan term" });
+  assert.deepEqual(pieceFigure(r, piece("payment_mismatch")), { value: "$375.14", caption: "payment on the contract" });
+  assert.equal(pieceFigure(r, piece("running_costs_missing")), null);
+  assert.deepEqual(pieceLink(piece("running_costs_missing", { href: "/intake" })), { href: "/intake", label: "Add running costs" });
   assert.equal(pieceFigure(r, null), null);
   assert.equal(pieceLink(null), null);
 });
@@ -63,9 +65,9 @@ test("flag-based pieces show the related backend metric; running costs has no fi
 test("unknown values never become a figure", () => {
   const r = clone();
   r.with_offer!.metrics.reserve_months_after.value = null;
-  const piece = { kind: "reserve_low", text: "", title: "", tone: "attention", claimIds: [], evidenceIds: [], href: "/dashboard" } as const;
-  assert.equal(pieceFigure(r, { ...piece }), null);
-  assert.equal(pieceFigure(r, { ...piece, kind: "cashflow_change", figure: { before: "900.00", after: null } }), null);
+  assert.equal(pieceFigure(r, piece("reserve_low")), null);
+  r.with_offer!.metrics.monthly_left_after.value = null;
+  assert.equal(pieceFigure(r, piece("cashflow_change", { figure: { before: "900.00", after: null } })), null);
 });
 
 test("every figure text uses only backend numbers", () => {
@@ -74,4 +76,30 @@ test("every figure text uses only backend numbers", () => {
     const f = pieceFigure(FIXTURE, p, s.concern);
     if (f) onlyBackendNumbers(`${f.value} ${f.caption}`, FIXTURE);
   }
+});
+
+test("cash-flow figure falls back to the metrics when the claim uses its own value keys", () => {
+  const r = clone();
+  assert.deepEqual(pieceFigure(r, piece("cashflow_change", { figure: { before: null, after: null } })), {
+    value: "$474.86",
+    caption: "left each month, from $900.00",
+  });
+});
+
+test("scenario pieces use the claim for the run WITH the loan when the backend emits one per run", () => {
+  const r = clone();
+  const base = r.claims.find((c) => c.claim_id === "cl_stress_job_loss")!;
+  r.claims = r.claims.filter((c) => c.claim_id !== "cl_stress_job_loss");
+  r.claims.push(
+    { ...base, claim_id: "cl_scn_sc_job_loss_without_offer", text: "without: lasts", values: { scenario_id: "sc_job_loss", run: "without_offer" }, evidence_ids: ["ev_a_illustrative_scenarios"] },
+    { ...base, claim_id: "cl_scn_sc_job_loss_with_offer", text: "with: runs out", values: { scenario_id: "sc_job_loss", run: "with_offer" } },
+  );
+  assert.equal(withLoanScenarioClaim(r, "sc_job_loss")?.claim_id, "cl_scn_sc_job_loss_with_offer");
+  const p = resolvePiece(r, piece("unfunded_gap", { scenarioId: "sc_job_loss", text: "without: lasts", claimIds: ["cl_scn_sc_job_loss_without_offer"] }));
+  assert.equal(p?.text, "with: runs out");
+  assert.deepEqual(p?.claimIds, ["cl_scn_sc_job_loss_with_offer"]);
+  // fixture (one claim, no run field) is left unchanged
+  const s = decisionSummary(FIXTURE);
+  assert.equal(resolvePiece(FIXTURE, s.concern), s.concern);
+  assert.equal(resolvePiece(FIXTURE, null), null);
 });

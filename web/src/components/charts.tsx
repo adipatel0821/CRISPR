@@ -48,7 +48,7 @@ export function BreakdownBar({ breakdown, total }: { breakdown: Record<string, s
   const scale = totalN && totalN > 0 ? totalN : sum;
   return (
     <figure className="space-y-3">
-      <div className="flex h-5 w-full overflow-hidden rounded-[4px] bg-canvas" role="img" aria-label="Breakdown of the total paid through the deal; values listed below">
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-subtle" role="img" aria-label="Breakdown of the total paid through the deal; values listed below">
         {visible.map((p, i) => (
           <div
             key={p.key}
@@ -61,9 +61,9 @@ export function BreakdownBar({ breakdown, total }: { breakdown: Record<string, s
       <figcaption>
         <ul className="grid gap-x-6 gap-y-1.5 text-sm sm:grid-cols-2">
           {parts.map((p) => (
-            <li key={p.key} className="flex items-center justify-between gap-3 border-b border-line py-1">
+            <li key={p.key} className="flex items-center justify-between gap-3 border-b border-line py-1.5 last:border-0 sm:[&:nth-last-child(2):nth-child(odd)]:border-0">
               <span className="flex items-center gap-2 text-ink-muted">
-                <span aria-hidden className="size-2.5 shrink-0 rounded-sm" style={{ background: p.color }} />
+                <span aria-hidden className="size-2.5 shrink-0 rounded-full" style={{ background: p.color }} />
                 {p.label}
               </span>
               <span className="figure font-medium text-ink">{p.value === null ? "Not known" : formatMoney(p.value)}</span>
@@ -87,7 +87,7 @@ interface PathPoint {
 }
 
 function TooltipBox({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-md border border-line bg-surface px-3 py-2 text-xs shadow-md">{children}</div>;
+  return <div className="rounded-control border border-line bg-surface px-3 py-2 text-xs shadow-soft">{children}</div>;
 }
 
 export function SavingsPathChart({ without, withOffer }: { without?: ScenarioResult; withOffer?: ScenarioResult }) {
