@@ -1,13 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Check, CircleCheck, Plus } from "lucide-react";
-import type { QuestionCandidate } from "@/lib/contracts";
+import { Check, CircleCheck, PiggyBank, Plus } from "lucide-react";
+import type { FinancialFact, QuestionCandidate } from "@/lib/contracts";
 import { plain } from "@/lib/copy";
+import { formatMoney } from "@/lib/format";
 import { RUNNING_COSTS_TEXT } from "@/lib/insights";
+import { cn } from "@/lib/utils";
 import { ActionRow } from "@/components/shell";
 import { FadeIn, Note } from "@/components/system";
-import { IconBadge } from "@/components/visual";
+import { IconBadge, ValueBars, type BarDatum } from "@/components/visual";
 import type { IntakeProgress } from "./model";
 import { answersLabel } from "./model";
 import { QuestionArt, artIcon } from "./question-art";
@@ -34,6 +36,44 @@ export function SavedNote({ text }: { text: string }) {
   );
 }
 
+/**
+ * "Your month, as you told us": the monthly amounts the person gave, as bars on one zero-based scale, plus the
+ * savings they could use as a separate figure (a balance, not a monthly flow, so never on the same scale).
+ * Values are the person's own answers, formatted; nothing is added or subtracted.
+ */
+export function MonthAsTold({ facts, className }: { facts: FinancialFact[]; className?: string }) {
+  const known = (key: string) => {
+    const f = facts.find((x) => x.key === key && (x.status === "provided" || x.status === "estimated") && x.value !== null);
+    const n = f ? Number(f.value) : NaN;
+    return f && Number.isFinite(n) ? { f, n } : null;
+  };
+  const rows: BarDatum[] = [];
+  const take = known("income.take_home_monthly");
+  const ess = known("expenses.essential.total");
+  const flex = known("expenses.flexible.total");
+  if (take) rows.push({ label: "Take-home pay", value: take.n, display: formatMoney(take.f.value), tone: "brand" });
+  if (ess) rows.push({ label: "Essentials", value: ess.n, display: formatMoney(ess.f.value), tone: "slate" });
+  if (flex) rows.push({ label: "Extras", value: flex.n, display: formatMoney(flex.f.value), tone: "slate" });
+  const savings = known("savings.liquid");
+  if (rows.length < 2 && !savings) return null;
+  return (
+    <section aria-label="Your month, as you told us" className={cn("rounded-[2rem] bg-canvas p-7", className)} data-month-as-told="">
+      <p className="text-[13px] font-bold uppercase tracking-[0.06em] text-ink-3">Your month, as you told us</p>
+      {rows.length >= 2 && <ValueBars rows={rows} title="Monthly amounts you gave" titleHidden size="md" className="mt-5" />}
+      {savings && (
+        <div className="mt-6 flex items-center gap-4 border-t border-line pt-5">
+          <IconBadge icon={PiggyBank} tone="savings" size="md" />
+          <div className="min-w-0">
+            <p className="text-sm text-ink-2">Savings you could use</p>
+            <p className="tabular text-[1.75rem] font-extrabold leading-tight tracking-[-0.02em] text-ink">{formatMoney(savings.f.value)}</p>
+          </div>
+        </div>
+      )}
+      <p className="mt-5 text-sm leading-relaxed text-ink-2">Before the loan. Your results show what the loan changes.</p>
+    </section>
+  );
+}
+
 /** The question's wording on a refinement row (frontend wording when we have it, else the backend text). */
 function refinementTitle(r: QuestionCandidate): string {
   return questionWording(r.fact_key)?.headline ?? plain(r.text);
@@ -54,6 +94,7 @@ export function IntakeDone({
   skipped = [],
   onAdd,
   readiness,
+  facts = [],
 }: {
   hasOffer: boolean;
   primary: React.ReactNode;
@@ -68,13 +109,24 @@ export function IntakeDone({
   onAdd?: (key: string) => void;
   /** Per-result readiness (a collapsed disclosure). */
   readiness?: React.ReactNode;
+  /** The person's current answers (for the "as you told us" picture on wide screens). */
+  facts?: FinancialFact[];
 }) {
   const gaps = skipped.length > 0;
+  const month = <MonthAsTold facts={facts} className="hidden xl:block" />;
+  const hasMonth = facts.some((f) => f.key === "income.take_home_monthly" || f.key === "savings.liquid");
   return (
     <div className="flex flex-1 flex-col" data-intake-done="">
-      <StagePane lead={lead} aside={<QuestionArt kind="car" className="hidden xl:flex" />} actions={<ActionRow>{primary}</ActionRow>}>
-        <div className="space-y-5">
-          <IconBadge icon={CircleCheck} tone="savings" size="lg" />
+      <StagePane
+        lead={lead}
+        aside={hasMonth ? month : <QuestionArt kind="car" className="hidden xl:flex" />}
+        actions={<ActionRow>{primary}</ActionRow>}
+      >
+        <div className="space-y-4">
+          <p className="flex items-center gap-3 text-[15px] font-semibold text-savings-ink">
+            <IconBadge icon={CircleCheck} tone="savings" size="sm" />
+            Your money: done
+          </p>
           <h1 className="text-pretty text-[length:var(--text-display)] font-extrabold leading-[1.12] tracking-[-0.02em] text-ink">
             {gaps ? "That's all for now" : "That's everything we need"}
           </h1>
@@ -122,7 +174,7 @@ export function IntakeDone({
                 <Plus aria-hidden className="size-5 text-brand-strong" />
                 Add more detail (optional)
               </span>
-              <span className="tabular text-sm font-semibold text-ink-2">{refinements.length} optional</span>
+              <span className="tabular hidden shrink-0 text-sm font-semibold text-ink-2 sm:inline">{refinements.length} optional</span>
             </summary>
             <div className="px-5 pb-4">
               <p className="pb-2 text-[15px] text-ink-2">These never block your results. Each one makes a figure more precise.</p>

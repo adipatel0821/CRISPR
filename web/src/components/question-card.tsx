@@ -331,7 +331,7 @@ export function QuestionCard({
             setChoice(v);
             setError(null);
           }}
-          columns={options.length === 2 ? 2 : options.length === 3 ? 3 : 1}
+          columns={options.length === 2 ? 2 : 1}
           describedBy={describedBy}
           className="max-w-[40rem]"
         />

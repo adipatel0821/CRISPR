@@ -181,6 +181,9 @@ try {
     check("rail: answers listed with values", /Take-home pay[\s\S]*\$4,200\.00/.test(railText) && /Savings[\s\S]*\$6,000\.00/.test(railText), railText.slice(0, 300));
     check("rail: estimate recorded and shown", /Essentials[\s\S]*\$2,900\.00[\s\S]*Estimate/.test(railText));
     check("rail: progress counts answers", /5 answers given/.test(railText), railText.slice(0, 200));
+    const told = page.locator("[data-month-as-told]");
+    const toldText = (await told.count()) ? await told.innerText() : "";
+    check("done: the month as told shows the given amounts (no derived figure)", /\$4,200\.00/.test(toldText) && /\$2,900\.00/.test(toldText) && /\$6,000\.00/.test(toldText) && !/1,300/.test(toldText), toldText.slice(0, 200));
     await shot(page, "A_intake_done_1440");
 
     // edit an earlier answer from the rail (POST /facts supersede), then put it back

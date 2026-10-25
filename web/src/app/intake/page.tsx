@@ -27,14 +27,21 @@ interface Loaded {
 
 const toError = (e: unknown) => (e instanceof ApiError ? e : new ApiError("INTERNAL", String(e), 0));
 
+/** Short rail values for the down payment source (the full wording is in the question). */
+const DOWN_SHORT: Record<string, string> = { savings: "Savings", other: "Elsewhere", none: "None" };
+
 /** One answer as a rail row: short label, the value the person gave (formatted), an Edit button. */
 function railFact(f: FinancialFact, onEdit: (key: string) => void): RailFact {
+  const text =
+    f.key === "loan.down_payment_source" && f.value && DOWN_SHORT[f.value]
+      ? DOWN_SHORT[f.value]
+      : factValueText(f.value, f.value_type, f.key);
   const value =
     f.status === "declined" ? (
       <span className="font-medium text-ink-2">Not shared</span>
     ) : (
       <>
-        {factValueText(f.value, f.value_type, f.key)}
+        {text}
         {f.status === "estimated" && <span className="ml-1.5 rounded-full bg-caution-soft px-2 py-0.5 text-xs font-bold text-caution">Estimate</span>}
       </>
     );
@@ -258,6 +265,7 @@ export default function IntakePage() {
             onRefine={openRefinement}
             skipped={skipped}
             onAdd={openEdit}
+            facts={answers}
             readiness={<ReadinessDetails readiness={nq.readiness} showOfferLink={!offer} />}
             lead={lead}
             after={
