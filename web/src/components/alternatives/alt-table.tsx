@@ -106,7 +106,7 @@ export function AltTable({ alts, pareto }: { alts: Alternative[]; pareto: string
                   const d = a.deltas_vs_base[c.key];
                   return (
                     <td key={c.key} className={cn("figure py-3 pr-3 text-right", a.feasible ? "text-ink" : "text-ink-subtle")}>
-                      {a.feasible ? (c.fmt ? c.fmt(v) : v) : "—"}
+                      {a.feasible ? (c.fmt ? c.fmt(v) : v) : "n/a"}
                       {a.feasible && !a.is_base && c.delta && d !== undefined && d !== null && d !== "0.00" && (
                         <span className="block whitespace-nowrap text-xs text-ink-subtle">{formatSignedMoney(d)}<span className="print:hidden"> vs offer</span></span>
                       )}
