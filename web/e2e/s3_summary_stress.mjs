@@ -132,7 +132,8 @@ async function copyProblems(page) {
 const primaries = (page) =>
   page.evaluate(() => {
     const els = [...document.querySelectorAll("[data-primary-action]")];
-    return { total: els.length, visible: els.filter((e) => e.checkVisibility({ checkVisibilityCSS: true })).length, text: els.map((e) => e.textContent.trim()), hrefs: els.map((e) => e.getAttribute("href")) };
+    const shown = (e) => e.checkVisibility({ checkVisibilityCSS: true });
+    return { total: els.length, visible: els.filter(shown).length, text: els.map((e) => e.textContent.trim()), hrefs: els.filter(shown).map((e) => e.getAttribute("href")) };
   });
 const sideways = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const h1Count = (page) => page.locator("h1").count();
@@ -190,8 +191,8 @@ try {
   const savingsLine = (await page.locator("[data-savings-line]").innerText()).replace(/\s+/g, " ");
   check("savings line: drop to $2,000.00, from $6,000.00", /drop to \$2,000\.00 after the down payment/.test(savingsLine) && /6,000\.00/.test(savingsLine), savingsLine);
   const p1 = await primaries(page);
-  check("one primary action (visible), to /stress", p1.total === 1 && p1.visible === 1 && p1.hrefs[0] === "/stress", JSON.stringify(p1));
-  check("primary action is the yellow pill", (await page.locator("[data-primary-action]").evaluate((el) => getComputedStyle(el).backgroundColor)) === "rgb(255, 206, 74)");
+  check("one primary action (visible), to /stress", p1.visible === 1 && p1.hrefs[0] === "/stress", JSON.stringify(p1));
+  check("primary action is the yellow pill", (await page.locator("[data-primary-action]:visible").evaluate((el) => getComputedStyle(el).backgroundColor)) === "rgb(255, 206, 74)");
   check("one h1", (await h1Count(page)) === 1);
   check('h1 is "Here\'s how this loan changes your month."', /Here.s how this loan changes your month\./.test(await page.locator("h1").innerText()));
   check("rail shows loan context", /Car price[\s\S]*22,000\.00[\s\S]*Monthly payment[\s\S]*375\.14/.test(await page.locator("aside[data-stage-rail]").innerText()));

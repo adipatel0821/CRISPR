@@ -149,7 +149,7 @@ export function SummaryHero({ report }: { report: DecisionReport }) {
       </div>
       <div className="mt-10 flex flex-col gap-8 border-t border-line pt-8 lg:flex-row lg:items-center lg:justify-between">
         <SavingsLine report={report} />
-        <div className="no-print shrink-0">
+        <div className="no-print hidden shrink-0 lg:block">
           <PrimaryAction href="/stress">See the stress test</PrimaryAction>
         </div>
       </div>
