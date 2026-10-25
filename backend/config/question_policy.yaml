@@ -1,0 +1,25 @@
+# Curated refinement order (stage_01 §11.1 / §22, design assumption DA-07). Owner: Agent 2.
+# Refinements are offered only after every selected analysis is available (or blocked by a
+# declined / awaiting-offer input). They never block and never outrank a blocking question (A-20).
+# Keys with "debts[*]" expand to every debt item in item order.
+policy_version: "1.1"
+refinement_order:
+  - expenses.flexible.total
+  - vehicle.replaces_current
+  - expenses.current_vehicle_costs_monthly   # only offered when vehicle.replaces_current = true
+  - vehicle.new_ownership_costs_monthly
+  - income.variability
+  - income.gross_monthly
+  - vehicle.value_estimates
+  - debts[*].remaining_months
+  - debts[*].type
+show_only_when:
+  expenses.current_vehicle_costs_monthly:
+    fact: vehicle.replaces_current
+    equals: "true"
+# Refinement-effect display (stage_01 §11.4): shown only when both bounds are user-derived.
+refinement_effects:
+  expenses.flexible.total:
+    metric: monthly_left_after
+    bound_metric: monthly_left_before
+    basis: "flexible spending between $0 and your monthly leftover before this loan"

@@ -1,0 +1,332 @@
+# DecisionTwin financial ontology (contracts v1.1 §3.1, stage_01 §9.1). Owner: Agent 2.
+# Every fact key the intake accepts is listed here; anything else is rejected (contracts §1 rule 5).
+# Debt item fields are matched by the pattern debts[<id>].<field> (ids d1, d2, ...).
+# Fact -> metric -> analysis edges are NOT written here: intake/ontology.py generates them from
+# engine.requirements.REQUIRED_INPUTS / ANALYSIS_METRICS so the two cannot diverge (A-23).
+ontology_version: "1.1"
+
+analyses:
+  loan_cost: "loan cost"
+  cashflow_impact: "cash-flow impact"
+  reserve_impact: "reserve impact"
+  stress_test: "stress test"
+  alternatives: "alternatives"
+  dti: "debt-to-income"
+  equity_timeline: "equity timeline"
+
+metrics:
+  principal: "amount borrowed"
+  monthly_payment: "monthly payment"
+  total_of_payments: "total of payments"
+  finance_charge: "finance charge"
+  interest: "interest"
+  total_paid_through_deal: "total paid through the deal"
+  apr_recomputed: "recomputed APR"
+  ltv: "loan-to-value"
+  negative_equity_at_start: "negative equity at the start"
+  payment_to_take_home: "payment as a share of take-home pay"
+  dti_total: "debt-to-income ratio"
+  monthly_left_before: "monthly leftover before this loan"
+  incremental_vehicle_costs: "extra car costs each month"
+  monthly_left_after: "monthly leftover after this loan"
+  savings_after_purchase: "savings after the purchase"
+  reserve_months_before: "months of reserve before"
+  reserve_months_after: "months of reserve after"
+  savings_months_of_income: "savings in months of income"
+  equity_timeline: "equity over time"
+
+# Conditional requirement metadata (mirrors the conditions documented in contracts §3.12; the graph
+# applies these to its generated edges so graph-derived readiness == engine readiness).
+conditions:
+  loan.down_payment_source:
+    waived_when: offer_cash_down_zero        # not needed when the offer's cash down is exactly 0
+  income.low_month:
+    required_for: [stress_test]
+    when_fact: income.variability
+    when_in: [somewhat_variable, highly_variable, variable]
+
+facts:
+  income.take_home_monthly:
+    label: "monthly take-home pay"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 10
+    default_tier: T0
+    why: "Your take-home pay is the starting point for what is left each month."
+    question:
+      text: "About how much take-home pay (after taxes) do you get in a typical month?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+    variable_question:   # used when income.variability says income varies (persona P2)
+      text: "In a typical month, about how much take-home pay do you get? And in a slow month?"
+      kind: currency_pair
+      pair: [income.take_home_monthly, income.low_month]
+      allow_estimate: true
+      allow_skip: true
+
+  expenses.essential.total:
+    label: "essential monthly expenses"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 20
+    default_tier: T0
+    why: "Essentials (housing, food, utilities, insurance, current car costs) come out before anything else."
+    question:
+      text: "About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  debts.count:
+    label: "number of monthly debt payments"
+    value_type: integer
+    unit: count
+    validators: [integer, "range:0..20"]
+    min: 0
+    max: 20
+    dependency_order: 30
+    default_tier: T0
+    why: "Existing debt payments reduce what is left each month."
+    question:
+      text: "How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none"
+      kind: number
+      allow_estimate: false
+      allow_skip: true
+
+  savings.liquid:
+    label: "savings you could use in an emergency"
+    value_type: currency
+    unit: USD
+    validators: [nonnegative]
+    dependency_order: 40
+    default_tier: T0
+    why: "Savings show how long you could cover a bad month after the down payment."
+    question:
+      text: "About how much savings could you use in an emergency (checking, savings, cash)?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  loan.down_payment_source:
+    label: "where your down payment comes from"
+    value_type: enum
+    unit: null
+    validators: [enum]
+    enum:
+      savings: "My savings"
+      other: "Somewhere else"
+      none: "No down payment"
+    dependency_order: 45
+    default_tier: T0
+    why: "A down payment from savings lowers the savings left after the purchase."
+    question:
+      text: "Where will {cash_down_phrase} come from?"
+      kind: choice
+      allow_estimate: false
+      allow_skip: true
+
+  income.low_month:
+    label: "take-home pay in a slow month"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 50
+    default_tier: T1
+    why: "With variable income, the stress test looks at a slow month."
+    question:
+      text: "In a slow month, about how much take-home pay do you get?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  # ---- refinements (never blocking for the core analyses) -------------------------------------
+  expenses.flexible.total:
+    label: "flexible (non-essential) spending"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 60
+    default_tier: T1
+    improves: [monthly_left_before, monthly_left_after]
+    why: "Without it, results are shown before discretionary spending."
+    question:
+      text: "About how much do you spend each month on non-essentials (eating out, entertainment, subscriptions)?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  vehicle.replaces_current:
+    label: "whether the new car replaces your current one"
+    value_type: boolean
+    unit: null
+    validators: [boolean]
+    dependency_order: 61
+    default_tier: T1
+    improves: [incremental_vehicle_costs, monthly_left_after]
+    why: "If the new car replaces your current one, today's car costs go away."
+    question:
+      text: "Will the new car replace a car you have now?"
+      kind: yes_no
+      allow_estimate: false
+      allow_skip: true
+
+  expenses.current_vehicle_costs_monthly:
+    label: "current car costs each month"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 62
+    default_tier: T1
+    improves: [incremental_vehicle_costs, monthly_left_after]
+    why: "Part of your essentials that would go away with the old car (insurance, fuel, maintenance)."
+    question:
+      text: "How much of your essentials goes to your current car each month (insurance, fuel, maintenance, not the loan)?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  vehicle.new_ownership_costs_monthly:
+    label: "new car's monthly ownership costs"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 63
+    default_tier: T1
+    improves: [incremental_vehicle_costs, monthly_left_after]
+    why: "Insurance, fuel and maintenance for the new car add to the payment."
+    question:
+      text: "About how much will insurance, fuel and maintenance cost each month for the new car?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  income.variability:
+    label: "how much your income varies"
+    value_type: enum
+    unit: null
+    validators: [enum]
+    enum:
+      stable: "About the same every month"
+      somewhat_variable: "It varies somewhat"
+      highly_variable: "It varies a lot"
+    dependency_order: 64
+    default_tier: T1
+    improves: [monthly_left_after]
+    why: "With variable income, the stress test can include a slow month."
+    question:
+      text: "Does your take-home pay change much from month to month?"
+      kind: choice
+      allow_estimate: false
+      allow_skip: true
+
+  income.gross_monthly:
+    label: "gross (before-tax) monthly income"
+    value_type: currency
+    unit: USD/month
+    validators: [nonnegative]
+    dependency_order: 65
+    default_tier: T1
+    improves: [dti_total]
+    why: "Lenders use gross income for the debt-to-income ratio."
+    question:
+      text: "What is your gross monthly income, before taxes and deductions?"
+      kind: currency
+      allow_estimate: true
+      allow_skip: true
+
+  vehicle.value_estimates:
+    label: "your estimate of the car's future value"
+    value_type: date_value_list
+    unit: USD
+    validators: [date_value_list]
+    dependency_order: 66
+    default_tier: T2
+    improves: [equity_timeline]
+    why: "Your own estimate of what the car will be worth lets us show equity over time. We never assume a curve."
+    question:
+      text: "If you have an estimate of what the car will be worth later, enter a date and a value."
+      kind: free_text
+      allow_estimate: true
+      allow_skip: true
+
+item_fields:
+  debts:
+    type:
+      label: "type of debt"
+      value_type: enum
+      validators: [enum]
+      enum:
+        student_loan: "Student loan"
+        credit_card: "Credit card"
+        bnpl: "Buy now, pay later (Affirm, Klarna, ...)"
+        auto_loan: "Car loan"
+        personal_loan: "Personal loan"
+        medical: "Medical bill"
+        other: "Something else"
+      dependency_order: 67
+      default_tier: T1
+      improves: [monthly_left_after]
+      why: "The type helps us label the debt in your results."
+      question:
+        text: "What kind of debt is {debt_label}?"
+        kind: choice
+        allow_estimate: false
+        allow_skip: true
+    monthly_payment:
+      label: "monthly payment"
+      value_type: currency
+      unit: USD/month
+      validators: [nonnegative]
+      dependency_order: 31
+      default_tier: T0
+      why: "Each debt payment reduces what is left each month."
+      question:
+        text: "What is the monthly payment on {debt_label}?"
+        kind: currency
+        allow_estimate: true
+        allow_skip: true
+    remaining_months:
+      label: "payments left"
+      value_type: integer
+      unit: months
+      validators: [integer, "range:0..600"]
+      min: 0
+      max: 600
+      dependency_order: 68
+      default_tier: T1
+      improves: [monthly_left_after]
+      why: "A debt that ends soon stops reducing your monthly leftover after that."
+      question:
+        text: "How many payments are left on {debt_label}?"
+        kind: number
+        allow_estimate: true
+        allow_skip: true
+    balance:
+      label: "balance owed"
+      value_type: currency
+      unit: USD
+      validators: [nonnegative]
+      dependency_order: 69
+      default_tier: T2
+      why: "The balance helps describe the debt."
+      question:
+        text: "About how much is still owed on {debt_label}?"
+        kind: currency
+        allow_estimate: true
+        allow_skip: true
+    paid_off_by_transaction:
+      label: "paid off by this purchase"
+      value_type: boolean
+      validators: [boolean]
+      dependency_order: 70
+      default_tier: T1
+      improves: [monthly_left_after]
+      why: "A loan paid off by this deal (e.g. your current car loan) stops after the purchase."
+      question:
+        text: "Will {debt_label} be paid off as part of this purchase?"
+        kind: yes_no
+        allow_estimate: false
+        allow_skip: true
