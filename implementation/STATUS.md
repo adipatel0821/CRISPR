@@ -15,10 +15,10 @@ Prize tracks to consider (human decision): **FNB Challenge — Trust, Decisions 
 | Stage | State |
 |---|---|
 | CP0 foundation (contracts, layout, venv, readiness evaluator) | Implemented + tested |
-| S3 engine | In progress (Agent 1) |
-| S1 intake | In progress (Agent 2) |
-| S2 documents | In progress (Agent 2) |
-| S4 scenarios | Not started |
-| S5 alternatives | Not started |
-| S6 explanations / API | In progress (Agent 4) |
-| Web | In progress (Agent 3) |
+| S3 engine | Integrated, live-verified (CP1) |
+| S1 intake | Integrated, live-verified |
+| S2 documents | Integrated, unit-tested; live upload pending |
+| S4 scenarios | Integrated, rendered live |
+| S5 alternatives | Integrated, rendered live |
+| S6 explanations / API | Integrated, live-verified |
+| Web | Integrated, browser-verified (23/23) |
