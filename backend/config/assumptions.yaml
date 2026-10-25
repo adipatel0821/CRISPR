@@ -72,7 +72,7 @@ assumptions:
     text: "The contract (note) interest rate was not given, so the APR was used as the interest rate. If prepaid finance charges exist, the actual note rate is lower than the APR."
     citation: null
   a_no_running_costs:
-    text: "New-car running costs (insurance, fuel, maintenance) were not provided, so they are not included; monthly figures show new-car running costs not included."
+    text: "New-car running costs (insurance, fuel, maintenance) were not provided, so no extra running cost is added for the new car. If it replaces your current car, this assumes the new car costs the same to run as your current one; otherwise monthly figures show new-car running costs not included."
     citation: null
   a_not_replacing:
     text: "It was not stated whether the new car replaces your current one, so no current-car costs are netted off."
@@ -100,6 +100,7 @@ labels:
   monthly_left_with_flexible: "after essentials, debts and flexible spending"
   monthly_left_without_flexible: "before discretionary spending"
   incremental_costs_not_included: "new-car running costs not included"
+  incremental_costs_same_as_current: "assumes the new car costs the same to run as your current one"
   equity_user_estimate: "your estimate"
 
 context:

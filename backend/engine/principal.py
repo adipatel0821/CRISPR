@@ -30,7 +30,7 @@ class ResolvedLoan:
     amount_financed: Decimal | None
     amount_financed_basis: str | None          # stated | derived | assumed_pfc_zero
     pfc: Decimal | None                        # total prepaid finance charges (None = unknown)
-    pfc_paid_in_cash: Decimal                  # 0 when not stated (PFC included in the note, F00)
+    pfc_paid_in_cash: Decimal                  # 0 when not stated (PFC included in the note, F00); see pfc_paid_in_cash_unknown
     rate: Decimal | None
     rate_source: str | None                    # contract_rate | apr
     apr_disclosed: Decimal | None
@@ -59,6 +59,11 @@ class ResolvedLoan:
     warnings: tuple[str, ...]
     payments: tuple[Decimal, ...] = field(default=())   # F01s payments when computable
     rows: tuple[tuple[Decimal, Decimal, Decimal, Decimal], ...] = field(default=())
+    # True when a pfc_paid_in_cash term is PRESENT but not computable (conflicting / missing / declined /
+    # unparseable). Then the amount is unknown, never $0: F04 and F13 report missing offer.pfc_paid_in_cash
+    # (consistent with engine/requirements.py, which keeps loan.down_payment_source required). An ABSENT term
+    # still means 0 (PFC included in the note, F00).
+    pfc_paid_in_cash_unknown: bool = False
 
     @property
     def computable(self) -> bool:
@@ -115,6 +120,7 @@ def resolve_offer(offer: LoanOffer | dict | None, *, supported_terms: tuple[int,
     pfc = take("prepaid_finance_charges")
     pfc_cash_v = take("pfc_paid_in_cash")
     pfc_cash = pfc_cash_v if pfc_cash_v is not None else ZERO
+    pfc_cash_unknown = pfc_cash_v is None and offer.terms.get("pfc_paid_in_cash") is not None
     cash_down = take("cash_down")
     tv = take("trade_in_value")
     tp = take("trade_in_payoff")
@@ -164,6 +170,9 @@ def resolve_offer(offer: LoanOffer | dict | None, *, supported_terms: tuple[int,
                      + (" + financed prepaid finance charges." if pfc is not None else "."))
         if taxes is None:
             notes.append("Taxes/title/fees were not stated; none were included in the derived principal.")
+        if pfc is not None and pfc_cash_unknown:
+            notes.append("The prepaid finance charges paid in cash are unconfirmed; the derived principal treats "
+                         "all prepaid finance charges as financed.")
     else:
         principal, basis = None, "missing"
 
@@ -240,7 +249,7 @@ def resolve_offer(offer: LoanOffer | dict | None, *, supported_terms: tuple[int,
         disclosed_finance_charge=take("finance_charge", False), prepayment_penalty=take_bool("prepayment_penalty"),
         variable_rate=variable, balloon=balloon, unsupported=tuple(unsupported), inputs_used=tuple(used),
         assumptions=tuple(dict.fromkeys(assumptions)), notes=tuple(notes), warnings=tuple(warnings),
-        payments=payments, rows=rows,
+        payments=payments, rows=rows, pfc_paid_in_cash_unknown=pfc_cash_unknown,
     )
 
 

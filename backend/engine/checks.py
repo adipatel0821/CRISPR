@@ -140,7 +140,8 @@ def offer_checks(offer: LoanOffer | dict[str, Any], config: EngineConfig | None 
         stated_amount = term(lo, "principal").known or term(lo, "amount_financed").known
         if (r.principal is not None and stated_amount      # not circular with an itemization-derived principal
                 and r.cash_price is not None and r.cash_down is not None and r.taxes_title_fees is not None
-                and r.trade_in_equity is not None):
+                and r.trade_in_equity is not None
+                and not (r.pfc is not None and r.pfc_paid_in_cash_unknown)):   # financed PFC unknown -> no check
             itemized = r.cash_price + r.taxes_title_fees + r.add_ons_financed_total - r.cash_down - r.trade_in_equity
             if r.pfc is not None:
                 target = r.principal - (r.pfc - r.pfc_paid_in_cash)
