@@ -1,0 +1,38 @@
+A. contract_standard.pdf
+  [PASS] A: intake asked the 4 household questions
+  [PASS] A: verification table shows $375.14
+  [PASS] A: verification table shows $22,508.29
+  [PASS] A: verification table shows $3,008.29
+  [PASS] A: verification table shows $19,500.00
+  [PASS] A: verification table shows $20,000.00
+  [PASS] A: verbatim quote shown with page
+  [PASS] A: check results shown (quote match / APR recompute passed)
+  [PASS] A: chips say 'From your document', never 'verified'
+  [PASS] A: saved offer summary shows confirmed document values
+  [PASS] A: down-payment source question asked
+  [PASS] A: dashboard shows 375.14
+  [PASS] A: dashboard shows 22,508.29
+  [PASS] A: dashboard shows 3,008.29
+  [PASS] A: dashboard shows a document-sourced evidence label
+  [PASS] A: no 'verified' wording on dashboard
+  [PASS] A: assumption chip shown for metrics that depend on an assumption
+   report derived_status: assumed assumptions_used: ["a_no_running_costs"]
+  [PASS] A: report carries document evidence
+  [PASS] A: monthly payment source popover lists the document quote
+B. dealer_worksheet_two_options.pdf
+  [PASS] B: offer chooser shown
+  [PASS] B: chosen option values shown (375.14, 60 months)
+  [PASS] B: dashboard shows 375.14
+  [PASS] B: dashboard shows 22,508.29
+  [PASS] B: dashboard shows 3,008.29
+  [PASS] B: dashboard labelled with the chosen option
+  [PASS] B: no 'verified' wording on dashboard
+C. contract_variable_rate.pdf
+  [PASS] C: unsupported-product message shown
+  [PASS] C: exactly one unsupported alert (no duplicate)
+  [PASS] C: terms shown for reference only
+  [PASS] C: no save / See-my-results path for an unsupported offer
+  [PASS] C: manual fallback opens the manual form
+  [PASS] no browser console errors
+
+RESULT: PASS (32/32)

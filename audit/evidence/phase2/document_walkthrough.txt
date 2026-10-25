@@ -1,0 +1,28 @@
+data_mode: synthetic_only
+  [PASS] standard contract upload 200
+  [PASS] recognised as bundled synthetic fixture
+  [PASS] extraction status extracted
+  [PASS] extracted apr = 0.0580
+  [PASS] extracted finance_charge = 3008.29
+  [PASS] extracted amount_financed = 19500.00
+  [PASS] extracted total_of_payments = 22508.29
+  [PASS] extracted monthly_payment = 375.14
+  [PASS] extracted term_months = 60
+  [PASS] APR has verbatim quote + page
+  [PASS] APR quote_match + label_anchor pass
+  [PASS] APR recompute pass (5.80% disclosed vs 5.796% recomputed, within 1/8 pt)
+  [PASS] no term labelled verified before user confirmation
+  [PASS] verify 200
+  [PASS] verified offer ready_for_calculation
+  [PASS] confirmed + matched -> evidence_matched_user_confirmed
+  [PASS] analysis from document offer 200
+  [PASS] document path payment 375.14
+  [PASS] document path monthly_left_after 474.86
+  [PASS] document evidence labelled with page + matched/confirmed
+  [PASS] two-option worksheet -> needs_choice
+  [PASS] variable-rate contract flagged unsupported
+  [PASS] prompt-injection text does not zero the APR
+  [PASS] non-fixture upload in synthetic_only -> 403 DATA_MODE_RESTRICTED
+  [PASS] non-PDF bytes rejected with contract error code
+
+RESULT: PASS

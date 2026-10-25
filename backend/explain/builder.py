@@ -743,6 +743,12 @@ def build_explanations(facts, offer, baseline, with_offer, scenarios, resilience
         _section(ctx, "with_this_loan", with_loan), _section(ctx, "stress", stress),
         _section(ctx, "alternatives", alts), _section(ctx, "missing_info", miss_claims)) if s is not None]
 
+    # Contracts §6.4: every displayed number carries an evidence id — register calculation evidence for every
+    # computed metric, including ones no sentence mentions (e.g. F14 = $0 has no claim but is shown on the dashboard).
+    for calc in (with_offer, baseline):
+        for name, metric in (_get(calc, "metrics") or {}).items():
+            if _get(metric, "value") is not None:
+                ctx.ev_calc(name)
     return Explanations(claims=list(ctx.claims.values()), evidence=list(ctx.evidence.values()), sections=sections,
                         key_points=key_points, missing_information=miss_items,
                         assumptions=list(ctx.assumptions.values()))

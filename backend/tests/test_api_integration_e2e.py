@@ -97,3 +97,20 @@ def test_reserve_change_claim_carries_before_and_after(real_client):
     claim = next(cl for cl in rep["claims"] if cl["claim_id"] == "cl_kp_reserve")
     assert claim["type"] == "change"
     assert claim["values"]["before"] == "6000.00" and claim["values"]["after"] == "2000.00"
+
+
+def test_every_computed_metric_has_calculation_evidence(real_client):
+    """Contracts §6.4 (Agent 3 CP2 observation: F14 = $0 showed "Source not stated")."""
+    c = real_client
+    s = c.post(f"{API}/sessions", json={}).json()
+    h = {"Authorization": f"Bearer {s['token']}"}
+    facts = [f for f in reference_facts_payload()["facts"] if f["key"] != "vehicle.new_ownership_costs_monthly"]
+    assert c.post(f"{API}/sessions/{s['session_id']}/facts", json={"facts": facts}, headers=h).status_code == 200
+    assert c.post(f"{API}/sessions/{s['session_id']}/offers", json=reference_offer_payload(), headers=h).status_code == 200
+    rep = c.post(f"{API}/sessions/{s['session_id']}/analysis", json={}, headers=h).json()
+    ev_ids = {e["evidence_id"] for e in rep["evidence"]}
+    for name, m in rep["with_offer"]["metrics"].items():
+        if m.get("value") is not None:
+            assert f"ev_calc_{m['formula_id']}" in ev_ids, name
+    assert rep["with_offer"]["metrics"]["incremental_vehicle_costs"]["value"] == "0.00"
+    assert rep["with_offer"]["derived_status"] == "assumed"          # D1-001 end to end
