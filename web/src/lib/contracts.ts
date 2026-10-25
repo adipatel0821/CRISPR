@@ -231,7 +231,24 @@ export type ExtractionMethod = "llm+reader" | "reader_only" | "none";
 export type OffersFound = number;
 export type OfferLabels = string[];
 export type Message1 = string | null;
-export type Code = string;
+/**
+ * This interface was referenced by `ContractsRoot`'s JSON-Schema
+ * via the `definition` "ErrorCode".
+ */
+export type ErrorCode =
+  | "VALIDATION_ERROR"
+  | "UNAUTHORIZED"
+  | "DATA_MODE_RESTRICTED"
+  | "NOT_FOUND"
+  | "CONFLICTING_FACTS"
+  | "UNSUPPORTED_PRODUCT"
+  | "INSUFFICIENT_INFORMATION"
+  | "EXTRACTION_FAILED"
+  | "RATE_LIMITED"
+  | "INTERNAL"
+  | "NOT_IMPLEMENTED"
+  | "LLM_MALFORMED_OUTPUT"
+  | "LLM_UNAVAILABLE";
 export type Message2 = string;
 export type Details =
   | {
@@ -380,6 +397,7 @@ export interface ContractsRoot {
   DecisionType?: DecisionType;
   DocumentStatus?: DocumentStatus;
   ErrorBody?: ErrorBody;
+  ErrorCode?: ErrorCode;
   ErrorDetail?: ErrorDetail;
   ExplanationEvidence?: ExplanationEvidence;
   ExplanationSection?: ExplanationSection;
@@ -873,7 +891,7 @@ export interface ErrorBody {
  * via the `definition` "ErrorDetail".
  */
 export interface ErrorDetail {
-  code: Code;
+  code: ErrorCode;
   message: Message2;
   details: Details;
   request_id: RequestId;

@@ -82,3 +82,18 @@ def test_reference_case_end_to_end(real_client):
     got = c.get(f"{API}/reports/{rep['report_id']}", headers=h)
     assert got.status_code == 200 and got.json()["report_id"] == rep["report_id"]
     assert c.delete(f"{API}/sessions/{sid}", headers=h).status_code == 204
+
+
+
+def test_reserve_change_claim_carries_before_and_after(real_client):
+    """Regression (CP1 browser check found "Savings Now: Not known"): the dashboard reads a change claim's
+    values.before / values.after."""
+    c = real_client
+    s = c.post(f"{API}/sessions", json={}).json()
+    h = {"Authorization": f"Bearer {s['token']}"}
+    assert c.post(f"{API}/sessions/{s['session_id']}/facts", json=reference_facts_payload(), headers=h).status_code == 200
+    assert c.post(f"{API}/sessions/{s['session_id']}/offers", json=reference_offer_payload(), headers=h).status_code == 200
+    rep = c.post(f"{API}/sessions/{s['session_id']}/analysis", json={}, headers=h).json()
+    claim = next(cl for cl in rep["claims"] if cl["claim_id"] == "cl_kp_reserve")
+    assert claim["type"] == "change"
+    assert claim["values"]["before"] == "6000.00" and claim["values"]["after"] == "2000.00"

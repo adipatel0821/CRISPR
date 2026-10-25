@@ -327,6 +327,7 @@ def kp_reserve(ctx: _Ctx) -> str | None:
     savings = str(_get(savings_fact, "value"))
     months = ctx.mval("reserve_months_after")
     values: dict[str, Any] = {"savings_liquid": savings, "savings_display": fmt.dollars(savings),
+                              "before": savings, "after": after,   # generic change-claim keys (UI)
                               "savings_after_purchase": after, "after_display": fmt.dollars(after)}
     evs = [ctx.ev_fact(savings_fact), ctx.ev_calc("savings_after_purchase")]
     if fmt.is_negative(after):

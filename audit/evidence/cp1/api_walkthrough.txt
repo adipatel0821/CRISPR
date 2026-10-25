@@ -1,0 +1,39 @@
+health: {'status': 'ok', 'db': True, 'llm_configured': False, 'data_mode': 'synthetic_only', 'schema_version': '1.1', 'calc_version': '1.1.0'}
+session: s_81a435de82f04cb4a5b299a4d1c546f0 data_mode: synthetic_only
+  [PASS] manual offer accepted (200)
+  [PASS] offer ready_for_calculation
+  [PASS] itemization check pass (D0-001)
+questions asked: ['income.take_home_monthly', 'expenses.essential.total', 'debts.count', 'savings.liquid', 'loan.down_payment_source']
+  [PASS] P1-style intake stops after 5 blocking questions
+  [PASS] refinement facts accepted
+  [PASS] analysis 200
+  [PASS] principal = 20000.00
+  [PASS] monthly_payment = 375.14
+  [PASS] total_of_payments = 22508.29
+  [PASS] interest = 2508.29
+  [PASS] finance_charge = 3008.29
+  [PASS] total_paid_through_deal = 26508.29
+  [PASS] monthly_left_before = 900.00
+  [PASS] incremental_vehicle_costs = 50.00
+  [PASS] monthly_left_after = 474.86
+  [PASS] savings_after_purchase = 2000.00
+  [PASS] reserve_months_before = 2.07
+  [PASS] reserve_months_after = 0.60
+  [PASS] APR recomputed 0.05796
+  [PASS] schedule row 1
+  [PASS] readiness: all 5 core analyses available
+  [PASS] 3 key points
+   key point: This loan costs about $3,008 in finance charges over 60 months ($2,508 interest plus $500 in prepaid finance charges).
+   key point: Your monthly leftover goes from $900 to $475 after the payment and the change in car running costs.
+   key point: Your savings would go from $6,000 to $2,000 after the down payment — about 0.6 months of essential costs.
+  [PASS] scenarios present (paired)
+  [PASS] alternatives present
+  [PASS] no 'verified' label anywhere in the report (A-42)
+  [PASS] report retrievable
+  [PASS] negative income -> 400 VALIDATION_ERROR
+  [PASS] other session cannot read report (404)
+  [PASS] missing token -> 401
+  [PASS] delete session
+  [PASS] deleted session token no longer works
+
+RESULT: PASS
