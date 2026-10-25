@@ -427,10 +427,15 @@ export function highlightAlternatives(
   const candidates = alts.filter((a) => a.feasible && !a.is_base && a.alt_id !== base?.alt_id);
   const out: HighlightedAlternative[] = [];
 
-  for (const rule of SLOT_RULES) {
+  // Savings-neutral options: the alternative does not lower savings after purchase (backend delta ≥ 0).
+  const keepsSavings = (a: Alternative): boolean => {
+    const d = comparable(a.deltas_vs_base?.savings_after_purchase);
+    return d === null || d >= 0;
+  };
+  const pickBest = (pool: Alternative[], rule: (typeof SLOT_RULES)[number]): Alternative | null => {
     let best: Alternative | null = null;
     let bestVal: number | null = null;
-    for (const a of candidates) {
+    for (const a of pool) {
       const v = comparable(a.metrics?.[rule.metric]);
       if (v === null) continue;
       if (bestVal === null || better(v, bestVal, rule.direction)) {
@@ -438,7 +443,7 @@ export function highlightAlternatives(
         bestVal = v;
       }
     }
-    if (!best || bestVal === null) continue;
+    if (!best || bestVal === null) return null;
     // must improve on the base: compare with the base metric, or (base unknown) use the delta's sign
     const baseVal = comparable(base?.metrics?.[rule.metric]);
     const improves =
@@ -448,7 +453,17 @@ export function highlightAlternatives(
             const d = comparable(best.deltas_vs_base?.[rule.metric]);
             return d !== null && (rule.direction === "max" ? d > 0 : d < 0);
           })();
-    if (!improves) continue;
+    return improves ? best : null;
+  };
+
+  for (const rule of SLOT_RULES) {
+    // Constraint-aware: for payment / cost slots prefer options that improve the objective WITHOUT drawing down
+    // savings; only when none exists fall back to options that do (their trade-off text and badges disclose it).
+    const best =
+      rule.slot === "preserveSavings"
+        ? pickBest(candidates, rule)
+        : (pickBest(candidates.filter(keepsSavings), rule) ?? pickBest(candidates, rule));
+    if (!best) continue;
 
     const existing = out.find((h) => h.altId === best.alt_id);
     if (existing) {

@@ -183,9 +183,10 @@ test("highlightAlternatives dedupes one alternative winning two slots and keeps 
   const b = alt("b", { monthly_payment: "380.00", finance_charge: "2900.00", savings_after_purchase: "2500.00" }, { monthly_payment: "-20.00", finance_charge: "-100.00", savings_after_purchase: "500.00" });
   const off = alt("off", { monthly_payment: "1.00", finance_charge: "1.00", savings_after_purchase: "99999.00" }, {}, { feasible: false });
   const h = highlightAlternatives(cf([base, a, b, off]));
+  // Policy (constraint-aware highlights): "b" improves payment and cost WITHOUT drawing down savings, so it wins all
+  // three slots over "a" (which takes $1,000 from savings) and is shown once with all three labels (dedupe).
   assert.deepEqual(h.map((x) => [x.altId, x.slots, x.slotLabels]), [
-    ["b", ["preserveSavings"], ["Keeps more savings"]],
-    ["a", ["lowerPayment", "lowerTotalCost"], ["Lower monthly payment", "Lower finance charge"]],
+    ["b", ["preserveSavings", "lowerPayment", "lowerTotalCost"], ["Keeps more savings", "Lower monthly payment", "Lower finance charge"]],
   ]);
 });
 
@@ -278,4 +279,38 @@ test("scenarioClaim accepts a combined claim with no run marker, but not the oth
     { ...base, claim_id: "cl_stress_y", values: { scenario_id: "sc_y" }, text: "With this loan the gap reaches $10; without it, savings last." },
   ] as DecisionReport["claims"];
   assert.equal(scenarioClaim(r, "sc_y")?.claim_id, "cl_stress_y");
+});
+
+// Constraint-aware highlights (UX review): payment / cost slots prefer options that do not draw down savings.
+function mkAlt(id: string, m: Record<string, string>, d: Record<string, string>, extra: Partial<Alternative> = {}): Alternative {
+  return { alt_id: id, label: id, lever_values: {}, assumption_flags: [], metrics: m, deltas_vs_base: d,
+           feasible: true, infeasible_reasons: [], is_base: false, ...extra } as Alternative;
+}
+const BASE_ALT = mkAlt("base", { monthly_payment: "375.14", finance_charge: "3008.29", savings_after_purchase: "2000.00" },
+  { monthly_payment: "0.00", finance_charge: "0.00", savings_after_purchase: "0.00" }, { is_base: true });
+
+test("lower payment / lower cost prefer savings-neutral options over the savings-draining extreme", () => {
+  const cf = { alternatives: [BASE_ALT,
+    mkAlt("t72", { monthly_payment: "319.78", finance_charge: "3524.54", savings_after_purchase: "2000.00" },
+        { monthly_payment: "-55.36", finance_charge: "516.25", savings_after_purchase: "0.00" }),
+    mkAlt("t72_down2000", { monthly_payment: "287.81", finance_charge: "3222.00", savings_after_purchase: "0.00" },
+        { monthly_payment: "-87.33", finance_charge: "213.71", savings_after_purchase: "-2000.00" }),
+    mkAlt("t36", { monthly_payment: "597.18", finance_charge: "1998.32", savings_after_purchase: "2000.00" },
+        { monthly_payment: "222.04", finance_charge: "-1009.97", savings_after_purchase: "0.00" }),
+    mkAlt("t36_down2000", { monthly_payment: "537.46", finance_charge: "1848.48", savings_after_purchase: "0.00" },
+        { monthly_payment: "162.32", finance_charge: "-1159.81", savings_after_purchase: "-2000.00" }),
+  ] } as unknown as CounterfactualResult;
+  const hl = highlightAlternatives(cf);
+  assert.equal(hl.find((h) => h.slots.includes("lowerPayment"))?.altId, "t72");
+  assert.equal(hl.find((h) => h.slots.includes("lowerTotalCost"))?.altId, "t36");
+  assert.equal(hl.find((h) => h.slots.includes("preserveSavings")), undefined);   // nothing keeps MORE savings
+});
+
+test("falls back to a savings-reducing option only when no savings-neutral option improves the objective", () => {
+  const cf = { alternatives: [BASE_ALT,
+    mkAlt("down1000", { monthly_payment: "356.38", finance_charge: "2858.00", savings_after_purchase: "1000.00" },
+        { monthly_payment: "-18.76", finance_charge: "-150.29", savings_after_purchase: "-1000.00" }),
+  ] } as unknown as CounterfactualResult;
+  const hl = highlightAlternatives(cf);
+  assert.equal(hl.find((h) => h.slots.includes("lowerPayment"))?.altId, "down1000");
 });
