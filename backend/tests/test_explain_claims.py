@@ -355,3 +355,22 @@ def test_estimated_fact_label():
     facts["savings.liquid"] = facts["savings.liquid"].model_copy(update={"status": "estimated"})
     ev = {e.evidence_id: e for e in build(facts=facts).evidence}
     assert ev["ev_fact_f_08"].display_label == "Your estimate"
+
+
+def test_label_already_stating_flag_is_not_repeated_but_flag_kept():
+    cf = make_cf()
+    cf.alternatives[1].label = "48 months (same rate assumed), +$1,000 down"
+    claims = by_id(build(cf=cf))
+    alt = claims["cl_alt_alt_012"]
+    assert alt.text == ("48 months (same rate assumed), +$1,000 down: monthly payment about $435, finance charge "
+                        "about $2,403, savings after purchase about $1,000.")
+    assert alt.assumption_ids == ["same_rate_assumed"]
+
+
+def test_scenario_name_prefix_not_doubled():
+    scn = make_scenarios()
+    scn[1].name = "Illustrative: no income for two months"
+    claims = by_id(build(scenarios=scn))
+    claim = claims["cl_scn_sc_job_loss_with_offer"]
+    assert claim.text.startswith("In this illustrative scenario (no income for two months), with this loan")
+    assert claim.values["scenario_name"] == "Illustrative: no income for two months"

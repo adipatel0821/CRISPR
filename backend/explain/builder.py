@@ -8,6 +8,7 @@ is simply not made (the missing-information section says what is needed instead)
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
@@ -484,7 +485,8 @@ def stress_claims(ctx: _Ctx, scenarios: list | None, resilience: Any) -> list[st
     out: list[str | None] = []
     for sc in scenarios or []:
         sid, run = _get(sc, "scenario_id"), _s(_get(sc, "run"))
-        name = _get(sc, "name") or str(sid).replace("sc_", "").replace("_", " ")
+        raw_name = _get(sc, "name") or str(sid).replace("sc_", "").replace("_", " ")
+        name = re.sub(r"^\s*illustrative\s*[:\-–—]\s*", "", raw_name, flags=re.IGNORECASE) or raw_name
         asm_ids = []
         evs = [ctx.ev_scn(sid, run, name)]
         for a in _get(sc, "assumptions") or []:
@@ -492,7 +494,8 @@ def stress_claims(ctx: _Ctx, scenarios: list | None, resilience: Any) -> list[st
             ctx.assumption(aid, _get(a, "text"), _get(a, "citation"))
             evs.append(ctx.ev_asm(aid, _get(a, "text")))
             asm_ids.append(aid)
-        base = {"scenario_id": sid, "run": run, "name": name, "run_phrase": RUN_PHRASE.get(run, run)}
+        base = {"scenario_id": sid, "run": run, "scenario_name": raw_name, "name": name,
+                "run_phrase": RUN_PHRASE.get(run, run)}
         first = _get(sc, "first_shortfall_month")
         if first is not None:
             gap = _get(sc, "max_unfunded_gap")
@@ -557,13 +560,17 @@ def alternatives_claims(ctx: _Ctx, cf: Any, limit: int = 6) -> list[str | None]:
                                   "payment_display": fmt.dollars(pay), "finance_charge": str(fc),
                                   "fc_display": fmt.dollars(fc), "assumption_flags": flags}
         evs = [ctx.ev_alt(aid)] + [ctx.ev_asm(f) for f in flags]
-        if flags:
-            values["flags_text"] = "; ".join(ASSUMPTION_FLAG_TEXT.get(f, f.replace("_", " ")) for f in flags)
+        label_l = str(_get(alt, "label") or "").lower()
+        # a flag the label already states (e.g. "48 months (same rate assumed)") is not repeated in the sentence;
+        # it still travels as an assumption id on the claim
+        shown = [f for f in flags if f.removesuffix("_assumed").replace("_", " ") not in label_l]
+        if shown:
+            values["flags_text"] = "; ".join(ASSUMPTION_FLAG_TEXT.get(f, f.replace("_", " ")) for f in shown)
         has_sap = fmt.dec(sap) is not None
         if has_sap:
             values.update({"savings_after_purchase": str(sap), "sap_display": fmt.dollars(sap)})
         tid = {(False, False): "t_alt", (True, False): "t_alt_flags", (False, True): "t_alt_savings",
-               (True, True): "t_alt_flags_savings"}[(bool(flags), has_sap)]
+               (True, True): "t_alt_flags_savings"}[(bool(shown), has_sap)]
         cid = ctx.claim(f"cl_alt_{aid}", "comparison", "alternative", tid, values, evs, flags)
         if cid:
             out.append(cid)
