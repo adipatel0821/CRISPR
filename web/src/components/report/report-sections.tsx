@@ -25,7 +25,15 @@ import { AssumptionChip } from "@/components/assumption-chip";
 import { Disclosure, SourceLink } from "@/components/system";
 import { CaveatChip, FromTo, IconBadge } from "@/components/visual";
 import { cn } from "@/lib/utils";
-import { assumptionBadges, baseAlternative, changeInWords, deltaSummaryLine, slotPlan, SLOT_TITLES } from "@/components/alternatives/alt-view";
+import {
+  ALT_FORMULA_EVIDENCE,
+  assumptionBadges,
+  baseAlternative,
+  changeInWords,
+  deltaSummaryLine,
+  slotPlan,
+  SLOT_TITLES,
+} from "@/components/alternatives/alt-view";
 import { nextActions, principalConcerns } from "./report-view";
 import { ReportBars } from "./report-bars";
 
@@ -331,7 +339,7 @@ export function ConcernSection({ report }: { report: DecisionReport }) {
               main.tone === "gap" ? "bg-shortfall-soft" : "bg-caution-soft",
             )}
           >
-            <span className="print:hidden">
+            <span className="hidden sm:block print:hidden">
               <IconBadge icon={main.tone === "gap" ? TriangleAlert : Info} tone={main.tone === "gap" ? "shortfall" : "caution"} size="lg" />
             </span>
             <div className="min-w-0 max-w-[48rem] space-y-2">
@@ -469,9 +477,14 @@ export function OptionsSection({ report }: { report: DecisionReport }) {
           </div>
         </div>
       )}
-      <Link href="/alternatives" className="dt-link no-print mt-6 inline-flex items-center gap-1 text-[15px] font-semibold">
-        Compare all options <ArrowRight aria-hidden className="size-4" />
-      </Link>
+      <div className="no-print mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+        <Link href="/alternatives" className="dt-link inline-flex items-center gap-1 text-[15px] font-semibold">
+          Compare all options <ArrowRight aria-hidden className="size-4" />
+        </Link>
+        {plan.cards.length > 0 && resolve(report, ALT_FORMULA_EVIDENCE).length > 0 && (
+          <SourceLink evidence={resolve(report, ALT_FORMULA_EVIDENCE)} label="Options worth a look" text="How we got these" variant="quiet" />
+        )}
+      </div>
     </ReportSection>
   );
 }

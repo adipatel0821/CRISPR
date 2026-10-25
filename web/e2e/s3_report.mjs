@@ -135,6 +135,9 @@ try {
     check("primary action is Print or save as PDF", /Print or save as PDF/.test(await page.locator("[data-primary-action]").textContent()));
     check("no horizontal scroll at 1440", await noHorizontalScroll(page));
 
+    for (const sec of ["loan", "changes", "concerns", "alternatives"]) {
+      check(`section ${sec} has a one-click source`, (await page.locator(`[data-report-section=${sec}] [data-source-link]`).count()) >= 1);
+    }
     // source: one click opens the provenance popover
     await page.locator("[data-report-section=loan] [data-source-link]").first().click();
     await page.waitForTimeout(300);
