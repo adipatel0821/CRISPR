@@ -1,0 +1,429 @@
+{
+  "doc_id": "d_fixture_contract_a",
+  "session_id": "s_fixture_demo",
+  "status": "extracted",
+  "filename": "synthetic_contract_a.pdf",
+  "pages": 2,
+  "is_fixture": true,
+  "extraction_method": "llm+reader",
+  "offers_found": 1,
+  "offer_labels": [
+    "Dealer offer A (synthetic)"
+  ],
+  "draft_offer": {
+    "offer_id": "o_fixture_offer_a",
+    "session_id": "s_fixture_demo",
+    "label": "Dealer offer A (synthetic)",
+    "origin": "document",
+    "doc_id": "d_fixture_contract_a",
+    "document_offers_count": 1,
+    "offer_choice": null,
+    "product_type": "fixed_rate_amortizing",
+    "terms": {
+      "apr": {
+        "term_key": "apr",
+        "value": "0.05796",
+        "value_type": "rate",
+        "status": "provided",
+        "verification": "evidence_matched",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "ANNUAL PERCENTAGE RATE",
+          "value_text": "5.796 %",
+          "quote": "ANNUAL PERCENTAGE RATE The cost of your credit as a yearly rate 5.796 %",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "pass",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "finance_charge": {
+        "term_key": "finance_charge",
+        "value": "3008.29",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "FINANCE CHARGE",
+          "value_text": "$3,008.29",
+          "quote": "FINANCE CHARGE The dollar amount the credit will cost you $3,008.29",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "amount_financed": {
+        "term_key": "amount_financed",
+        "value": "19500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Amount Financed",
+          "value_text": "$19,500.00",
+          "quote": "Amount Financed The amount of credit provided to you or on your behalf $19,500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "total_of_payments": {
+        "term_key": "total_of_payments",
+        "value": "22508.29",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Total of Payments",
+          "value_text": "$22,508.29",
+          "quote": "Total of Payments The amount you will have paid after you have made all payments as scheduled $22,508.29",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "monthly_payment": {
+        "term_key": "monthly_payment",
+        "value": "375.14",
+        "value_type": "currency",
+        "status": "conflicting",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Amount of Payments",
+          "value_text": "$375.14",
+          "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "fail",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [
+          {
+            "value": "375.14",
+            "source": "independent_reader",
+            "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026",
+            "page": 1
+          },
+          {
+            "value": "357.14",
+            "source": "llm",
+            "quote": "Amount of Payments $357.14",
+            "page": 1
+          }
+        ],
+        "user_action": "pending"
+      },
+      "term_months": {
+        "term_key": "term_months",
+        "value": "60",
+        "value_type": "integer",
+        "status": "provided",
+        "verification": "evidence_matched",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Number of Payments",
+          "value_text": "60",
+          "quote": "Number of Payments 60 Amount of Payments $375.14",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "cash_price": {
+        "term_key": "cash_price",
+        "value": "22000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Cash Price",
+          "value_text": "$22,000.00",
+          "quote": "1. Cash Price (including accessories) $22,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "taxes_title_fees": {
+        "term_key": "taxes_title_fees",
+        "value": "1500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Taxes, title and fees",
+          "value_text": "$1,500.00",
+          "quote": "2. Taxes, title and registration fees $1,500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "cash_down": {
+        "term_key": "cash_down",
+        "value": "4000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Cash Down Payment",
+          "value_text": "$4,000.00",
+          "quote": "3. Cash Down Payment $4,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "principal": {
+        "term_key": "principal",
+        "value": "20000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Principal Balance",
+          "value_text": "$20,000.00",
+          "quote": "4. Principal Balance (amount of note) $20,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "prepaid_finance_charges": {
+        "term_key": "prepaid_finance_charges",
+        "value": "500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Prepaid Finance Charge",
+          "value_text": "$500.00",
+          "quote": "5. Prepaid Finance Charge (loan origination fee) $500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      },
+      "contract_rate": {
+        "term_key": "contract_rate",
+        "value": "0.0475",
+        "value_type": "rate",
+        "status": "provided",
+        "verification": "none",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Contract Rate",
+          "value_text": "4.75 %",
+          "quote": "Simple interest contract rate 4.75 % per year",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "pending"
+      }
+    },
+    "itemization": [
+      {
+        "item": "cash_price",
+        "name": "Cash price",
+        "amount": "22000.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      },
+      {
+        "item": "taxes_title",
+        "name": "Taxes, title and fees",
+        "amount": "1500.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      },
+      {
+        "item": "cash_down",
+        "name": "Cash down payment",
+        "amount": "4000.00",
+        "optional": null,
+        "financed": false,
+        "evidence": null
+      },
+      {
+        "item": "prepaid_finance_charge",
+        "name": "Loan origination fee",
+        "amount": "500.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      }
+    ],
+    "derived": {
+      "trade_in_equity": null,
+      "negative_equity_rolled_in": "0.00",
+      "principal_basis": "stated"
+    },
+    "unsupported_features": [],
+    "ready_for_calculation": false,
+    "warnings": []
+  },
+  "message": "Extracted from the bundled synthetic sample. Please check each value against the document."
+}

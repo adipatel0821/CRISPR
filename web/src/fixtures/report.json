@@ -1,0 +1,3784 @@
+{
+  "report_id": "r_fixture_demo",
+  "session_id": "s_fixture_demo",
+  "generated_at": "2026-10-25T01:30:00Z",
+  "calc_version": "1.1.0",
+  "schema_version": "1.1",
+  "data_mode": "synthetic_only",
+  "readiness": [
+    {
+      "analysis_id": "loan_cost",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "cashflow_impact",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "reserve_impact",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "stress_test",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    },
+    {
+      "analysis_id": "alternatives",
+      "available": true,
+      "awaiting_offer": false,
+      "required": [],
+      "missing": [],
+      "declined": [],
+      "reason": null
+    }
+  ],
+  "key_points": [
+    "cl_cost_1",
+    "cl_cashflow_change",
+    "cl_reserve_flag"
+  ],
+  "profile_summary": {
+    "decision": "Financing a $22,000 car over 60 months",
+    "vehicle_cash_price": "22000.00",
+    "term_months": 60,
+    "facts_provided": 9,
+    "facts_estimated": 1
+  },
+  "offer": {
+    "offer_id": "o_fixture_offer_a",
+    "session_id": "s_fixture_demo",
+    "label": "Dealer offer A (synthetic)",
+    "origin": "document",
+    "doc_id": "d_fixture_contract_a",
+    "document_offers_count": 1,
+    "offer_choice": null,
+    "product_type": "fixed_rate_amortizing",
+    "terms": {
+      "apr": {
+        "term_key": "apr",
+        "value": "0.05796",
+        "value_type": "rate",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "ANNUAL PERCENTAGE RATE",
+          "value_text": "5.796 %",
+          "quote": "ANNUAL PERCENTAGE RATE The cost of your credit as a yearly rate 5.796 %",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "pass",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "finance_charge": {
+        "term_key": "finance_charge",
+        "value": "3008.29",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "FINANCE CHARGE",
+          "value_text": "$3,008.29",
+          "quote": "FINANCE CHARGE The dollar amount the credit will cost you $3,008.29",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "amount_financed": {
+        "term_key": "amount_financed",
+        "value": "19500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Amount Financed",
+          "value_text": "$19,500.00",
+          "quote": "Amount Financed The amount of credit provided to you or on your behalf $19,500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "total_of_payments": {
+        "term_key": "total_of_payments",
+        "value": "22508.29",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Total of Payments",
+          "value_text": "$22,508.29",
+          "quote": "Total of Payments The amount you will have paid after you have made all payments as scheduled $22,508.29",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "monthly_payment": {
+        "term_key": "monthly_payment",
+        "value": "375.14",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Amount of Payments",
+          "value_text": "$375.14",
+          "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "pass",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "term_months": {
+        "term_key": "term_months",
+        "value": "60",
+        "value_type": "integer",
+        "status": "provided",
+        "verification": "evidence_matched_user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Number of Payments",
+          "value_text": "60",
+          "quote": "Number of Payments 60 Amount of Payments $375.14",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1 · matched"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "pass",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "cash_price": {
+        "term_key": "cash_price",
+        "value": "22000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Cash Price",
+          "value_text": "$22,000.00",
+          "quote": "1. Cash Price (including accessories) $22,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "taxes_title_fees": {
+        "term_key": "taxes_title_fees",
+        "value": "1500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Taxes, title and fees",
+          "value_text": "$1,500.00",
+          "quote": "2. Taxes, title and registration fees $1,500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "cash_down": {
+        "term_key": "cash_down",
+        "value": "4000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Cash Down Payment",
+          "value_text": "$4,000.00",
+          "quote": "3. Cash Down Payment $4,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "pass",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "principal": {
+        "term_key": "principal",
+        "value": "20000.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Principal Balance",
+          "value_text": "$20,000.00",
+          "quote": "4. Principal Balance (amount of note) $20,000.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "prepaid_finance_charges": {
+        "term_key": "prepaid_finance_charges",
+        "value": "500.00",
+        "value_type": "currency",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Prepaid Finance Charge",
+          "value_text": "$500.00",
+          "quote": "5. Prepaid Finance Charge (loan origination fee) $500.00",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      },
+      "contract_rate": {
+        "term_key": "contract_rate",
+        "value": "0.0475",
+        "value_type": "rate",
+        "status": "provided",
+        "verification": "user_confirmed",
+        "source_kind": "document",
+        "evidence": {
+          "kind": "document",
+          "doc_id": "d_fixture_contract_a",
+          "page": 1,
+          "label_text": "Contract Rate",
+          "value_text": "4.75 %",
+          "quote": "Simple interest contract rate 4.75 % per year",
+          "quote_found_in_text": true,
+          "display_label": "From your contract, p.1"
+        },
+        "checks": {
+          "quote_match": "pass",
+          "label_anchor": "pass",
+          "independent_reader": "not_applicable",
+          "arithmetic": "not_applicable",
+          "itemization": "not_applicable",
+          "apr_recompute": "not_applicable",
+          "range": "pass"
+        },
+        "alternatives_found": [],
+        "user_action": "confirmed"
+      }
+    },
+    "itemization": [
+      {
+        "item": "cash_price",
+        "name": "Cash price",
+        "amount": "22000.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      },
+      {
+        "item": "taxes_title",
+        "name": "Taxes, title and fees",
+        "amount": "1500.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      },
+      {
+        "item": "cash_down",
+        "name": "Cash down payment",
+        "amount": "4000.00",
+        "optional": null,
+        "financed": false,
+        "evidence": null
+      },
+      {
+        "item": "prepaid_finance_charge",
+        "name": "Loan origination fee",
+        "amount": "500.00",
+        "optional": null,
+        "financed": true,
+        "evidence": null
+      }
+    ],
+    "derived": {
+      "trade_in_equity": null,
+      "negative_equity_rolled_in": "0.00",
+      "principal_basis": "stated"
+    },
+    "unsupported_features": [],
+    "ready_for_calculation": true,
+    "warnings": []
+  },
+  "baseline": {
+    "calc_id": "c_fixture_without_offer",
+    "calc_version": "1.1.0",
+    "schema_version": "1.1",
+    "profile_version": 10,
+    "offer_id": null,
+    "derived_status": "estimated",
+    "derived_verification": "none",
+    "metrics": {
+      "monthly_left_before": {
+        "value": "900.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": "after essentials, debts and flexible spending",
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F08"
+      },
+      "reserve_months_before": {
+        "value": "2.07",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F10b"
+      },
+      "monthly_left_after": {
+        "value": null,
+        "status": "missing",
+        "missing_inputs": [
+          "offer.minimum_set"
+        ],
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F09"
+      }
+    },
+    "amortization_schedule": [],
+    "flags": [
+      {
+        "flag_id": "DEFICIT_BEFORE_LOAN",
+        "triggered": false,
+        "informational": false,
+        "citation": null,
+        "detail": null
+      }
+    ],
+    "required_inputs": {
+      "monthly_left_after": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.*.monthly_payment",
+        "offer.minimum_set"
+      ],
+      "savings_after_purchase": [
+        "savings.liquid",
+        "loan.down_payment_source",
+        "offer.minimum_set"
+      ]
+    },
+    "assumptions_used": [],
+    "warnings": [],
+    "computed_at": "2026-10-25T01:30:00Z"
+  },
+  "with_offer": {
+    "calc_id": "c_fixture_with_offer",
+    "calc_version": "1.1.0",
+    "schema_version": "1.1",
+    "profile_version": 10,
+    "offer_id": "o_fixture_offer_a",
+    "derived_status": "estimated",
+    "derived_verification": "user_confirmed",
+    "metrics": {
+      "principal": {
+        "value": "20000.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": "stated",
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F00"
+      },
+      "monthly_payment": {
+        "value": "375.14",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": "375.14",
+        "mismatch": "0.00",
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F01"
+      },
+      "total_of_payments": {
+        "value": "22508.29",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F02"
+      },
+      "finance_charge": {
+        "value": "3008.29",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F03"
+      },
+      "interest": {
+        "value": "2508.29",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F03i"
+      },
+      "total_paid_through_deal": {
+        "value": "26508.29",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": {
+          "cash_price": "22000.00",
+          "taxes_title_fees": "1500.00",
+          "add_ons": "0.00",
+          "prior_loan_balance_rolled_in": "0.00",
+          "finance_charge": "3008.29"
+        },
+        "before": null,
+        "after": null,
+        "formula_id": "F04"
+      },
+      "apr_recomputed": {
+        "value": "0.05796",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": "0.05796",
+        "mismatch": null,
+        "check": "pass",
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F05"
+      },
+      "ltv": {
+        "value": "0.909",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F06"
+      },
+      "negative_equity_at_start": {
+        "value": "0.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F06d"
+      },
+      "payment_to_take_home": {
+        "value": "0.0893",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F07"
+      },
+      "dti_total": {
+        "value": null,
+        "status": "missing",
+        "missing_inputs": [
+          "income.gross_monthly"
+        ],
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F07b"
+      },
+      "monthly_left_before": {
+        "value": "900.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": "after essentials, debts and flexible spending",
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F08"
+      },
+      "incremental_vehicle_costs": {
+        "value": "50.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F14"
+      },
+      "monthly_left_after": {
+        "value": "474.86",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F09"
+      },
+      "savings_after_purchase": {
+        "value": "2000.00",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F13"
+      },
+      "reserve_months_before": {
+        "value": "2.07",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F10b"
+      },
+      "reserve_months_after": {
+        "value": "0.60",
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F10"
+      },
+      "savings_months_of_income": {
+        "value": null,
+        "status": null,
+        "missing_inputs": null,
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": "1.43",
+        "after": "0.48",
+        "formula_id": "F11"
+      },
+      "equity_timeline": {
+        "value": null,
+        "status": "missing",
+        "missing_inputs": [
+          "vehicle.value_estimates"
+        ],
+        "basis": null,
+        "label": null,
+        "disclosed": null,
+        "mismatch": null,
+        "check": null,
+        "breakdown": null,
+        "before": null,
+        "after": null,
+        "formula_id": "F12"
+      }
+    },
+    "amortization_schedule": [
+      {
+        "n": 1,
+        "payment": "375.14",
+        "interest": "79.17",
+        "principal": "295.97",
+        "balance": "19704.03"
+      },
+      {
+        "n": 2,
+        "payment": "375.14",
+        "interest": "78.00",
+        "principal": "297.14",
+        "balance": "19406.89"
+      },
+      {
+        "n": 3,
+        "payment": "375.14",
+        "interest": "76.82",
+        "principal": "298.32",
+        "balance": "19108.57"
+      },
+      {
+        "n": 4,
+        "payment": "375.14",
+        "interest": "75.64",
+        "principal": "299.50",
+        "balance": "18809.07"
+      },
+      {
+        "n": 5,
+        "payment": "375.14",
+        "interest": "74.45",
+        "principal": "300.69",
+        "balance": "18508.38"
+      },
+      {
+        "n": 6,
+        "payment": "375.14",
+        "interest": "73.26",
+        "principal": "301.88",
+        "balance": "18206.50"
+      },
+      {
+        "n": 7,
+        "payment": "375.14",
+        "interest": "72.07",
+        "principal": "303.07",
+        "balance": "17903.43"
+      },
+      {
+        "n": 8,
+        "payment": "375.14",
+        "interest": "70.87",
+        "principal": "304.27",
+        "balance": "17599.16"
+      },
+      {
+        "n": 9,
+        "payment": "375.14",
+        "interest": "69.66",
+        "principal": "305.48",
+        "balance": "17293.68"
+      },
+      {
+        "n": 10,
+        "payment": "375.14",
+        "interest": "68.45",
+        "principal": "306.69",
+        "balance": "16986.99"
+      },
+      {
+        "n": 11,
+        "payment": "375.14",
+        "interest": "67.24",
+        "principal": "307.90",
+        "balance": "16679.09"
+      },
+      {
+        "n": 12,
+        "payment": "375.14",
+        "interest": "66.02",
+        "principal": "309.12",
+        "balance": "16369.97"
+      },
+      {
+        "n": 13,
+        "payment": "375.14",
+        "interest": "64.80",
+        "principal": "310.34",
+        "balance": "16059.63"
+      },
+      {
+        "n": 14,
+        "payment": "375.14",
+        "interest": "63.57",
+        "principal": "311.57",
+        "balance": "15748.06"
+      },
+      {
+        "n": 15,
+        "payment": "375.14",
+        "interest": "62.34",
+        "principal": "312.80",
+        "balance": "15435.26"
+      },
+      {
+        "n": 16,
+        "payment": "375.14",
+        "interest": "61.10",
+        "principal": "314.04",
+        "balance": "15121.22"
+      },
+      {
+        "n": 17,
+        "payment": "375.14",
+        "interest": "59.85",
+        "principal": "315.29",
+        "balance": "14805.93"
+      },
+      {
+        "n": 18,
+        "payment": "375.14",
+        "interest": "58.61",
+        "principal": "316.53",
+        "balance": "14489.40"
+      },
+      {
+        "n": 19,
+        "payment": "375.14",
+        "interest": "57.35",
+        "principal": "317.79",
+        "balance": "14171.61"
+      },
+      {
+        "n": 20,
+        "payment": "375.14",
+        "interest": "56.10",
+        "principal": "319.04",
+        "balance": "13852.57"
+      },
+      {
+        "n": 21,
+        "payment": "375.14",
+        "interest": "54.83",
+        "principal": "320.31",
+        "balance": "13532.26"
+      },
+      {
+        "n": 22,
+        "payment": "375.14",
+        "interest": "53.57",
+        "principal": "321.57",
+        "balance": "13210.69"
+      },
+      {
+        "n": 23,
+        "payment": "375.14",
+        "interest": "52.29",
+        "principal": "322.85",
+        "balance": "12887.84"
+      },
+      {
+        "n": 24,
+        "payment": "375.14",
+        "interest": "51.01",
+        "principal": "324.13",
+        "balance": "12563.71"
+      },
+      {
+        "n": 25,
+        "payment": "375.14",
+        "interest": "49.73",
+        "principal": "325.41",
+        "balance": "12238.30"
+      },
+      {
+        "n": 26,
+        "payment": "375.14",
+        "interest": "48.44",
+        "principal": "326.70",
+        "balance": "11911.60"
+      },
+      {
+        "n": 27,
+        "payment": "375.14",
+        "interest": "47.15",
+        "principal": "327.99",
+        "balance": "11583.61"
+      },
+      {
+        "n": 28,
+        "payment": "375.14",
+        "interest": "45.85",
+        "principal": "329.29",
+        "balance": "11254.32"
+      },
+      {
+        "n": 29,
+        "payment": "375.14",
+        "interest": "44.55",
+        "principal": "330.59",
+        "balance": "10923.73"
+      },
+      {
+        "n": 30,
+        "payment": "375.14",
+        "interest": "43.24",
+        "principal": "331.90",
+        "balance": "10591.83"
+      },
+      {
+        "n": 31,
+        "payment": "375.14",
+        "interest": "41.93",
+        "principal": "333.21",
+        "balance": "10258.62"
+      },
+      {
+        "n": 32,
+        "payment": "375.14",
+        "interest": "40.61",
+        "principal": "334.53",
+        "balance": "9924.09"
+      },
+      {
+        "n": 33,
+        "payment": "375.14",
+        "interest": "39.28",
+        "principal": "335.86",
+        "balance": "9588.23"
+      },
+      {
+        "n": 34,
+        "payment": "375.14",
+        "interest": "37.95",
+        "principal": "337.19",
+        "balance": "9251.04"
+      },
+      {
+        "n": 35,
+        "payment": "375.14",
+        "interest": "36.62",
+        "principal": "338.52",
+        "balance": "8912.52"
+      },
+      {
+        "n": 36,
+        "payment": "375.14",
+        "interest": "35.28",
+        "principal": "339.86",
+        "balance": "8572.66"
+      },
+      {
+        "n": 37,
+        "payment": "375.14",
+        "interest": "33.93",
+        "principal": "341.21",
+        "balance": "8231.45"
+      },
+      {
+        "n": 38,
+        "payment": "375.14",
+        "interest": "32.58",
+        "principal": "342.56",
+        "balance": "7888.89"
+      },
+      {
+        "n": 39,
+        "payment": "375.14",
+        "interest": "31.23",
+        "principal": "343.91",
+        "balance": "7544.98"
+      },
+      {
+        "n": 40,
+        "payment": "375.14",
+        "interest": "29.87",
+        "principal": "345.27",
+        "balance": "7199.71"
+      },
+      {
+        "n": 41,
+        "payment": "375.14",
+        "interest": "28.50",
+        "principal": "346.64",
+        "balance": "6853.07"
+      },
+      {
+        "n": 42,
+        "payment": "375.14",
+        "interest": "27.13",
+        "principal": "348.01",
+        "balance": "6505.06"
+      },
+      {
+        "n": 43,
+        "payment": "375.14",
+        "interest": "25.75",
+        "principal": "349.39",
+        "balance": "6155.67"
+      },
+      {
+        "n": 44,
+        "payment": "375.14",
+        "interest": "24.37",
+        "principal": "350.77",
+        "balance": "5804.90"
+      },
+      {
+        "n": 45,
+        "payment": "375.14",
+        "interest": "22.98",
+        "principal": "352.16",
+        "balance": "5452.74"
+      },
+      {
+        "n": 46,
+        "payment": "375.14",
+        "interest": "21.58",
+        "principal": "353.56",
+        "balance": "5099.18"
+      },
+      {
+        "n": 47,
+        "payment": "375.14",
+        "interest": "20.18",
+        "principal": "354.96",
+        "balance": "4744.22"
+      },
+      {
+        "n": 48,
+        "payment": "375.14",
+        "interest": "18.78",
+        "principal": "356.36",
+        "balance": "4387.86"
+      },
+      {
+        "n": 49,
+        "payment": "375.14",
+        "interest": "17.37",
+        "principal": "357.77",
+        "balance": "4030.09"
+      },
+      {
+        "n": 50,
+        "payment": "375.14",
+        "interest": "15.95",
+        "principal": "359.19",
+        "balance": "3670.90"
+      },
+      {
+        "n": 51,
+        "payment": "375.14",
+        "interest": "14.53",
+        "principal": "360.61",
+        "balance": "3310.29"
+      },
+      {
+        "n": 52,
+        "payment": "375.14",
+        "interest": "13.10",
+        "principal": "362.04",
+        "balance": "2948.25"
+      },
+      {
+        "n": 53,
+        "payment": "375.14",
+        "interest": "11.67",
+        "principal": "363.47",
+        "balance": "2584.78"
+      },
+      {
+        "n": 54,
+        "payment": "375.14",
+        "interest": "10.23",
+        "principal": "364.91",
+        "balance": "2219.87"
+      },
+      {
+        "n": 55,
+        "payment": "375.14",
+        "interest": "8.79",
+        "principal": "366.35",
+        "balance": "1853.52"
+      },
+      {
+        "n": 56,
+        "payment": "375.14",
+        "interest": "7.34",
+        "principal": "367.80",
+        "balance": "1485.72"
+      },
+      {
+        "n": 57,
+        "payment": "375.14",
+        "interest": "5.88",
+        "principal": "369.26",
+        "balance": "1116.46"
+      },
+      {
+        "n": 58,
+        "payment": "375.14",
+        "interest": "4.42",
+        "principal": "370.72",
+        "balance": "745.74"
+      },
+      {
+        "n": 59,
+        "payment": "375.14",
+        "interest": "2.95",
+        "principal": "372.19",
+        "balance": "373.55"
+      },
+      {
+        "n": 60,
+        "payment": "375.03",
+        "interest": "1.48",
+        "principal": "373.55",
+        "balance": "0.00"
+      }
+    ],
+    "flags": [
+      {
+        "flag_id": "TERM_GT_60",
+        "triggered": false,
+        "informational": false,
+        "citation": "CFPB en-753",
+        "detail": null
+      },
+      {
+        "flag_id": "NEGATIVE_EQUITY_AT_START",
+        "triggered": false,
+        "informational": false,
+        "citation": "CFPB en-769",
+        "detail": null
+      },
+      {
+        "flag_id": "DEFICIT_BEFORE_LOAN",
+        "triggered": false,
+        "informational": false,
+        "citation": null,
+        "detail": null
+      },
+      {
+        "flag_id": "DEFICIT_AFTER_LOAN",
+        "triggered": false,
+        "informational": false,
+        "citation": null,
+        "detail": null
+      },
+      {
+        "flag_id": "RESERVE_LT_1_MONTH",
+        "triggered": true,
+        "informational": true,
+        "citation": "CFPB MEM 2022 (savings groups)",
+        "detail": "Savings after the down payment would cover less than one month of expenses with this loan."
+      },
+      {
+        "flag_id": "ADD_ONS_FINANCED",
+        "triggered": false,
+        "informational": false,
+        "citation": "CFPB en-797",
+        "detail": null
+      },
+      {
+        "flag_id": "PREPAYMENT_PENALTY",
+        "triggered": false,
+        "informational": false,
+        "citation": "CFPB en-2132",
+        "detail": null
+      },
+      {
+        "flag_id": "PAYMENT_MISMATCH",
+        "triggered": false,
+        "informational": false,
+        "citation": null,
+        "detail": null
+      },
+      {
+        "flag_id": "PFC_ASSUMED_ZERO",
+        "triggered": false,
+        "informational": false,
+        "citation": null,
+        "detail": null
+      }
+    ],
+    "required_inputs": {
+      "monthly_left_after": [
+        "income.take_home_monthly",
+        "expenses.essential.total",
+        "debts.*.monthly_payment",
+        "offer.minimum_set"
+      ],
+      "savings_after_purchase": [
+        "savings.liquid",
+        "loan.down_payment_source",
+        "offer.minimum_set"
+      ]
+    },
+    "assumptions_used": [],
+    "warnings": [],
+    "computed_at": "2026-10-25T01:30:00Z"
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sc_expense_spike",
+      "name": "Unexpected expense equal to one month of essentials (month 2)",
+      "run": "without_offer",
+      "calc_id": "c_fixture_without_offer",
+      "derived_status": "assumed",
+      "start_balance": "6000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "6900.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "2900.00",
+          "net": "-2000.00",
+          "savings_balance": "4900.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 3,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "5800.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 4,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "6700.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "7600.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "8500.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "9400.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "10300.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "11200.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "12100.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "13000.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "13900.00",
+          "unfunded_gap": "0.00"
+        }
+      ],
+      "first_shortfall_month": null,
+      "months_of_runway": 12,
+      "max_unfunded_gap": "0.00",
+      "recovery_month": null,
+      "savings_end": "13900.00",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "sc_expense_spike",
+      "name": "Unexpected expense equal to one month of essentials (month 2)",
+      "run": "with_offer",
+      "calc_id": "c_fixture_with_offer",
+      "derived_status": "assumed",
+      "start_balance": "2000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2474.86",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "2900.00",
+          "net": "-2425.14",
+          "savings_balance": "49.72",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 3,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "524.58",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 4,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "999.44",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "1474.30",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "1949.16",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2424.02",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2898.88",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "3373.74",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "3848.60",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "4323.46",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "4798.32",
+          "unfunded_gap": "0.00"
+        }
+      ],
+      "first_shortfall_month": null,
+      "months_of_runway": 12,
+      "max_unfunded_gap": "0.00",
+      "recovery_month": null,
+      "savings_end": "4798.32",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "sc_income_cut",
+      "name": "Take-home pay 25% lower in months 2–4",
+      "run": "without_offer",
+      "calc_id": "c_fixture_without_offer",
+      "derived_status": "assumed",
+      "start_balance": "6000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "6900.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "-150.00",
+          "savings_balance": "6750.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 3,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "-150.00",
+          "savings_balance": "6600.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 4,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "-150.00",
+          "savings_balance": "6450.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "7350.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "8250.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "9150.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "10050.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "10950.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "11850.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "12750.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "13650.00",
+          "unfunded_gap": "0.00"
+        }
+      ],
+      "first_shortfall_month": null,
+      "months_of_runway": 12,
+      "max_unfunded_gap": "0.00",
+      "recovery_month": null,
+      "savings_end": "13650.00",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "sc_income_cut",
+      "name": "Take-home pay 25% lower in months 2–4",
+      "run": "with_offer",
+      "calc_id": "c_fixture_with_offer",
+      "derived_status": "assumed",
+      "start_balance": "2000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2474.86",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "-575.14",
+          "savings_balance": "1899.72",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 3,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "-575.14",
+          "savings_balance": "1324.58",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 4,
+          "income": "3150.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "-575.14",
+          "savings_balance": "749.44",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "1224.30",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "1699.16",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2174.02",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2648.88",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "3123.74",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "3598.60",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "4073.46",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "4548.32",
+          "unfunded_gap": "0.00"
+        }
+      ],
+      "first_shortfall_month": null,
+      "months_of_runway": 12,
+      "max_unfunded_gap": "0.00",
+      "recovery_month": null,
+      "savings_end": "4548.32",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "sc_job_loss",
+      "name": "No income for 2 months (months 2–3)",
+      "run": "without_offer",
+      "calc_id": "c_fixture_without_offer",
+      "derived_status": "assumed",
+      "start_balance": "6000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "6900.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "0.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "-3300.00",
+          "savings_balance": "3600.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 3,
+          "income": "0.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "-3300.00",
+          "savings_balance": "300.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 4,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "1200.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "2100.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "3000.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "3900.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "4800.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "5700.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "6600.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "7500.00",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "0.00",
+          "incremental_vehicle_costs": "0.00",
+          "one_time": "0.00",
+          "net": "900.00",
+          "savings_balance": "8400.00",
+          "unfunded_gap": "0.00"
+        }
+      ],
+      "first_shortfall_month": null,
+      "months_of_runway": 12,
+      "max_unfunded_gap": "0.00",
+      "recovery_month": null,
+      "savings_end": "8400.00",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_job_loss_no_benefits",
+          "text": "In the no-income scenario, no unemployment benefits or other income are assumed.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    },
+    {
+      "scenario_id": "sc_job_loss",
+      "name": "No income for 2 months (months 2–3)",
+      "run": "with_offer",
+      "calc_id": "c_fixture_with_offer",
+      "derived_status": "assumed",
+      "start_balance": "2000.00",
+      "monthly_paths": [
+        {
+          "month": 1,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "2474.86",
+          "unfunded_gap": "0.00"
+        },
+        {
+          "month": 2,
+          "income": "0.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "-3725.14",
+          "savings_balance": "0.00",
+          "unfunded_gap": "1250.28"
+        },
+        {
+          "month": 3,
+          "income": "0.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "-3725.14",
+          "savings_balance": "0.00",
+          "unfunded_gap": "4975.42"
+        },
+        {
+          "month": 4,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "4500.56"
+        },
+        {
+          "month": 5,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "4025.70"
+        },
+        {
+          "month": 6,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "3550.84"
+        },
+        {
+          "month": 7,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "3075.98"
+        },
+        {
+          "month": 8,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "2601.12"
+        },
+        {
+          "month": 9,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "2126.26"
+        },
+        {
+          "month": 10,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "1651.40"
+        },
+        {
+          "month": 11,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "1176.54"
+        },
+        {
+          "month": 12,
+          "income": "4200.00",
+          "essential": "2900.00",
+          "flexible": "400.00",
+          "debt_payments": "0.00",
+          "new_payment": "375.14",
+          "incremental_vehicle_costs": "50.00",
+          "one_time": "0.00",
+          "net": "474.86",
+          "savings_balance": "0.00",
+          "unfunded_gap": "701.68"
+        }
+      ],
+      "first_shortfall_month": 2,
+      "months_of_runway": 1,
+      "max_unfunded_gap": "4975.42",
+      "recovery_month": null,
+      "savings_end": "0.00",
+      "deficit_at_baseline": false,
+      "assumptions": [
+        {
+          "assumption_id": "a_illustrative_scenarios",
+          "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_gap_no_interest",
+          "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_job_loss_no_benefits",
+          "text": "In the no-income scenario, no unemployment benefits or other income are assumed.",
+          "source_kind": "assumption",
+          "citation": null
+        },
+        {
+          "assumption_id": "a_flexible_constant",
+          "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+          "source_kind": "assumption",
+          "citation": null
+        }
+      ]
+    }
+  ],
+  "resilience": {
+    "break_even_m3": "0.27",
+    "break_even_m6": "0.19",
+    "capped": false,
+    "deficit_at_baseline": false,
+    "scenarios_with_shortfall": {
+      "without_offer": [],
+      "with_offer": [
+        "sc_job_loss"
+      ]
+    }
+  },
+  "counterfactual": {
+    "base_offer_id": "o_fixture_offer_a",
+    "levers": {
+      "cash_down_delta": [
+        "0",
+        "1000",
+        "2000",
+        "3000"
+      ],
+      "term_months": [
+        36,
+        48,
+        60,
+        72
+      ],
+      "remove_optional_add_ons": [
+        false
+      ],
+      "offer_id": [
+        "o_fixture_offer_a"
+      ]
+    },
+    "deferred_levers": [
+      "price_change",
+      "delay_purchase"
+    ],
+    "alternatives": [
+      {
+        "alt_id": "alt_base",
+        "label": "Your offer as written",
+        "lever_values": {
+          "cash_down_delta": "0",
+          "term_months": 60,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [],
+        "metrics": {
+          "monthly_payment": "375.14",
+          "finance_charge": "3008.29",
+          "total_of_payments": "22508.29",
+          "monthly_left_after": "474.86",
+          "savings_after_purchase": "2000.00",
+          "reserve_months_after": "0.60",
+          "break_even_m3": "0.27"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "0.00",
+          "finance_charge": "0.00",
+          "monthly_left_after": "0.00",
+          "savings_after_purchase": "0.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": true
+      },
+      {
+        "alt_id": "alt_t36",
+        "label": "36 months",
+        "lever_values": {
+          "cash_down_delta": "0",
+          "term_months": 36,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [
+          "same_rate_assumed"
+        ],
+        "metrics": {
+          "monthly_payment": "597.18",
+          "finance_charge": "1998.32",
+          "total_of_payments": "21498.32",
+          "monthly_left_after": "252.82",
+          "savings_after_purchase": "2000.00",
+          "reserve_months_after": "0.56",
+          "break_even_m3": "0.22"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "222.04",
+          "finance_charge": "-1009.97",
+          "monthly_left_after": "-222.04",
+          "savings_after_purchase": "0.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_t48",
+        "label": "48 months",
+        "lever_values": {
+          "cash_down_delta": "0",
+          "term_months": 48,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [
+          "same_rate_assumed"
+        ],
+        "metrics": {
+          "monthly_payment": "458.32",
+          "finance_charge": "2499.60",
+          "total_of_payments": "21999.60",
+          "monthly_left_after": "391.68",
+          "savings_after_purchase": "2000.00",
+          "reserve_months_after": "0.59",
+          "break_even_m3": "0.25"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "83.18",
+          "finance_charge": "-508.69",
+          "monthly_left_after": "-83.18",
+          "savings_after_purchase": "0.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_t72",
+        "label": "72 months",
+        "lever_values": {
+          "cash_down_delta": "0",
+          "term_months": 72,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [
+          "same_rate_assumed",
+          "term_gt_60"
+        ],
+        "metrics": {
+          "monthly_payment": "319.78",
+          "finance_charge": "3524.54",
+          "total_of_payments": "23024.54",
+          "monthly_left_after": "530.22",
+          "savings_after_purchase": "2000.00",
+          "reserve_months_after": "0.61",
+          "break_even_m3": "0.28"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "-55.36",
+          "finance_charge": "516.25",
+          "monthly_left_after": "55.36",
+          "savings_after_purchase": "0.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_d1000",
+        "label": "+$1,000 down",
+        "lever_values": {
+          "cash_down_delta": "1000",
+          "term_months": 60,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [],
+        "metrics": {
+          "monthly_payment": "356.38",
+          "finance_charge": "2882.93",
+          "total_of_payments": "21382.93",
+          "monthly_left_after": "493.62",
+          "savings_after_purchase": "1000.00",
+          "reserve_months_after": "0.30",
+          "break_even_m3": "0.20"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "-18.76",
+          "finance_charge": "-125.36",
+          "monthly_left_after": "18.76",
+          "savings_after_purchase": "-1000.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_t48_d1000",
+        "label": "48 months, +$1,000 down",
+        "lever_values": {
+          "cash_down_delta": "1000",
+          "term_months": 48,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [
+          "same_rate_assumed"
+        ],
+        "metrics": {
+          "monthly_payment": "435.41",
+          "finance_charge": "2399.63",
+          "total_of_payments": "20899.63",
+          "monthly_left_after": "414.59",
+          "savings_after_purchase": "1000.00",
+          "reserve_months_after": "0.30",
+          "break_even_m3": "0.18"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "60.27",
+          "finance_charge": "-608.66",
+          "monthly_left_after": "-60.27",
+          "savings_after_purchase": "-1000.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_d2000",
+        "label": "+$2,000 down",
+        "lever_values": {
+          "cash_down_delta": "2000",
+          "term_months": 60,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [],
+        "metrics": {
+          "monthly_payment": "337.62",
+          "finance_charge": "2757.53",
+          "total_of_payments": "20257.53",
+          "monthly_left_after": "512.38",
+          "savings_after_purchase": "0.00",
+          "reserve_months_after": "0.00",
+          "break_even_m3": "0.12"
+        },
+        "deltas_vs_base": {
+          "monthly_payment": "-37.52",
+          "finance_charge": "-250.76",
+          "monthly_left_after": "37.52",
+          "savings_after_purchase": "-2000.00"
+        },
+        "feasible": true,
+        "infeasible_reasons": [],
+        "is_base": false
+      },
+      {
+        "alt_id": "alt_d3000",
+        "label": "+$3,000 down",
+        "lever_values": {
+          "cash_down_delta": "3000",
+          "term_months": 60,
+          "remove_optional_add_ons": false,
+          "offer_id": "o_fixture_offer_a"
+        },
+        "assumption_flags": [],
+        "metrics": {
+          "monthly_payment": null,
+          "finance_charge": null,
+          "monthly_left_after": null,
+          "savings_after_purchase": null,
+          "break_even_m3": null
+        },
+        "deltas_vs_base": {},
+        "feasible": false,
+        "infeasible_reasons": [
+          "Needs $3,000.00 more cash down, but your savings after the current down payment are $2,000.00."
+        ],
+        "is_base": false
+      }
+    ],
+    "pareto_set": [
+      "alt_base",
+      "alt_t36",
+      "alt_t48",
+      "alt_t72",
+      "alt_d1000",
+      "alt_t48_d1000",
+      "alt_d2000"
+    ],
+    "objectives": [
+      {
+        "metric": "finance_charge",
+        "direction": "min"
+      },
+      {
+        "metric": "monthly_left_after",
+        "direction": "max"
+      },
+      {
+        "metric": "savings_after_purchase",
+        "direction": "max"
+      },
+      {
+        "metric": "break_even_m3",
+        "direction": "max"
+      }
+    ],
+    "rate_sensitivity": {
+      "per_point_finance_charge_delta": "551.82",
+      "per_point_monthly_payment_delta": "9.20",
+      "statement_claim_id": "cl_rate_1pt"
+    },
+    "sensitivity_ranking": [
+      {
+        "lever": "term_months",
+        "metric": "finance_charge",
+        "normalized_effect": "0.71"
+      },
+      {
+        "lever": "cash_down_delta",
+        "metric": "finance_charge",
+        "normalized_effect": "0.18"
+      }
+    ],
+    "notes": [
+      "Alternatives are what-if calculations under the stated assumptions, not predictions or recommendations."
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "cl_cost_1",
+      "type": "value",
+      "subject_metric": "finance_charge",
+      "values": {
+        "amount": "3008.29",
+        "months": 60
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F03",
+        "ev_term_finance_charge"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_cost_1",
+      "text": "This loan costs $3,008.29 in finance charges over 60 months."
+    },
+    {
+      "claim_id": "cl_cashflow_change",
+      "type": "change",
+      "subject_metric": "monthly_left_after",
+      "values": {
+        "before": "900.00",
+        "after": "474.86"
+      },
+      "direction": "down",
+      "evidence_ids": [
+        "ev_calc_F08",
+        "ev_calc_F09",
+        "ev_fact_take_home",
+        "ev_fact_essential",
+        "ev_fact_flexible"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_cashflow_change",
+      "text": "In a typical month, what you have left after expenses goes from $900.00 to $474.86."
+    },
+    {
+      "claim_id": "cl_reserve_flag",
+      "type": "threshold_flag",
+      "subject_metric": "reserve_months_after",
+      "values": {
+        "flag_id": "RESERVE_LT_1_MONTH",
+        "before": "2.07",
+        "after": "0.60",
+        "savings_after": "2000.00"
+      },
+      "direction": "down",
+      "evidence_ids": [
+        "ev_calc_F10",
+        "ev_calc_F10b",
+        "ev_calc_F13",
+        "ev_fact_savings",
+        "ev_fact_down_source"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_reserve_flag",
+      "text": "After the $4,000.00 down payment, your remaining savings of $2,000.00 would cover about 0.60 months of expenses with this loan, down from 2.07 months."
+    },
+    {
+      "claim_id": "cl_payment",
+      "type": "value",
+      "subject_metric": "monthly_payment",
+      "values": {
+        "amount": "375.14",
+        "disclosed": "375.14"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F01",
+        "ev_term_monthly_payment"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_payment",
+      "text": "The monthly payment is $375.14, which matches the payment on your contract."
+    },
+    {
+      "claim_id": "cl_interest_vs_fc",
+      "type": "comparison",
+      "subject_metric": "interest",
+      "values": {
+        "interest": "2508.29",
+        "finance_charge": "3008.29",
+        "pfc": "500.00"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F03i",
+        "ev_calc_F03",
+        "ev_term_prepaid_finance_charges"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_interest_vs_fc",
+      "text": "Of the finance charge, $2,508.29 is interest and $500.00 is the prepaid finance charge (a loan fee counted in the finance charge)."
+    },
+    {
+      "claim_id": "cl_total_paid",
+      "type": "value",
+      "subject_metric": "total_paid_through_deal",
+      "values": {
+        "amount": "26508.29"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F04",
+        "ev_term_cash_down"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_total_paid",
+      "text": "Including your down payment, you would pay $26,508.29 in total through this deal."
+    },
+    {
+      "claim_id": "cl_apr_check",
+      "type": "comparison",
+      "subject_metric": "apr_recomputed",
+      "values": {
+        "recomputed": "0.05796",
+        "disclosed": "0.05796"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F05",
+        "ev_term_apr"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_apr_check",
+      "text": "Recomputing the APR from the amount financed and the payments gives 5.796%, the same as the disclosed APR."
+    },
+    {
+      "claim_id": "cl_savings_change",
+      "type": "change",
+      "subject_metric": "savings_after_purchase",
+      "values": {
+        "before": "6000.00",
+        "after": "2000.00"
+      },
+      "direction": "down",
+      "evidence_ids": [
+        "ev_calc_F13",
+        "ev_fact_savings",
+        "ev_term_cash_down"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_savings_change",
+      "text": "Your savings go from $6,000.00 to $2,000.00 after the down payment."
+    },
+    {
+      "claim_id": "cl_stress_spike",
+      "type": "scenario_outcome",
+      "subject_metric": "savings_balance",
+      "values": {
+        "scenario_id": "sc_expense_spike",
+        "min_balance": "49.72"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_a_illustrative_scenarios",
+        "ev_calc_F09"
+      ],
+      "assumption_ids": [
+        "a_illustrative_scenarios"
+      ],
+      "template_id": "t_stress_spike",
+      "text": "In this illustrative scenario (an unexpected $2,900.00 expense in month 2), your savings with this loan dip to $49.72 and do not run out."
+    },
+    {
+      "claim_id": "cl_stress_job_loss",
+      "type": "scenario_outcome",
+      "subject_metric": "unfunded_gap",
+      "values": {
+        "scenario_id": "sc_job_loss",
+        "first_shortfall_month": 2,
+        "max_unfunded_gap": "4975.42"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_a_illustrative_scenarios",
+        "ev_a_gap_no_interest",
+        "ev_a_job_loss_no_benefits"
+      ],
+      "assumption_ids": [
+        "a_illustrative_scenarios",
+        "a_gap_no_interest",
+        "a_job_loss_no_benefits"
+      ],
+      "template_id": "t_stress_job_loss",
+      "text": "In this illustrative scenario (no income for 2 months), with this loan your savings run out in month 2 and the unfunded gap reaches $4,975.42; without the loan, savings last all 12 months (lowest point $300.00)."
+    },
+    {
+      "claim_id": "cl_break_even",
+      "type": "value",
+      "subject_metric": "break_even_m3",
+      "values": {
+        "m3": "0.27",
+        "m6": "0.19"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_a_illustrative_scenarios",
+        "ev_calc_F09",
+        "ev_calc_F13"
+      ],
+      "assumption_ids": [
+        "a_illustrative_scenarios"
+      ],
+      "template_id": "t_break_even",
+      "text": "With this loan, your savings could absorb a take-home pay drop of up to 27% for 3 months, or 19% for 6 months, before running out (illustrative)."
+    },
+    {
+      "claim_id": "cl_rate_1pt",
+      "type": "value",
+      "subject_metric": "finance_charge",
+      "values": {
+        "per_point": "551.82",
+        "per_point_payment": "9.20"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F03",
+        "ev_calc_F01"
+      ],
+      "assumption_ids": [],
+      "template_id": "t_rate_1pt",
+      "text": "Each 1 percentage point of interest rate changes the finance charge by about $551.82 (about $9.20 a month) on this loan."
+    },
+    {
+      "claim_id": "cl_alt_t48",
+      "type": "comparison",
+      "subject_metric": "finance_charge",
+      "values": {
+        "alt_id": "alt_t48",
+        "finance_charge_delta": "-508.69",
+        "monthly_payment_delta": "83.18"
+      },
+      "direction": null,
+      "evidence_ids": [
+        "ev_calc_F03",
+        "ev_calc_F01",
+        "ev_a_same_rate"
+      ],
+      "assumption_ids": [
+        "a_same_rate"
+      ],
+      "template_id": "t_alt_t48",
+      "text": "If offered at the same rate, a 48-month term would lower the finance charge by $508.69 and raise the monthly payment by $83.18."
+    },
+    {
+      "claim_id": "cl_missing_buy_rate",
+      "type": "missing",
+      "subject_metric": "loan.buy_rate",
+      "values": {
+        "fact_key": "loan.buy_rate"
+      },
+      "direction": null,
+      "evidence_ids": [],
+      "assumption_ids": [],
+      "template_id": "t_missing_buy_rate",
+      "text": "We don't know the lender's buy rate. Ask the dealer whether the 4.75% rate includes a dealer markup."
+    },
+    {
+      "claim_id": "cl_missing_gross",
+      "type": "missing",
+      "subject_metric": "income.gross_monthly",
+      "values": {
+        "fact_key": "income.gross_monthly"
+      },
+      "direction": null,
+      "evidence_ids": [],
+      "assumption_ids": [],
+      "template_id": "t_missing_gross",
+      "text": "Debt-to-income isn't shown because we don't have your gross (before-tax) income."
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "ev_calc_F00",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F00",
+        "formula_name": "Principal"
+      },
+      "display_label": "Calculated · F00 Principal"
+    },
+    {
+      "evidence_id": "ev_calc_F01",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F01",
+        "formula_name": "Monthly payment"
+      },
+      "display_label": "Calculated · F01 Monthly payment"
+    },
+    {
+      "evidence_id": "ev_calc_F01s",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F01s",
+        "formula_name": "Payment schedule"
+      },
+      "display_label": "Calculated · F01s Payment schedule"
+    },
+    {
+      "evidence_id": "ev_calc_F02",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F02",
+        "formula_name": "Total of payments"
+      },
+      "display_label": "Calculated · F02 Total of payments"
+    },
+    {
+      "evidence_id": "ev_calc_F03",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F03",
+        "formula_name": "Finance charge"
+      },
+      "display_label": "Calculated · F03 Finance charge"
+    },
+    {
+      "evidence_id": "ev_calc_F03i",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F03i",
+        "formula_name": "Interest"
+      },
+      "display_label": "Calculated · F03i Interest"
+    },
+    {
+      "evidence_id": "ev_calc_F04",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F04",
+        "formula_name": "Total paid through this deal"
+      },
+      "display_label": "Calculated · F04 Total paid through this deal"
+    },
+    {
+      "evidence_id": "ev_calc_F05",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F05",
+        "formula_name": "APR recomputed"
+      },
+      "display_label": "Calculated · F05 APR recomputed"
+    },
+    {
+      "evidence_id": "ev_calc_F06",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F06",
+        "formula_name": "Loan-to-value"
+      },
+      "display_label": "Calculated · F06 Loan-to-value"
+    },
+    {
+      "evidence_id": "ev_calc_F06d",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F06d",
+        "formula_name": "Negative equity at start"
+      },
+      "display_label": "Calculated · F06d Negative equity at start"
+    },
+    {
+      "evidence_id": "ev_calc_F07",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F07",
+        "formula_name": "Payment ÷ take-home"
+      },
+      "display_label": "Calculated · F07 Payment ÷ take-home"
+    },
+    {
+      "evidence_id": "ev_calc_F07b",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F07b",
+        "formula_name": "Debt-to-income"
+      },
+      "display_label": "Calculated · F07b Debt-to-income"
+    },
+    {
+      "evidence_id": "ev_calc_F08",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F08",
+        "formula_name": "Monthly left before"
+      },
+      "display_label": "Calculated · F08 Monthly left before"
+    },
+    {
+      "evidence_id": "ev_calc_F09",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F09",
+        "formula_name": "Monthly left after"
+      },
+      "display_label": "Calculated · F09 Monthly left after"
+    },
+    {
+      "evidence_id": "ev_calc_F10b",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F10b",
+        "formula_name": "Reserve months before"
+      },
+      "display_label": "Calculated · F10b Reserve months before"
+    },
+    {
+      "evidence_id": "ev_calc_F10",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F10",
+        "formula_name": "Reserve months after"
+      },
+      "display_label": "Calculated · F10 Reserve months after"
+    },
+    {
+      "evidence_id": "ev_calc_F11",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F11",
+        "formula_name": "Savings months of income"
+      },
+      "display_label": "Calculated · F11 Savings months of income"
+    },
+    {
+      "evidence_id": "ev_calc_F12",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F12",
+        "formula_name": "Equity timeline"
+      },
+      "display_label": "Calculated · F12 Equity timeline"
+    },
+    {
+      "evidence_id": "ev_calc_F13",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F13",
+        "formula_name": "Savings after purchase"
+      },
+      "display_label": "Calculated · F13 Savings after purchase"
+    },
+    {
+      "evidence_id": "ev_calc_F14",
+      "kind": "calculation",
+      "verification": "none",
+      "ref": {
+        "formula_id": "F14",
+        "formula_name": "Incremental vehicle costs"
+      },
+      "display_label": "Calculated · F14 Incremental vehicle costs"
+    },
+    {
+      "evidence_id": "ev_fact_take_home",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_take_home",
+        "fact_key": "income.take_home_monthly",
+        "value": "4200.00",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_variability",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_variability",
+        "fact_key": "income.variability",
+        "value": "stable",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_essential",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_essential",
+        "fact_key": "expenses.essential.total",
+        "value": "2900.00",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_current_car",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_current_car",
+        "fact_key": "expenses.current_vehicle_costs_monthly",
+        "value": "260.00",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_replaces",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_replaces",
+        "fact_key": "vehicle.replaces_current",
+        "value": "true",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_new_car",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_new_car",
+        "fact_key": "vehicle.new_ownership_costs_monthly",
+        "value": "310.00",
+        "status": "estimated"
+      },
+      "display_label": "Estimate · you told us"
+    },
+    {
+      "evidence_id": "ev_fact_flexible",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_flexible",
+        "fact_key": "expenses.flexible.total",
+        "value": "400.00",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_debts_count",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_debts_count",
+        "fact_key": "debts.count",
+        "value": "0",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_savings",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_savings",
+        "fact_key": "savings.liquid",
+        "value": "6000.00",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_fact_down_source",
+      "kind": "user_input",
+      "verification": "none",
+      "ref": {
+        "fact_id": "f_down_source",
+        "fact_key": "loan.down_payment_source",
+        "value": "savings",
+        "status": "provided"
+      },
+      "display_label": "You told us"
+    },
+    {
+      "evidence_id": "ev_term_apr",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "apr",
+        "label_text": "ANNUAL PERCENTAGE RATE",
+        "value_text": "5.796 %",
+        "quote": "ANNUAL PERCENTAGE RATE The cost of your credit as a yearly rate 5.796 %"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_finance_charge",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "finance_charge",
+        "label_text": "FINANCE CHARGE",
+        "value_text": "$3,008.29",
+        "quote": "FINANCE CHARGE The dollar amount the credit will cost you $3,008.29"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_amount_financed",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "amount_financed",
+        "label_text": "Amount Financed",
+        "value_text": "$19,500.00",
+        "quote": "Amount Financed The amount of credit provided to you or on your behalf $19,500.00"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_total_of_payments",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "total_of_payments",
+        "label_text": "Total of Payments",
+        "value_text": "$22,508.29",
+        "quote": "Total of Payments The amount you will have paid after you have made all payments as scheduled $22,508.29"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_monthly_payment",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "monthly_payment",
+        "label_text": "Amount of Payments",
+        "value_text": "$375.14",
+        "quote": "Number of Payments 60 Amount of Payments $375.14 When Payments Are Due Monthly beginning 12/01/2026"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_term_months",
+      "kind": "document",
+      "verification": "evidence_matched_user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "term_months",
+        "label_text": "Number of Payments",
+        "value_text": "60",
+        "quote": "Number of Payments 60 Amount of Payments $375.14"
+      },
+      "display_label": "From your contract, p.1 · matched · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_cash_price",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "cash_price",
+        "label_text": "Cash Price",
+        "value_text": "$22,000.00",
+        "quote": "1. Cash Price (including accessories) $22,000.00"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_taxes_title_fees",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "taxes_title_fees",
+        "label_text": "Taxes, title and fees",
+        "value_text": "$1,500.00",
+        "quote": "2. Taxes, title and registration fees $1,500.00"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_cash_down",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "cash_down",
+        "label_text": "Cash Down Payment",
+        "value_text": "$4,000.00",
+        "quote": "3. Cash Down Payment $4,000.00"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_principal",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "principal",
+        "label_text": "Principal Balance",
+        "value_text": "$20,000.00",
+        "quote": "4. Principal Balance (amount of note) $20,000.00"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_prepaid_finance_charges",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "prepaid_finance_charges",
+        "label_text": "Prepaid Finance Charge",
+        "value_text": "$500.00",
+        "quote": "5. Prepaid Finance Charge (loan origination fee) $500.00"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_term_contract_rate",
+      "kind": "document",
+      "verification": "user_confirmed",
+      "ref": {
+        "doc_id": "d_fixture_contract_a",
+        "page": 1,
+        "term_key": "contract_rate",
+        "label_text": "Contract Rate",
+        "value_text": "4.75 %",
+        "quote": "Simple interest contract rate 4.75 % per year"
+      },
+      "display_label": "From your contract, p.1 · you confirmed"
+    },
+    {
+      "evidence_id": "ev_a_illustrative_scenarios",
+      "kind": "assumption",
+      "verification": "none",
+      "ref": {
+        "assumption_id": "a_illustrative_scenarios"
+      },
+      "display_label": "Assumption"
+    },
+    {
+      "evidence_id": "ev_a_gap_no_interest",
+      "kind": "assumption",
+      "verification": "none",
+      "ref": {
+        "assumption_id": "a_gap_no_interest"
+      },
+      "display_label": "Assumption"
+    },
+    {
+      "evidence_id": "ev_a_same_rate",
+      "kind": "assumption",
+      "verification": "none",
+      "ref": {
+        "assumption_id": "a_same_rate"
+      },
+      "display_label": "Assumption"
+    },
+    {
+      "evidence_id": "ev_a_job_loss_no_benefits",
+      "kind": "assumption",
+      "verification": "none",
+      "ref": {
+        "assumption_id": "a_job_loss_no_benefits"
+      },
+      "display_label": "Assumption"
+    },
+    {
+      "evidence_id": "ev_a_flexible_constant",
+      "kind": "assumption",
+      "verification": "none",
+      "ref": {
+        "assumption_id": "a_flexible_constant"
+      },
+      "display_label": "Assumption"
+    }
+  ],
+  "explanations": [
+    {
+      "section_id": "key_points",
+      "title": "Key points",
+      "claims": [
+        "cl_cost_1",
+        "cl_cashflow_change",
+        "cl_reserve_flag"
+      ],
+      "template_text": "This loan costs $3,008.29 in finance charges over 60 months. In a typical month, what you have left after expenses goes from $900.00 to $474.86. After the $4,000.00 down payment, your remaining savings of $2,000.00 would cover about 0.60 months of expenses with this loan, down from 2.07 months.",
+      "narrative_text": null,
+      "provenance_tags": [
+        "document",
+        "calculation",
+        "user_input"
+      ]
+    },
+    {
+      "section_id": "with_loan",
+      "title": "With this loan",
+      "claims": [
+        "cl_payment",
+        "cl_cost_1",
+        "cl_interest_vs_fc",
+        "cl_total_paid",
+        "cl_apr_check",
+        "cl_cashflow_change",
+        "cl_savings_change"
+      ],
+      "template_text": "This loan costs $3,008.29 in finance charges over 60 months. In a typical month, what you have left after expenses goes from $900.00 to $474.86. The monthly payment is $375.14, which matches the payment on your contract. Of the finance charge, $2,508.29 is interest and $500.00 is the prepaid finance charge (a loan fee counted in the finance charge). Including your down payment, you would pay $26,508.29 in total through this deal. Recomputing the APR from the amount financed and the payments gives 5.796%, the same as the disclosed APR. Your savings go from $6,000.00 to $2,000.00 after the down payment.",
+      "narrative_text": null,
+      "provenance_tags": [
+        "document",
+        "calculation",
+        "user_input"
+      ]
+    },
+    {
+      "section_id": "stress",
+      "title": "Under stress",
+      "claims": [
+        "cl_stress_spike",
+        "cl_stress_job_loss",
+        "cl_break_even"
+      ],
+      "template_text": "In this illustrative scenario (an unexpected $2,900.00 expense in month 2), your savings with this loan dip to $49.72 and do not run out. In this illustrative scenario (no income for 2 months), with this loan your savings run out in month 2 and the unfunded gap reaches $4,975.42; without the loan, savings last all 12 months (lowest point $300.00). With this loan, your savings could absorb a take-home pay drop of up to 27% for 3 months, or 19% for 6 months, before running out (illustrative).",
+      "narrative_text": null,
+      "provenance_tags": [
+        "calculation",
+        "assumption"
+      ]
+    },
+    {
+      "section_id": "alternatives",
+      "title": "Alternatives",
+      "claims": [
+        "cl_alt_t48",
+        "cl_rate_1pt"
+      ],
+      "template_text": "Each 1 percentage point of interest rate changes the finance charge by about $551.82 (about $9.20 a month) on this loan. If offered at the same rate, a 48-month term would lower the finance charge by $508.69 and raise the monthly payment by $83.18.",
+      "narrative_text": null,
+      "provenance_tags": [
+        "calculation",
+        "assumption"
+      ]
+    },
+    {
+      "section_id": "missing_info",
+      "title": "What we don't know",
+      "claims": [
+        "cl_missing_buy_rate",
+        "cl_missing_gross"
+      ],
+      "template_text": "We don't know the lender's buy rate. Ask the dealer whether the 4.75% rate includes a dealer markup. Debt-to-income isn't shown because we don't have your gross (before-tax) income.",
+      "narrative_text": null,
+      "provenance_tags": [
+        "user_input"
+      ]
+    },
+    {
+      "section_id": "assumptions",
+      "title": "Assumptions",
+      "claims": [],
+      "template_text": "",
+      "narrative_text": null,
+      "provenance_tags": [
+        "assumption"
+      ]
+    }
+  ],
+  "assumptions": [
+    {
+      "assumption_id": "a_illustrative_scenarios",
+      "text": "Illustrative scenario chosen by DecisionTwin to show how your plan responds. It is not a forecast of what will happen to you.",
+      "source_kind": "assumption",
+      "citation": null
+    },
+    {
+      "assumption_id": "a_gap_no_interest",
+      "text": "A shortfall beyond your savings is shown as an unfunded gap. No interest is added to it, and it is not a line of credit.",
+      "source_kind": "assumption",
+      "citation": null
+    },
+    {
+      "assumption_id": "a_same_rate",
+      "text": "Alternatives with a different term or down payment assume the lender would offer the same rate. Ask the lender to confirm.",
+      "source_kind": "assumption",
+      "citation": "CFPB en-753"
+    },
+    {
+      "assumption_id": "a_job_loss_no_benefits",
+      "text": "In the no-income scenario, no unemployment benefits or other income are assumed.",
+      "source_kind": "assumption",
+      "citation": null
+    },
+    {
+      "assumption_id": "a_flexible_constant",
+      "text": "Flexible spending stays at the amount you gave us in every month of the scenarios.",
+      "source_kind": "assumption",
+      "citation": null
+    }
+  ],
+  "missing_information": [
+    {
+      "fact_key": "loan.buy_rate",
+      "why_it_matters": "Dealers often see several lenders' rates and may add a markup. Knowing the buy rate tells you how much of the rate is negotiable.",
+      "ask_the_lender": true,
+      "citation": "CFPB en-727, en-759"
+    },
+    {
+      "fact_key": "income.gross_monthly",
+      "why_it_matters": "Lenders look at debt-to-income using gross income. Without it we can't show that ratio.",
+      "ask_the_lender": false,
+      "citation": null
+    },
+    {
+      "fact_key": "vehicle.value_estimates",
+      "why_it_matters": "With your estimate of the car's future value we could show when you'd owe less than it's worth.",
+      "ask_the_lender": false,
+      "citation": "CFPB en-769"
+    }
+  ],
+  "disclaimers": [
+    "This analysis is arithmetic on the figures you provided and assumptions you can see. It is not a prediction and not financial advice."
+  ]
+}
