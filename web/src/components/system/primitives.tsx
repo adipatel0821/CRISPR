@@ -113,8 +113,8 @@ export function Insight({ label, children, figure, tone = "neutral", source, act
         {figure && <div className="figure shrink-0 text-2xl font-semibold tracking-tight text-ink">{figure}</div>}
       </div>
       {(source || action) && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <div className="min-w-0">{source}</div>
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {source && <div className="min-w-0">{source}</div>}
           {action && (isLinkAction(action) ? <SecondaryLink href={action.href}>{action.label}</SecondaryLink> : action)}
         </div>
       )}
@@ -150,8 +150,8 @@ export function KeyFigure({ label, value, before, after, caption, source, size =
       {hasChange ? (
         <p className={cn("figure flex flex-wrap items-baseline gap-x-2 font-semibold tracking-tight text-ink", big)}>
           <span className="sr-only">From </span>
-          <span className="text-ink-subtle">{before}</span>
-          <ArrowRight aria-hidden className="size-5 shrink-0 self-center text-ink-subtle" />
+          <span className="text-[0.62em] font-medium text-ink-subtle">{before}</span>
+          <ArrowRight aria-hidden className="size-4 shrink-0 self-center text-ink-subtle" />
           <span className="sr-only"> to </span>
           <span>{after}</span>
         </p>
