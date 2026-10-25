@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+*.egg-info/
+.hypothesis/
+# Data / secrets
+.env
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+backend/data/
+# Node
+node_modules/
+web/.next/
+web/out/
+*.tsbuildinfo
+# OS / tools
+.DS_Store
+Thumbs.db
+.claude/worktrees/

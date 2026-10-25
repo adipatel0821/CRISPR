@@ -1,0 +1,3102 @@
+{
+  "$defs": {
+    "Acknowledgement": {
+      "properties": {
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "fact_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "acknowledged_at": {
+          "format": "date-time",
+          "title": "Acknowledged At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id"
+      ],
+      "title": "Acknowledgement",
+      "type": "object"
+    },
+    "Alternative": {
+      "properties": {
+        "alt_id": {
+          "title": "Alt Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "lever_values": {
+          "additionalProperties": true,
+          "title": "Lever Values",
+          "type": "object"
+        },
+        "assumption_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumption Flags",
+          "type": "array"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "deltas_vs_base": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Deltas Vs Base",
+          "type": "object"
+        },
+        "feasible": {
+          "default": true,
+          "title": "Feasible",
+          "type": "boolean"
+        },
+        "infeasible_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Infeasible Reasons",
+          "type": "array"
+        },
+        "is_base": {
+          "default": false,
+          "title": "Is Base",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "alt_id",
+        "label",
+        "lever_values"
+      ],
+      "title": "Alternative",
+      "type": "object"
+    },
+    "AnalysisId": {
+      "enum": [
+        "loan_cost",
+        "cashflow_impact",
+        "reserve_impact",
+        "stress_test",
+        "alternatives",
+        "dti",
+        "equity_timeline"
+      ],
+      "title": "AnalysisId",
+      "type": "string"
+    },
+    "AnalysisReadiness": {
+      "properties": {
+        "analysis_id": {
+          "$ref": "#/$defs/AnalysisId"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "awaiting_offer": {
+          "default": false,
+          "title": "Awaiting Offer",
+          "type": "boolean"
+        },
+        "required": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Required",
+          "type": "array"
+        },
+        "missing": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing",
+          "type": "array"
+        },
+        "declined": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Declined",
+          "type": "array"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "analysis_id",
+        "available"
+      ],
+      "title": "AnalysisReadiness",
+      "type": "object"
+    },
+    "AnalysisRequest": {
+      "properties": {
+        "offer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offer Id"
+        }
+      },
+      "title": "AnalysisRequest",
+      "type": "object"
+    },
+    "Assumption": {
+      "properties": {
+        "assumption_id": {
+          "title": "Assumption Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "source_kind": {
+          "$ref": "#/$defs/SourceKind",
+          "default": "assumption"
+        },
+        "citation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation"
+        }
+      },
+      "required": [
+        "assumption_id",
+        "text"
+      ],
+      "title": "Assumption",
+      "type": "object"
+    },
+    "CalculationResult": {
+      "properties": {
+        "calc_id": {
+          "title": "Calc Id",
+          "type": "string"
+        },
+        "calc_version": {
+          "default": "1.1.0",
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "profile_version": {
+          "default": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        },
+        "offer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offer Id"
+        },
+        "derived_status": {
+          "$ref": "#/$defs/FactStatus",
+          "default": "provided"
+        },
+        "derived_verification": {
+          "$ref": "#/$defs/Verification",
+          "default": "none"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Metric"
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "amortization_schedule": {
+          "items": {
+            "$ref": "#/$defs/ScheduleRow"
+          },
+          "title": "Amortization Schedule",
+          "type": "array"
+        },
+        "flags": {
+          "items": {
+            "$ref": "#/$defs/Flag"
+          },
+          "title": "Flags",
+          "type": "array"
+        },
+        "required_inputs": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Required Inputs",
+          "type": "object"
+        },
+        "assumptions_used": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions Used",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "computed_at": {
+          "format": "date-time",
+          "title": "Computed At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "calc_id"
+      ],
+      "title": "CalculationResult",
+      "type": "object"
+    },
+    "Claim": {
+      "properties": {
+        "claim_id": {
+          "title": "Claim Id",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/ClaimType"
+        },
+        "subject_metric": {
+          "title": "Subject Metric",
+          "type": "string"
+        },
+        "values": {
+          "additionalProperties": true,
+          "title": "Values",
+          "type": "object"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "up",
+                "down",
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "assumption_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumption Ids",
+          "type": "array"
+        },
+        "template_id": {
+          "title": "Template Id",
+          "type": "string"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "required": [
+        "claim_id",
+        "type",
+        "subject_metric",
+        "template_id"
+      ],
+      "title": "Claim",
+      "type": "object"
+    },
+    "ClaimType": {
+      "enum": [
+        "value",
+        "change",
+        "comparison",
+        "threshold_flag",
+        "scenario_outcome",
+        "missing"
+      ],
+      "title": "ClaimType",
+      "type": "string"
+    },
+    "Conflict": {
+      "properties": {
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "fact_keys": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Fact Keys",
+          "type": "array"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "rule_id",
+        "fact_keys",
+        "message"
+      ],
+      "title": "Conflict",
+      "type": "object"
+    },
+    "CounterfactualResult": {
+      "properties": {
+        "base_offer_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Offer Id"
+        },
+        "levers": {
+          "additionalProperties": {
+            "items": {},
+            "type": "array"
+          },
+          "title": "Levers",
+          "type": "object"
+        },
+        "deferred_levers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Deferred Levers",
+          "type": "array"
+        },
+        "alternatives": {
+          "items": {
+            "$ref": "#/$defs/Alternative"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "pareto_set": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Pareto Set",
+          "type": "array"
+        },
+        "objectives": {
+          "items": {
+            "$ref": "#/$defs/Objective"
+          },
+          "title": "Objectives",
+          "type": "array"
+        },
+        "rate_sensitivity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RateSensitivity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "sensitivity_ranking": {
+          "items": {
+            "$ref": "#/$defs/SensitivityItem"
+          },
+          "title": "Sensitivity Ranking",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "title": "CounterfactualResult",
+      "type": "object"
+    },
+    "DecisionReport": {
+      "properties": {
+        "report_id": {
+          "title": "Report Id",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "title": "Generated At",
+          "type": "string"
+        },
+        "calc_version": {
+          "default": "1.1.0",
+          "title": "Calc Version",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/LlmDataMode",
+          "default": "synthetic_only"
+        },
+        "readiness": {
+          "items": {
+            "$ref": "#/$defs/AnalysisReadiness"
+          },
+          "title": "Readiness",
+          "type": "array"
+        },
+        "key_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Points",
+          "type": "array"
+        },
+        "profile_summary": {
+          "additionalProperties": true,
+          "title": "Profile Summary",
+          "type": "object"
+        },
+        "offer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LoanOffer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalculationResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "with_offer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CalculationResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "scenarios": {
+          "items": {
+            "$ref": "#/$defs/ScenarioResult"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        },
+        "resilience": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResilienceSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "counterfactual": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CounterfactualResult"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "claims": {
+          "items": {
+            "$ref": "#/$defs/Claim"
+          },
+          "title": "Claims",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/ExplanationEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "explanations": {
+          "items": {
+            "$ref": "#/$defs/ExplanationSection"
+          },
+          "title": "Explanations",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/Assumption"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "missing_information": {
+          "items": {
+            "$ref": "#/$defs/MissingInfoItem"
+          },
+          "title": "Missing Information",
+          "type": "array"
+        },
+        "disclaimers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Disclaimers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "report_id",
+        "session_id"
+      ],
+      "title": "DecisionReport",
+      "type": "object"
+    },
+    "DecisionType": {
+      "enum": [
+        "AUTO_LOAN",
+        "INSTALLMENT_LOAN"
+      ],
+      "title": "DecisionType",
+      "type": "string"
+    },
+    "DocumentStatus": {
+      "properties": {
+        "doc_id": {
+          "title": "Doc Id",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "processing",
+            "extracted",
+            "needs_choice",
+            "failed",
+            "unsupported"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "filename": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Filename"
+        },
+        "pages": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pages"
+        },
+        "is_fixture": {
+          "default": false,
+          "title": "Is Fixture",
+          "type": "boolean"
+        },
+        "extraction_method": {
+          "default": "none",
+          "enum": [
+            "llm+reader",
+            "reader_only",
+            "none"
+          ],
+          "title": "Extraction Method",
+          "type": "string"
+        },
+        "offers_found": {
+          "default": 0,
+          "title": "Offers Found",
+          "type": "integer"
+        },
+        "offer_labels": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Offer Labels",
+          "type": "array"
+        },
+        "draft_offer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/LoanOffer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message"
+        }
+      },
+      "required": [
+        "doc_id",
+        "session_id",
+        "status"
+      ],
+      "title": "DocumentStatus",
+      "type": "object"
+    },
+    "ErrorBody": {
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/ErrorDetail"
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "title": "ErrorBody",
+      "type": "object"
+    },
+    "ErrorDetail": {
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "details": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "items": {},
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Details"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "ErrorDetail",
+      "type": "object"
+    },
+    "ExplanationEvidence": {
+      "properties": {
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/SourceKind"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification",
+          "default": "none"
+        },
+        "ref": {
+          "additionalProperties": true,
+          "title": "Ref",
+          "type": "object"
+        },
+        "display_label": {
+          "title": "Display Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "kind",
+        "display_label"
+      ],
+      "title": "ExplanationEvidence",
+      "type": "object"
+    },
+    "ExplanationSection": {
+      "properties": {
+        "section_id": {
+          "title": "Section Id",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "claims": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Claims",
+          "type": "array"
+        },
+        "template_text": {
+          "title": "Template Text",
+          "type": "string"
+        },
+        "narrative_text": {
+          "default": null,
+          "title": "Narrative Text",
+          "type": "null"
+        },
+        "provenance_tags": {
+          "items": {
+            "$ref": "#/$defs/SourceKind"
+          },
+          "title": "Provenance Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "section_id",
+        "template_text"
+      ],
+      "title": "ExplanationSection",
+      "type": "object"
+    },
+    "FactEvidence": {
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/SourceKind"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        },
+        "display_label": {
+          "title": "Display Label",
+          "type": "string"
+        },
+        "doc_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Id"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "kind",
+        "display_label"
+      ],
+      "title": "FactEvidence",
+      "type": "object"
+    },
+    "FactInput": {
+      "description": "One typed fact from the form path (POST /sessions/{id}/facts).",
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "provided",
+          "enum": [
+            "provided",
+            "estimated",
+            "declined"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Uncertainty"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "original_representation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Representation"
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "title": "FactInput",
+      "type": "object"
+    },
+    "FactStatus": {
+      "enum": [
+        "provided",
+        "estimated",
+        "assumed",
+        "missing",
+        "declined",
+        "conflicting",
+        "superseded",
+        "calculated"
+      ],
+      "title": "FactStatus",
+      "type": "string"
+    },
+    "FactsRequest": {
+      "properties": {
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/FactInput"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "acknowledge_rules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Acknowledge Rules",
+          "type": "array"
+        }
+      },
+      "required": [
+        "facts"
+      ],
+      "title": "FactsRequest",
+      "type": "object"
+    },
+    "FinancialFact": {
+      "properties": {
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "value_type": {
+          "title": "Value Type",
+          "type": "string"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "status": {
+          "$ref": "#/$defs/FactStatus"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification",
+          "default": "none"
+        },
+        "source_kind": {
+          "$ref": "#/$defs/SourceKind",
+          "default": "user_input"
+        },
+        "uncertainty": {
+          "$ref": "#/$defs/Uncertainty"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "original_representation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Representation"
+        },
+        "normalized_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized By"
+        },
+        "supersedes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supersedes"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "session_id",
+        "key",
+        "value_type",
+        "status"
+      ],
+      "title": "FinancialFact",
+      "type": "object"
+    },
+    "FinancialProfile": {
+      "properties": {
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "decision_type": {
+          "$ref": "#/$defs/DecisionType",
+          "default": "AUTO_LOAN"
+        },
+        "selected_analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisId"
+          },
+          "title": "Selected Analyses",
+          "type": "array"
+        },
+        "facts": {
+          "additionalProperties": {
+            "$ref": "#/$defs/FinancialFact"
+          },
+          "title": "Facts",
+          "type": "object"
+        },
+        "readiness": {
+          "items": {
+            "$ref": "#/$defs/AnalysisReadiness"
+          },
+          "title": "Readiness",
+          "type": "array"
+        },
+        "acknowledgements": {
+          "items": {
+            "$ref": "#/$defs/Acknowledgement"
+          },
+          "title": "Acknowledgements",
+          "type": "array"
+        },
+        "conflicts": {
+          "items": {
+            "$ref": "#/$defs/Conflict"
+          },
+          "title": "Conflicts",
+          "type": "array"
+        },
+        "profile_version": {
+          "default": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "session_id"
+      ],
+      "title": "FinancialProfile",
+      "type": "object"
+    },
+    "Flag": {
+      "properties": {
+        "flag_id": {
+          "title": "Flag Id",
+          "type": "string"
+        },
+        "triggered": {
+          "title": "Triggered",
+          "type": "boolean"
+        },
+        "informational": {
+          "default": false,
+          "title": "Informational",
+          "type": "boolean"
+        },
+        "citation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        }
+      },
+      "required": [
+        "flag_id",
+        "triggered"
+      ],
+      "title": "Flag",
+      "type": "object"
+    },
+    "HealthResponse": {
+      "properties": {
+        "status": {
+          "enum": [
+            "ok",
+            "degraded"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "db": {
+          "title": "Db",
+          "type": "boolean"
+        },
+        "llm_configured": {
+          "title": "Llm Configured",
+          "type": "boolean"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/LlmDataMode"
+        },
+        "schema_version": {
+          "default": "1.1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "calc_version": {
+          "default": "1.1.0",
+          "title": "Calc Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "db",
+        "llm_configured",
+        "data_mode"
+      ],
+      "title": "HealthResponse",
+      "type": "object"
+    },
+    "ItemizationItem": {
+      "properties": {
+        "item": {
+          "title": "Item",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "amount": {
+          "title": "Amount",
+          "type": "string"
+        },
+        "optional": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Optional"
+        },
+        "financed": {
+          "default": true,
+          "title": "Financed",
+          "type": "boolean"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TermEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "item",
+        "amount"
+      ],
+      "title": "ItemizationItem",
+      "type": "object"
+    },
+    "KnowledgeGraphEdge": {
+      "properties": {
+        "edge_id": {
+          "title": "Edge Id",
+          "type": "string"
+        },
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        },
+        "edge_type": {
+          "enum": [
+            "required_by",
+            "improves",
+            "constrains",
+            "derived_from"
+          ],
+          "title": "Edge Type",
+          "type": "string"
+        },
+        "analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisId"
+          },
+          "title": "Analyses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_id",
+        "from",
+        "to",
+        "edge_type"
+      ],
+      "title": "KnowledgeGraphEdge",
+      "type": "object"
+    },
+    "KnowledgeGraphNode": {
+      "properties": {
+        "node_id": {
+          "title": "Node Id",
+          "type": "string"
+        },
+        "node_type": {
+          "enum": [
+            "fact",
+            "metric",
+            "assumption",
+            "constraint"
+          ],
+          "title": "Node Type",
+          "type": "string"
+        },
+        "default_tier": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Default Tier"
+        },
+        "value_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Type"
+        },
+        "sensitive_personal": {
+          "default": false,
+          "title": "Sensitive Personal",
+          "type": "boolean"
+        },
+        "question_template_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Template Id"
+        },
+        "validators": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validators",
+          "type": "array"
+        },
+        "dependency_order": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dependency Order"
+        }
+      },
+      "required": [
+        "node_id",
+        "node_type"
+      ],
+      "title": "KnowledgeGraphNode",
+      "type": "object"
+    },
+    "LlmDataMode": {
+      "enum": [
+        "paid",
+        "synthetic_only",
+        "off"
+      ],
+      "title": "LlmDataMode",
+      "type": "string"
+    },
+    "LoanOffer": {
+      "properties": {
+        "offer_id": {
+          "title": "Offer Id",
+          "type": "string"
+        },
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "label": {
+          "default": "Loan offer",
+          "title": "Label",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "document",
+            "manual"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "doc_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Id"
+        },
+        "document_offers_count": {
+          "default": 1,
+          "title": "Document Offers Count",
+          "type": "integer"
+        },
+        "offer_choice": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offer Choice"
+        },
+        "product_type": {
+          "default": "fixed_rate_amortizing",
+          "title": "Product Type",
+          "type": "string"
+        },
+        "terms": {
+          "additionalProperties": {
+            "$ref": "#/$defs/VerifiedFinancialTerm"
+          },
+          "title": "Terms",
+          "type": "object"
+        },
+        "itemization": {
+          "items": {
+            "$ref": "#/$defs/ItemizationItem"
+          },
+          "title": "Itemization",
+          "type": "array"
+        },
+        "derived": {
+          "$ref": "#/$defs/OfferDerived"
+        },
+        "unsupported_features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Unsupported Features",
+          "type": "array"
+        },
+        "ready_for_calculation": {
+          "default": false,
+          "title": "Ready For Calculation",
+          "type": "boolean"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "offer_id",
+        "session_id",
+        "origin"
+      ],
+      "title": "LoanOffer",
+      "type": "object"
+    },
+    "ManualOfferRequest": {
+      "description": "POST /sessions/{id}/offers. Values are decimal strings (rates as fractions, e.g. \"0.0475\").",
+      "properties": {
+        "label": {
+          "default": "Manual offer",
+          "title": "Label",
+          "type": "string"
+        },
+        "terms": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Terms",
+          "type": "object"
+        },
+        "itemization": {
+          "items": {
+            "$ref": "#/$defs/ItemizationItem"
+          },
+          "title": "Itemization",
+          "type": "array"
+        },
+        "confirmed": {
+          "default": true,
+          "title": "Confirmed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "terms"
+      ],
+      "title": "ManualOfferRequest",
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": true,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "formula_id": {
+          "title": "Formula Id",
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "missing_inputs": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Missing Inputs"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Basis"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "disclosed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Disclosed"
+        },
+        "mismatch": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mismatch"
+        },
+        "check": {
+          "anyOf": [
+            {
+              "enum": [
+                "pass",
+                "warn",
+                "fail",
+                "not_applicable"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Check"
+        },
+        "breakdown": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Breakdown"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "after": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        }
+      },
+      "required": [
+        "formula_id"
+      ],
+      "title": "Metric",
+      "type": "object"
+    },
+    "MissingInfoItem": {
+      "properties": {
+        "fact_key": {
+          "title": "Fact Key",
+          "type": "string"
+        },
+        "why_it_matters": {
+          "title": "Why It Matters",
+          "type": "string"
+        },
+        "ask_the_lender": {
+          "default": false,
+          "title": "Ask The Lender",
+          "type": "boolean"
+        },
+        "citation": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Citation"
+        }
+      },
+      "required": [
+        "fact_key",
+        "why_it_matters"
+      ],
+      "title": "MissingInfoItem",
+      "type": "object"
+    },
+    "NextQuestionResponse": {
+      "properties": {
+        "question": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/QuestionCandidate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "readiness": {
+          "items": {
+            "$ref": "#/$defs/AnalysisReadiness"
+          },
+          "title": "Readiness",
+          "type": "array"
+        },
+        "refinements": {
+          "items": {
+            "$ref": "#/$defs/QuestionCandidate"
+          },
+          "title": "Refinements",
+          "type": "array"
+        },
+        "profile_version": {
+          "default": 0,
+          "title": "Profile Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "question",
+        "readiness"
+      ],
+      "title": "NextQuestionResponse",
+      "type": "object"
+    },
+    "Objective": {
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "min",
+            "max"
+          ],
+          "title": "Direction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "direction"
+      ],
+      "title": "Objective",
+      "type": "object"
+    },
+    "OfferDerived": {
+      "properties": {
+        "trade_in_equity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trade In Equity"
+        },
+        "negative_equity_rolled_in": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Negative Equity Rolled In"
+        },
+        "principal_basis": {
+          "anyOf": [
+            {
+              "enum": [
+                "stated",
+                "derived",
+                "assumed_pfc_zero"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Principal Basis"
+        }
+      },
+      "title": "OfferDerived",
+      "type": "object"
+    },
+    "PriorityClass": {
+      "enum": [
+        "blocking",
+        "refinement"
+      ],
+      "title": "PriorityClass",
+      "type": "string"
+    },
+    "QuestionCandidate": {
+      "properties": {
+        "question_id": {
+          "title": "Question Id",
+          "type": "string"
+        },
+        "fact_key": {
+          "title": "Fact Key",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/QuestionKind"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "choices": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Choices"
+        },
+        "why_we_ask": {
+          "title": "Why We Ask",
+          "type": "string"
+        },
+        "priority_class": {
+          "$ref": "#/$defs/PriorityClass"
+        },
+        "blocks_analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisId"
+          },
+          "title": "Blocks Analyses",
+          "type": "array"
+        },
+        "dependency_order": {
+          "title": "Dependency Order",
+          "type": "integer"
+        },
+        "refinement_effect": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RefinementEffect"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "allow_skip": {
+          "default": true,
+          "title": "Allow Skip",
+          "type": "boolean"
+        },
+        "allow_estimate": {
+          "default": false,
+          "title": "Allow Estimate",
+          "type": "boolean"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Id"
+        }
+      },
+      "required": [
+        "question_id",
+        "fact_key",
+        "kind",
+        "text",
+        "why_we_ask",
+        "priority_class",
+        "dependency_order"
+      ],
+      "title": "QuestionCandidate",
+      "type": "object"
+    },
+    "QuestionKind": {
+      "enum": [
+        "number",
+        "currency",
+        "choice",
+        "multi_choice",
+        "yes_no",
+        "free_text",
+        "currency_pair"
+      ],
+      "title": "QuestionKind",
+      "type": "string"
+    },
+    "QuestionResponse": {
+      "properties": {
+        "question_id": {
+          "title": "Question Id",
+          "type": "string"
+        },
+        "fact_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fact Key"
+        },
+        "raw_answer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Raw Answer"
+        },
+        "typed_value": {
+          "default": null,
+          "title": "Typed Value"
+        },
+        "skipped": {
+          "default": false,
+          "title": "Skipped",
+          "type": "boolean"
+        },
+        "declined": {
+          "default": false,
+          "title": "Declined",
+          "type": "boolean"
+        },
+        "marked_estimate": {
+          "default": false,
+          "title": "Marked Estimate",
+          "type": "boolean"
+        },
+        "answered_at": {
+          "format": "date-time",
+          "title": "Answered At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "question_id"
+      ],
+      "title": "QuestionResponse",
+      "type": "object"
+    },
+    "RateSensitivity": {
+      "properties": {
+        "per_point_finance_charge_delta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Per Point Finance Charge Delta"
+        },
+        "per_point_monthly_payment_delta": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Per Point Monthly Payment Delta"
+        },
+        "statement_claim_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Statement Claim Id"
+        }
+      },
+      "title": "RateSensitivity",
+      "type": "object"
+    },
+    "RefinementEffect": {
+      "properties": {
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "max_abs_change": {
+          "title": "Max Abs Change",
+          "type": "string"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "metric",
+        "max_abs_change",
+        "basis"
+      ],
+      "title": "RefinementEffect",
+      "type": "object"
+    },
+    "ResilienceSummary": {
+      "properties": {
+        "break_even_m3": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Break Even M3"
+        },
+        "break_even_m6": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Break Even M6"
+        },
+        "capped": {
+          "default": false,
+          "title": "Capped",
+          "type": "boolean"
+        },
+        "deficit_at_baseline": {
+          "default": false,
+          "title": "Deficit At Baseline",
+          "type": "boolean"
+        },
+        "scenarios_with_shortfall": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Scenarios With Shortfall",
+          "type": "object"
+        }
+      },
+      "title": "ResilienceSummary",
+      "type": "object"
+    },
+    "ScenarioMonth": {
+      "properties": {
+        "month": {
+          "title": "Month",
+          "type": "integer"
+        },
+        "income": {
+          "title": "Income",
+          "type": "string"
+        },
+        "essential": {
+          "title": "Essential",
+          "type": "string"
+        },
+        "flexible": {
+          "title": "Flexible",
+          "type": "string"
+        },
+        "debt_payments": {
+          "title": "Debt Payments",
+          "type": "string"
+        },
+        "new_payment": {
+          "title": "New Payment",
+          "type": "string"
+        },
+        "incremental_vehicle_costs": {
+          "title": "Incremental Vehicle Costs",
+          "type": "string"
+        },
+        "one_time": {
+          "title": "One Time",
+          "type": "string"
+        },
+        "net": {
+          "title": "Net",
+          "type": "string"
+        },
+        "savings_balance": {
+          "title": "Savings Balance",
+          "type": "string"
+        },
+        "unfunded_gap": {
+          "title": "Unfunded Gap",
+          "type": "string"
+        }
+      },
+      "required": [
+        "month",
+        "income",
+        "essential",
+        "flexible",
+        "debt_payments",
+        "new_payment",
+        "incremental_vehicle_costs",
+        "one_time",
+        "net",
+        "savings_balance",
+        "unfunded_gap"
+      ],
+      "title": "ScenarioMonth",
+      "type": "object"
+    },
+    "ScenarioRequest": {
+      "properties": {
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "horizon_months": {
+          "default": 12,
+          "title": "Horizon Months",
+          "type": "integer"
+        },
+        "runs": {
+          "items": {
+            "$ref": "#/$defs/ScenarioRun"
+          },
+          "title": "Runs",
+          "type": "array"
+        },
+        "seed": {
+          "default": 20261024,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "assumption_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumption Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "name",
+        "type"
+      ],
+      "title": "ScenarioRequest",
+      "type": "object"
+    },
+    "ScenarioResult": {
+      "properties": {
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "run": {
+          "$ref": "#/$defs/ScenarioRun"
+        },
+        "calc_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Calc Id"
+        },
+        "derived_status": {
+          "$ref": "#/$defs/FactStatus",
+          "default": "assumed"
+        },
+        "start_balance": {
+          "title": "Start Balance",
+          "type": "string"
+        },
+        "monthly_paths": {
+          "items": {
+            "$ref": "#/$defs/ScenarioMonth"
+          },
+          "title": "Monthly Paths",
+          "type": "array"
+        },
+        "first_shortfall_month": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "First Shortfall Month"
+        },
+        "months_of_runway": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Months Of Runway"
+        },
+        "max_unfunded_gap": {
+          "default": "0.00",
+          "title": "Max Unfunded Gap",
+          "type": "string"
+        },
+        "recovery_month": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recovery Month"
+        },
+        "savings_end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Savings End"
+        },
+        "deficit_at_baseline": {
+          "default": false,
+          "title": "Deficit At Baseline",
+          "type": "boolean"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/Assumption"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "run",
+        "start_balance"
+      ],
+      "title": "ScenarioResult",
+      "type": "object"
+    },
+    "ScenarioRun": {
+      "enum": [
+        "without_offer",
+        "with_offer"
+      ],
+      "title": "ScenarioRun",
+      "type": "string"
+    },
+    "ScheduleRow": {
+      "properties": {
+        "n": {
+          "title": "N",
+          "type": "integer"
+        },
+        "payment": {
+          "title": "Payment",
+          "type": "string"
+        },
+        "interest": {
+          "title": "Interest",
+          "type": "string"
+        },
+        "principal": {
+          "title": "Principal",
+          "type": "string"
+        },
+        "balance": {
+          "title": "Balance",
+          "type": "string"
+        }
+      },
+      "required": [
+        "n",
+        "payment",
+        "interest",
+        "principal",
+        "balance"
+      ],
+      "title": "ScheduleRow",
+      "type": "object"
+    },
+    "SensitivityItem": {
+      "properties": {
+        "lever": {
+          "title": "Lever",
+          "type": "string"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "normalized_effect": {
+          "title": "Normalized Effect",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lever",
+        "metric",
+        "normalized_effect"
+      ],
+      "title": "SensitivityItem",
+      "type": "object"
+    },
+    "SessionCreate": {
+      "properties": {
+        "decision_type": {
+          "$ref": "#/$defs/DecisionType",
+          "default": "AUTO_LOAN"
+        },
+        "selected_analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisId"
+          },
+          "title": "Selected Analyses",
+          "type": "array"
+        }
+      },
+      "title": "SessionCreate",
+      "type": "object"
+    },
+    "SessionCreated": {
+      "properties": {
+        "session_id": {
+          "title": "Session Id",
+          "type": "string"
+        },
+        "token": {
+          "title": "Token",
+          "type": "string"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/LlmDataMode"
+        },
+        "selected_analyses": {
+          "items": {
+            "$ref": "#/$defs/AnalysisId"
+          },
+          "title": "Selected Analyses",
+          "type": "array"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "session_id",
+        "token",
+        "data_mode",
+        "selected_analyses"
+      ],
+      "title": "SessionCreated",
+      "type": "object"
+    },
+    "SessionView": {
+      "properties": {
+        "profile": {
+          "$ref": "#/$defs/FinancialProfile"
+        },
+        "offers": {
+          "items": {
+            "$ref": "#/$defs/LoanOffer"
+          },
+          "title": "Offers",
+          "type": "array"
+        },
+        "data_mode": {
+          "$ref": "#/$defs/LlmDataMode"
+        },
+        "latest_report_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Latest Report Id"
+        }
+      },
+      "required": [
+        "profile",
+        "data_mode"
+      ],
+      "title": "SessionView",
+      "type": "object"
+    },
+    "SourceKind": {
+      "enum": [
+        "user_input",
+        "document",
+        "calculation",
+        "assumption",
+        "ai_interpretation",
+        "external_source"
+      ],
+      "title": "SourceKind",
+      "type": "string"
+    },
+    "TermAction": {
+      "properties": {
+        "term_key": {
+          "title": "Term Key",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "confirm",
+            "correct",
+            "reject"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "term_key",
+        "action"
+      ],
+      "title": "TermAction",
+      "type": "object"
+    },
+    "TermCandidate": {
+      "properties": {
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        }
+      },
+      "required": [
+        "value",
+        "source"
+      ],
+      "title": "TermCandidate",
+      "type": "object"
+    },
+    "TermChecks": {
+      "properties": {
+        "quote_match": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Quote Match",
+          "type": "string"
+        },
+        "label_anchor": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Label Anchor",
+          "type": "string"
+        },
+        "independent_reader": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Independent Reader",
+          "type": "string"
+        },
+        "arithmetic": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Arithmetic",
+          "type": "string"
+        },
+        "itemization": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Itemization",
+          "type": "string"
+        },
+        "apr_recompute": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Apr Recompute",
+          "type": "string"
+        },
+        "range": {
+          "default": "not_applicable",
+          "enum": [
+            "pass",
+            "warn",
+            "fail",
+            "not_applicable"
+          ],
+          "title": "Range",
+          "type": "string"
+        }
+      },
+      "title": "TermChecks",
+      "type": "object"
+    },
+    "TermEvidence": {
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/SourceKind"
+        },
+        "doc_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Doc Id"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page"
+        },
+        "label_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label Text"
+        },
+        "value_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Text"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        },
+        "quote_found_in_text": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote Found In Text"
+        },
+        "display_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Display Label"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "TermEvidence",
+      "type": "object"
+    },
+    "Uncertainty": {
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/UncertaintyKind",
+          "default": "exact"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Low"
+        },
+        "high": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "High"
+        }
+      },
+      "title": "Uncertainty",
+      "type": "object"
+    },
+    "UncertaintyKind": {
+      "enum": [
+        "exact",
+        "approximate",
+        "range",
+        "unknown"
+      ],
+      "title": "UncertaintyKind",
+      "type": "string"
+    },
+    "Verification": {
+      "enum": [
+        "none",
+        "user_confirmed",
+        "evidence_matched",
+        "evidence_matched_user_confirmed"
+      ],
+      "title": "Verification",
+      "type": "string"
+    },
+    "VerifiedFinancialTerm": {
+      "properties": {
+        "term_key": {
+          "title": "Term Key",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "value_type": {
+          "title": "Value Type",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/FactStatus"
+        },
+        "verification": {
+          "$ref": "#/$defs/Verification",
+          "default": "none"
+        },
+        "source_kind": {
+          "$ref": "#/$defs/SourceKind"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TermEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "checks": {
+          "$ref": "#/$defs/TermChecks"
+        },
+        "alternatives_found": {
+          "items": {
+            "$ref": "#/$defs/TermCandidate"
+          },
+          "title": "Alternatives Found",
+          "type": "array"
+        },
+        "user_action": {
+          "anyOf": [
+            {
+              "enum": [
+                "confirmed",
+                "corrected",
+                "rejected",
+                "pending"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User Action"
+        }
+      },
+      "required": [
+        "term_key",
+        "value_type",
+        "status",
+        "source_kind"
+      ],
+      "title": "VerifiedFinancialTerm",
+      "type": "object"
+    },
+    "VerifyRequest": {
+      "properties": {
+        "offer_choice": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Offer Choice"
+        },
+        "actions": {
+          "items": {
+            "$ref": "#/$defs/TermAction"
+          },
+          "title": "Actions",
+          "type": "array"
+        }
+      },
+      "title": "VerifyRequest",
+      "type": "object"
+    }
+  },
+  "title": "DecisionTwin contracts v1.1"
+}

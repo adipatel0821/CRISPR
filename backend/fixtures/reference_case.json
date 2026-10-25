@@ -1,0 +1,46 @@
+{
+  "_comment": "Audited running example (contracts v1.1 header). SYNTHETIC. Expected engine outputs listed under expected.",
+  "facts": [
+    {"key": "income.take_home_monthly", "value": "4200.00"},
+    {"key": "income.variability", "value": "stable"},
+    {"key": "expenses.essential.total", "value": "2900.00"},
+    {"key": "expenses.current_vehicle_costs_monthly", "value": "260.00"},
+    {"key": "vehicle.replaces_current", "value": "true"},
+    {"key": "vehicle.new_ownership_costs_monthly", "value": "310.00"},
+    {"key": "expenses.flexible.total", "value": "400.00"},
+    {"key": "debts.count", "value": "0"},
+    {"key": "savings.liquid", "value": "6000.00"},
+    {"key": "loan.down_payment_source", "value": "savings"}
+  ],
+  "offer": {
+    "label": "Dealer offer A (synthetic)",
+    "terms": {
+      "cash_price": "22000.00",
+      "taxes_title_fees": "1500.00",
+      "cash_down": "4000.00",
+      "principal": "20000.00",
+      "amount_financed": "19500.00",
+      "prepaid_finance_charges": "500.00",
+      "contract_rate": "0.0475",
+      "apr": "0.05796",
+      "term_months": 60,
+      "monthly_payment": "375.14"
+    }
+  },
+  "expected": {
+    "principal": "20000.00",
+    "monthly_payment": "375.14",
+    "total_of_payments": "22508.29",
+    "interest": "2508.29",
+    "finance_charge": "3008.29",
+    "total_paid_through_deal": "26508.29",
+    "apr_recomputed_approx": "0.05796",
+    "monthly_left_before": "900.00",
+    "incremental_vehicle_costs": "50.00",
+    "monthly_left_after": "474.86",
+    "savings_after_purchase": "2000.00",
+    "reserve_months_before": "2.07",
+    "reserve_months_after": "0.60",
+    "first_schedule_row": {"n": 1, "payment": "375.14", "interest": "79.17", "principal": "295.97", "balance": "19704.03"}
+  }
+}
