@@ -1,0 +1,1766 @@
+[
+  {
+    "state": "01_welcome",
+    "width": 1440,
+    "errors": [],
+    "url": "/",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "fold": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 6,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 7,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 179,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 1
+    }
+  },
+  {
+    "state": "01_welcome",
+    "width": 1920,
+    "errors": [],
+    "url": "/",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1080,
+    "fold": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 6,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 7,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 179,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 1
+    }
+  },
+  {
+    "state": "01_welcome",
+    "width": 768,
+    "errors": [],
+    "url": "/",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1214,
+    "fold": {
+      "words": 91,
+      "moneyFigures": 0,
+      "controls": 6,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 7,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 179,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 1
+    }
+  },
+  {
+    "state": "01_welcome",
+    "width": 390,
+    "errors": [],
+    "url": "/",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1352,
+    "fold": {
+      "words": 91,
+      "moneyFigures": 0,
+      "controls": 6,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 117,
+      "moneyFigures": 0,
+      "controls": 7,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 179,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 1
+    }
+  },
+  {
+    "state": "02_intake_first_question",
+    "width": 1440,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "fold": {
+      "words": 96,
+      "moneyFigures": 0,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 96,
+      "moneyFigures": 0,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 168,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "02_intake_first_question",
+    "width": 1920,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1080,
+    "fold": {
+      "words": 96,
+      "moneyFigures": 0,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 96,
+      "moneyFigures": 0,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 168,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "02_intake_first_question",
+    "width": 768,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1024,
+    "fold": {
+      "words": 72,
+      "moneyFigures": 0,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 72,
+      "moneyFigures": 0,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 168,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "02_intake_first_question",
+    "width": 390,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 949,
+    "fold": {
+      "words": 72,
+      "moneyFigures": 0,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 72,
+      "moneyFigures": 0,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 168,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "03_intake_third_question",
+    "width": 1440,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "fold": {
+      "words": 90,
+      "moneyFigures": 2,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 90,
+      "moneyFigures": 2,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 161,
+      "moneyFigures": 4,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "03_intake_third_question",
+    "width": 1920,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1080,
+    "fold": {
+      "words": 90,
+      "moneyFigures": 2,
+      "controls": 12,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 90,
+      "moneyFigures": 2,
+      "controls": 13,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 161,
+      "moneyFigures": 4,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "03_intake_third_question",
+    "width": 768,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1024,
+    "fold": {
+      "words": 69,
+      "moneyFigures": 0,
+      "controls": 10,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 69,
+      "moneyFigures": 0,
+      "controls": 11,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 161,
+      "moneyFigures": 4,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "03_intake_third_question",
+    "width": 390,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 913,
+    "fold": {
+      "words": 69,
+      "moneyFigures": 0,
+      "controls": 10,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 69,
+      "moneyFigures": 0,
+      "controls": 11,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 161,
+      "moneyFigures": 4,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "04_intake_done",
+    "width": 1440,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 900,
+    "fold": {
+      "words": 149,
+      "moneyFigures": 6,
+      "controls": 14,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 149,
+      "moneyFigures": 6,
+      "controls": 15,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 366,
+      "moneyFigures": 9,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "04_intake_done",
+    "width": 1920,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1080,
+    "fold": {
+      "words": 149,
+      "moneyFigures": 6,
+      "controls": 14,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 149,
+      "moneyFigures": 6,
+      "controls": 15,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 366,
+      "moneyFigures": 9,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "04_intake_done",
+    "width": 768,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1024,
+    "fold": {
+      "words": 87,
+      "moneyFigures": 0,
+      "controls": 9,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 87,
+      "moneyFigures": 0,
+      "controls": 10,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 366,
+      "moneyFigures": 9,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "04_intake_done",
+    "width": 390,
+    "errors": [],
+    "url": "/intake",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 891,
+    "fold": {
+      "words": 85,
+      "moneyFigures": 0,
+      "controls": 9,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 85,
+      "moneyFigures": 0,
+      "controls": 10,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 366,
+      "moneyFigures": 9,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "05_offer_start",
+    "width": 1440,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1407,
+    "fold": {
+      "words": 168,
+      "moneyFigures": 0,
+      "controls": 11,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 210,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "05_offer_start",
+    "width": 1920,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1213,
+    "fold": {
+      "words": 200,
+      "moneyFigures": 0,
+      "controls": 16,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 210,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "05_offer_start",
+    "width": 768,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1655,
+    "fold": {
+      "words": 142,
+      "moneyFigures": 0,
+      "controls": 9,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 198,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "05_offer_start",
+    "width": 390,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 2161,
+    "fold": {
+      "words": 84,
+      "moneyFigures": 0,
+      "controls": 7,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 198,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "06_offer_manual_form",
+    "width": 1440,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1407,
+    "fold": {
+      "words": 168,
+      "moneyFigures": 0,
+      "controls": 11,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 210,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "06_offer_manual_form",
+    "width": 1920,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1213,
+    "fold": {
+      "words": 200,
+      "moneyFigures": 0,
+      "controls": 16,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 210,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "06_offer_manual_form",
+    "width": 768,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1655,
+    "fold": {
+      "words": 142,
+      "moneyFigures": 0,
+      "controls": 9,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 198,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "06_offer_manual_form",
+    "width": 390,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 2161,
+    "fold": {
+      "words": 84,
+      "moneyFigures": 0,
+      "controls": 7,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 198,
+      "moneyFigures": 0,
+      "controls": 18,
+      "cards": 0,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 438,
+      "moneyFigures": 0,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "07_offer_saved",
+    "width": 1440,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1269,
+    "fold": {
+      "words": 123,
+      "moneyFigures": 4,
+      "controls": 6,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 158,
+      "moneyFigures": 4,
+      "controls": 12,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 309,
+      "moneyFigures": 13,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "07_offer_saved",
+    "width": 1920,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1318,
+    "fold": {
+      "words": 140,
+      "moneyFigures": 4,
+      "controls": 7,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 158,
+      "moneyFigures": 4,
+      "controls": 12,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 309,
+      "moneyFigures": 13,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "07_offer_saved",
+    "width": 768,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1334,
+    "fold": {
+      "words": 111,
+      "moneyFigures": 2,
+      "controls": 9,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 138,
+      "moneyFigures": 2,
+      "controls": 12,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 309,
+      "moneyFigures": 13,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "07_offer_saved",
+    "width": 390,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 1688,
+    "fold": {
+      "words": 76,
+      "moneyFigures": 1,
+      "controls": 8,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 138,
+      "moneyFigures": 2,
+      "controls": 12,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 309,
+      "moneyFigures": 13,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "08_offer_upload_review",
+    "width": 1440,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 3139,
+    "fold": {
+      "words": 180,
+      "moneyFigures": 1,
+      "controls": 18,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 446,
+      "moneyFigures": 10,
+      "controls": 69,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1188,
+      "moneyFigures": 24,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 17
+    }
+  },
+  {
+    "state": "08_offer_upload_review",
+    "width": 1920,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 3188,
+    "fold": {
+      "words": 199,
+      "moneyFigures": 2,
+      "controls": 22,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 446,
+      "moneyFigures": 10,
+      "controls": 69,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1188,
+      "moneyFigures": 24,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 17
+    }
+  },
+  {
+    "state": "08_offer_upload_review",
+    "width": 768,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 3317,
+    "fold": {
+      "words": 163,
+      "moneyFigures": 1,
+      "controls": 15,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 434,
+      "moneyFigures": 10,
+      "controls": 69,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1188,
+      "moneyFigures": 24,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 17
+    }
+  },
+  {
+    "state": "08_offer_upload_review",
+    "width": 390,
+    "errors": [],
+    "url": "/offer",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 4272,
+    "fold": {
+      "words": 84,
+      "moneyFigures": 0,
+      "controls": 7,
+      "headings": 1,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 434,
+      "moneyFigures": 10,
+      "controls": 69,
+      "cards": 1,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1188,
+      "moneyFigures": 24,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 17
+    }
+  },
+  {
+    "state": "09_decision_summary",
+    "width": 1440,
+    "errors": [],
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1616,
+    "fold": {
+      "words": 134,
+      "moneyFigures": 10,
+      "controls": 14,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 278,
+      "moneyFigures": 23,
+      "controls": 23,
+      "cards": 3,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 905,
+      "moneyFigures": 36,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "09_decision_summary",
+    "width": 1920,
+    "errors": [],
+    "url": "/dashboard",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1565,
+    "fold": {
+      "words": 192,
+      "moneyFigures": 15,
+      "controls": 15,
+      "headings": 4,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 278,
+      "moneyFigures": 23,
+      "controls": 23,
+      "cards": 3,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 905,
+      "moneyFigures": 36,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "09_decision_summary",
+    "width": 768,
+    "errors": [],
+    "url": "/dashboard",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 2337,
+    "fold": {
+      "words": 95,
+      "moneyFigures": 4,
+      "controls": 10,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 258,
+      "moneyFigures": 20,
+      "controls": 20,
+      "cards": 3,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 905,
+      "moneyFigures": 36,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "09_decision_summary",
+    "width": 390,
+    "errors": [],
+    "url": "/dashboard",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 2681,
+    "fold": {
+      "words": 78,
+      "moneyFigures": 3,
+      "controls": 8,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 258,
+      "moneyFigures": 20,
+      "controls": 20,
+      "cards": 3,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 905,
+      "moneyFigures": 36,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 3
+    }
+  },
+  {
+    "state": "10_stress_tests",
+    "width": 1440,
+    "errors": [],
+    "url": "/stress",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1389,
+    "fold": {
+      "words": 144,
+      "moneyFigures": 11,
+      "controls": 9,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 211,
+      "moneyFigures": 13,
+      "controls": 19,
+      "cards": 2,
+      "charts": 1,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 485,
+      "moneyFigures": 66,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 4
+    }
+  },
+  {
+    "state": "10_stress_tests",
+    "width": 1920,
+    "errors": [],
+    "url": "/stress",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 1424,
+    "fold": {
+      "words": 195,
+      "moneyFigures": 12,
+      "controls": 13,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 216,
+      "moneyFigures": 13,
+      "controls": 19,
+      "cards": 2,
+      "charts": 1,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 490,
+      "moneyFigures": 66,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 4
+    }
+  },
+  {
+    "state": "10_stress_tests",
+    "width": 768,
+    "errors": [],
+    "url": "/stress",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 1892,
+    "fold": {
+      "words": 115,
+      "moneyFigures": 5,
+      "controls": 8,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 196,
+      "moneyFigures": 10,
+      "controls": 16,
+      "cards": 2,
+      "charts": 1,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 491,
+      "moneyFigures": 66,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 4
+    }
+  },
+  {
+    "state": "10_stress_tests",
+    "width": 390,
+    "errors": [],
+    "url": "/stress",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 2295,
+    "fold": {
+      "words": 77,
+      "moneyFigures": 1,
+      "controls": 7,
+      "headings": 1,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 190,
+      "moneyFigures": 10,
+      "controls": 16,
+      "cards": 2,
+      "charts": 1,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 485,
+      "moneyFigures": 66,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 4
+    }
+  },
+  {
+    "state": "11_alternatives",
+    "width": 1440,
+    "errors": [],
+    "url": "/alternatives",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 2144,
+    "fold": {
+      "words": 154,
+      "moneyFigures": 14,
+      "controls": 9,
+      "headings": 2,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 311,
+      "moneyFigures": 28,
+      "controls": 15,
+      "cards": 4,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1206,
+      "moneyFigures": 195,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "11_alternatives",
+    "width": 1920,
+    "errors": [],
+    "url": "/alternatives",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 2115,
+    "fold": {
+      "words": 194,
+      "moneyFigures": 16,
+      "controls": 9,
+      "headings": 4,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 311,
+      "moneyFigures": 28,
+      "controls": 15,
+      "cards": 4,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1206,
+      "moneyFigures": 195,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "11_alternatives",
+    "width": 768,
+    "errors": [],
+    "url": "/alternatives",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 2739,
+    "fold": {
+      "words": 113,
+      "moneyFigures": 5,
+      "controls": 8,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 289,
+      "moneyFigures": 25,
+      "controls": 12,
+      "cards": 4,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1206,
+      "moneyFigures": 195,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "11_alternatives",
+    "width": 390,
+    "errors": [],
+    "url": "/alternatives",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 3108,
+    "fold": {
+      "words": 76,
+      "moneyFigures": 1,
+      "controls": 7,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 289,
+      "moneyFigures": 25,
+      "controls": 12,
+      "cards": 4,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 1205,
+      "moneyFigures": 194,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "12_report",
+    "width": 1440,
+    "errors": [],
+    "url": "/report",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 3595,
+    "fold": {
+      "words": 159,
+      "moneyFigures": 10,
+      "controls": 12,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 653,
+      "moneyFigures": 26,
+      "controls": 28,
+      "cards": 8,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 3537,
+      "moneyFigures": 393,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "12_report",
+    "width": 1920,
+    "errors": [],
+    "url": "/report",
+    "viewport": {
+      "width": 1920,
+      "height": 1080
+    },
+    "pageHeight": 3521,
+    "fold": {
+      "words": 173,
+      "moneyFigures": 12,
+      "controls": 12,
+      "headings": 5,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 653,
+      "moneyFigures": 26,
+      "controls": 28,
+      "cards": 8,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 3537,
+      "moneyFigures": 393,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "12_report",
+    "width": 768,
+    "errors": [],
+    "url": "/report",
+    "viewport": {
+      "width": 768,
+      "height": 1024
+    },
+    "pageHeight": 4361,
+    "fold": {
+      "words": 94,
+      "moneyFigures": 2,
+      "controls": 8,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 630,
+      "moneyFigures": 23,
+      "controls": 25,
+      "cards": 8,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 3537,
+      "moneyFigures": 393,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "12_report",
+    "width": 390,
+    "errors": [],
+    "url": "/report",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 5521,
+    "fold": {
+      "words": 83,
+      "moneyFigures": 1,
+      "controls": 7,
+      "headings": 2,
+      "primaryActions": 1
+    },
+    "visible": {
+      "words": 630,
+      "moneyFigures": 23,
+      "controls": 25,
+      "cards": 8,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 1,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 3537,
+      "moneyFigures": 393,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  },
+  {
+    "state": "13_report_print",
+    "width": 1440,
+    "errors": [],
+    "url": "/report",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 1399,
+    "fold": {
+      "words": 262,
+      "moneyFigures": 17,
+      "controls": 0,
+      "headings": 7,
+      "primaryActions": 0
+    },
+    "visible": {
+      "words": 472,
+      "moneyFigures": 23,
+      "controls": 1,
+      "cards": 7,
+      "charts": 0,
+      "tableRows": 0,
+      "primaryActions": 0,
+      "dashes": 0,
+      "bannedPhrases": []
+    },
+    "all": {
+      "words": 3537,
+      "moneyFigures": 393,
+      "dashes": 0,
+      "bannedPhrases": [],
+      "disclosures": 2
+    }
+  }
+]
