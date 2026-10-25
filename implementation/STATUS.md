@@ -22,3 +22,10 @@ Prize tracks to consider (human decision): **FNB Challenge — Trust, Decisions 
 | S5 alternatives | Integrated, rendered live |
 | S6 explanations / API | Integrated, live-verified |
 | Web | Integrated, browser-verified (23/23) |
+
+## Release state (22:23 EDT)
+- **Agent 5 release assessment: GO — READY FOR DEMONSTRATION** (audit/reports/RELEASE_ASSESSMENT.md), confirmed at 96712e4 after D2-001. Open directives: none (D0-001…005, D1-001, D2-001 VERIFIED).
+- Head: `e72e081` on `decisiontwin-implementation` (pushed). Tags: `cp0-known-good`, `cp1-vertical-slice`, `cp3-documents-live`, `release-go`.
+- 362 backend tests; web tsc/eslint/20 unit tests/build; live browser doc_flow 32/32, manual_flow 25/25, a11y 26/26; A-19 3/3 runs (66 s each); fresh-clone native startup verified.
+- Not executed: Docker Compose, live Gemini extraction, pip-audit/npm audit. Deferred: free-text parsing, LLM narration, Monte Carlo, scanned docs, price/delay levers.
+- Remaining work is human-owned: Devpost creation (by 23:30), video (≤ 5 min), team members, submit by Sun 12:00. Optional: merge to `main` via PR so the repo's default branch shows the app.
