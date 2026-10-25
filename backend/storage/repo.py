@@ -64,6 +64,15 @@ def purge_session(db: Session, session_id: str) -> dict[str, int]:
     return counts
 
 
+def purge_expired(db: Session, now: datetime | None = None) -> int:
+    """Purge every session past its 24 h TTL (all rows). Returns the number of sessions purged."""
+    now = now or datetime.now(timezone.utc)
+    expired = [r.id for r in db.exec(select(SessionRow)).all() if is_expired(r, now)]
+    for sid in expired:
+        purge_session(db, sid)
+    return len(expired)
+
+
 def count_rows(db: Session, session_id: str) -> dict[str, int]:
     out: dict[str, int] = {}
     for model in SESSION_SCOPED_TABLES:

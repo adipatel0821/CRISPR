@@ -155,3 +155,41 @@ def test_cors_allows_web_origin(client):
     r = client.options(f"{API}/health", headers={"Origin": "http://localhost:3000",
                                                   "Access-Control-Request-Method": "GET"})
     assert r.headers.get("access-control-allow-origin") == "http://localhost:3000"
+
+
+def test_expired_session_is_401_and_swept(client, session):
+    from datetime import datetime, timedelta, timezone
+    with Session(get_engine()) as db:
+        row = repo.session_by_token(db, session["token"])
+        row.expires_at = datetime.now(timezone.utc) - timedelta(minutes=1)
+        db.add(row)
+        db.commit()
+    err = assert_error(client.get(f"{API}/sessions/{session['id']}", headers=session["headers"]), 401,
+                       "UNAUTHORIZED")
+    assert "expired" in err["message"]
+    with Session(get_engine()) as db:
+        assert repo.purge_expired(db) == 1
+        assert all(v == 0 for v in repo.count_rows(db, session["id"]).values())
+
+
+def test_llm_call_log_persisted_without_prompt_text(client, session, fakes, monkeypatch):
+    class LoggingLLM:
+        available = True
+
+        def __init__(self):
+            self.call_log = [{"prompt_hash": "abc123", "latency_ms": 840, "outcome": "ok",
+                              "prompt": "SSN 123-45-6789"}]
+
+    monkeypatch.setattr(fakes, "get_llm_client", LoggingLLM)
+    r = client.post(f"{API}/sessions/{session['id']}/documents", headers=session["headers"],
+                    files={"file": ("x.pdf", b"%PDF-1.7 FIXTURE", "application/pdf")})
+    assert r.status_code == 200, r.text
+    from storage.models import LlmCallRow
+    from sqlmodel import select
+    with Session(get_engine()) as db:
+        rows = db.exec(select(LlmCallRow).where(LlmCallRow.session_id == session["id"])).all()
+        assert [(x.prompt_hash, x.latency_ms, x.outcome) for x in rows] == [("abc123", 840, "ok")]
+        assert "123-45-6789" not in str([x.model_dump() for x in rows])
+    client.delete(f"{API}/sessions/{session['id']}", headers=session["headers"])
+    with Session(get_engine()) as db:
+        assert db.exec(select(LlmCallRow).where(LlmCallRow.session_id == session["id"])).all() == []

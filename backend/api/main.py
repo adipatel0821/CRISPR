@@ -25,6 +25,16 @@ MULTIPART_SLACK = 64 * 1024   # multipart framing overhead allowed above the 10 
 async def lifespan(_app: FastAPI):
     storage_db.get_engine()          # creates the engine (and tables) from DATABASE_URL on first use
     storage_db.init_db()
+    try:
+        from sqlmodel import Session
+
+        from storage import repo
+        with Session(storage_db.get_engine()) as db:
+            purged = repo.purge_expired(db)
+        if purged:
+            logging.getLogger("decisiontwin.api").info("purged %d expired sessions", purged)
+    except Exception:  # noqa: BLE001 - retention sweep must never block start-up
+        logging.getLogger("decisiontwin.api").warning("expired-session sweep failed")
     yield
 
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 from decimal import Decimal, InvalidOperation
 
 from fastapi import APIRouter, Depends, File, Header, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from sqlmodel import Session
 
@@ -81,6 +82,27 @@ def post_manual_offer(body: ManualOfferRequest, row: SessionRow = Depends(sessio
     return offer
 
 
+def _persist_llm_calls(db: Session, session_id: str, llm) -> None:
+    """Audit log (system_architecture §13): persist the LLM client's call records if it exposes them as
+    `call_log` (items with prompt_hash, latency_ms, outcome — never prompt text). Committed with the request."""
+    log_items = getattr(llm, "call_log", None)
+    if not log_items:
+        return
+    for item in list(log_items):
+        get = item.get if isinstance(item, dict) else (lambda k, _i=item: getattr(_i, k, None))
+        prompt_hash = get("prompt_hash")
+        if not prompt_hash:
+            continue
+        latency = get("latency_ms")
+        repo.log_llm_call(db, session_id, str(prompt_hash), int(latency) if latency is not None else None,
+                          str(get("outcome") or "unknown"))
+    try:
+        log_items.clear()
+    except AttributeError:
+        pass
+    db.commit()
+
+
 async def _read_capped(file: UploadFile) -> bytes:
     chunks, total = [], 0
     while True:
@@ -114,8 +136,13 @@ async def upload_document(request: Request, file: UploadFile = File(...),
     doc_id = new_id("d_")
     filename = (file.filename or "upload")[:200]
     llm = adapters.get_llm_client()
-    status = adapters.process_document(row.id, doc_id, filename, data, row.data_mode, llm)
-    del data                                    # uploaded bytes are not kept after processing
+    try:
+        # sync pipeline (PDF parsing, possible LLM call) runs off the event loop
+        status = await run_in_threadpool(adapters.process_document, row.id, doc_id, filename, data,
+                                         row.data_mode, llm)
+    finally:
+        del data                                # uploaded bytes are not kept after processing
+        _persist_llm_calls(db, row.id, llm)
     if status.session_id != row.id or status.doc_id != doc_id:
         raise ApiError(500, "INTERNAL", "Something went wrong on our side. Please retry.")
     repo.save_document(db, status)
