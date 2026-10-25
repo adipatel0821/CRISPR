@@ -180,8 +180,203 @@ async function optionsChecks() {
   }
 }
 
+/* =============================================================================================== */
+/* Loan offer                                                                                       */
+/* =============================================================================================== */
+
+/** Screenshot the current state at every viewport (same page), then return to 1440x900. */
+async function shootAll(page, name, label, { checks = true } = {}) {
+  for (const vp of VIEWPORTS) {
+    await page.setViewportSize({ width: vp[0], height: vp[1] });
+    await page.waitForTimeout(250);
+    await shoot(page, name);
+    if (checks) await stateChecks(page, `${label} ${vp[0]}`, { axeScan: vp[0] === 1440 || vp[0] === 390 });
+  }
+  await page.setViewportSize({ width: 1440, height: 900 });
+}
+
+async function reportFigures(page) {
+  return page.evaluate(async (api) => {
+    const t = sessionStorage.getItem("dt.token");
+    const r = sessionStorage.getItem("dt.report_id");
+    const res = await fetch(`${api}/reports/${r}`, { headers: { Authorization: `Bearer ${t}` } });
+    const j = await res.json();
+    const m = j.with_offer?.metrics ?? {};
+    return { pay: m.monthly_payment?.value, tot: m.total_of_payments?.value, fc: m.finance_charge?.value, label: j.offer?.label };
+  }, API);
+}
+
+async function runToResults(page, tag) {
+  const run = page.getByRole("button", { name: /See my results/ });
+  await run.waitFor({ timeout: 15000 });
+  check(`${tag}: See my results enabled`, await run.isEnabled());
+  await run.click();
+  await page.waitForURL(/\/dashboard/, { timeout: 30000 });
+  await page.waitForTimeout(1200);
+  const body = await page.textContent("body");
+  for (const v of ["375.14", "22,508.29", "3,008.29"]) check(`${tag}: results show ${v}`, body.includes(v));
+  const f = await reportFigures(page);
+  check(`${tag}: report figures 375.14 / 22508.29 / 3008.29`, f.pay === "375.14" && f.tot === "22508.29" && f.fc === "3008.29", JSON.stringify(f));
+  return f;
+}
+
+async function chooseUpload(page) {
+  // click the tile, as a person would (the native radio inside it is visually hidden)
+  await page.locator("[data-option-tile]", { hasText: "Upload the contract" }).click();
+  await page.locator("[data-drop-zone]").waitFor({ timeout: 5000 });
+  check("upload tile selected by click", await page.getByRole("radio", { name: /Upload the contract/ }).isChecked());
+}
+
+async function offerChecks() {
+  console.log("Loan offer (/offer)");
+
+  // ---- manual path: start state, validation, keyboard tiles, save, confirmation, results
+  {
+    const sv = await seed();
+    const { ctx, page, errors } = await context(sv, [1440, 900]);
+    const tag = "offer manual";
+    await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
+    await page.getByRole("heading", { level: 1, name: "Add your loan offer" }).waitFor({ timeout: 20000 });
+    check(`${tag}: two method tiles`, (await page.locator("[data-option-tile]").count()) === 2);
+    check(`${tag}: "Enter the numbers" selected by default`, await page.getByRole("radio", { name: /Enter the numbers/ }).isChecked());
+    for (const l of ["Cash price of the car", "Cash down payment", "APR", "Term (months)", "Monthly payment on the contract"])
+      check(`${tag}: required field visible: ${l}`, await page.getByLabel(l, { exact: true }).isVisible());
+    check(`${tag}: advanced terms behind "More details"`, !(await page.getByLabel("Amount financed", { exact: true }).isVisible()));
+    await shootAll(page, "offer_start", "offer start");
+
+    // keyboard: arrow keys move between the tiles (native radios)
+    await page.getByRole("radio", { name: /Enter the numbers/ }).focus();
+    await page.keyboard.press("ArrowLeft");
+    await page.waitForTimeout(300);
+    check(`${tag}: arrow key selects "Upload the contract"`, await page.getByRole("radio", { name: /Upload the contract/ }).isChecked());
+    check(`${tag}: upload panel shown`, await page.locator("[data-drop-zone]").isVisible());
+    await shootAll(page, "offer_upload", "offer upload start");
+    await page.keyboard.press("ArrowRight");
+    await page.waitForTimeout(300);
+    check(`${tag}: arrow key back to the form`, await page.getByLabel("Cash price of the car", { exact: true }).isVisible());
+
+    // validation next to the field
+    await page.getByLabel("APR", { exact: true }).fill("abc");
+    await page.getByRole("button", { name: /Save offer/ }).click();
+    await page.waitForTimeout(300);
+    check(`${tag}: field error next to APR`, (await page.locator("#term-apr-err").innerText()).includes("Enter a percentage like 4.75."));
+    check(`${tag}: APR marked invalid`, (await page.getByLabel("APR", { exact: true }).getAttribute("aria-invalid")) === "true");
+    await shoot(page, "offer_validation");
+
+    const more = page.locator("summary", { hasText: "More details" });
+    await more.focus();
+    await page.keyboard.press("Enter");
+    await page.waitForTimeout(300);
+    check(`${tag}: More details opens with the keyboard`, await page.getByLabel("Amount financed", { exact: true }).isVisible());
+    const fields = {
+      "Cash price of the car": "22000", "Taxes, title and fees": "1500", "Cash down payment": "4000",
+      "Principal (amount of the note)": "20000", "Amount financed": "19500", "Prepaid finance charges": "500",
+      APR: "5.796", "Contract (interest) rate": "4.75", "Term (months)": "60", "Monthly payment on the contract": "375.14",
+    };
+    for (const [l, v] of Object.entries(fields)) await page.getByLabel(l, { exact: true }).fill(v);
+    await shoot(page, "offer_manual_filled");
+    await page.getByRole("button", { name: /Save offer/ }).click();
+    await page.waitForTimeout(400);
+    check(`${tag}: confirmation required`, /Please confirm the values match your offer/.test(await text(page)));
+    await page.locator("#offer-confirm").click();
+    await page.getByRole("button", { name: /Save offer/ }).click();
+    await page.getByRole("heading", { level: 1, name: "Check your loan" }).waitFor({ timeout: 15000 });
+    await page.waitForTimeout(500);
+    const saved = await page.locator("[data-saved-offer]").innerText();
+    check(`${tag}: confirmation shows payment $375.14`, saved.includes("$375.14"));
+    check(`${tag}: key terms (amount financed, term, APR)`, saved.includes("$19,500.00") && /60 months/.test(saved) && /5\.796\s*%/.test(saved), saved.slice(0, 300));
+    check(`${tag}: "Review all terms" disclosure`, (await page.locator("summary", { hasText: "Review all terms" }).count()) === 1);
+    const railT = await page.locator("[data-stage-rail]").first().innerText();
+    check(`${tag}: rail shows the loan`, railT.includes("$375.14"));
+    await shootAll(page, "offer_saved", "offer saved");
+    await page.locator("summary", { hasText: "Review all terms" }).click();
+    await page.waitForTimeout(300);
+    const all = await page.locator("[data-saved-offer] details").innerText();
+    check(`${tag}: review lists principal and finance terms`, all.includes("$20,000.00") && all.includes("$500.00"));
+    await stateChecks(page, `${tag} review open`);
+    await runToResults(page, tag);
+    check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
+    await ctx.close();
+  }
+
+  // ---- A. standard contract: upload, review with evidence, Confirm all, save, results
+  {
+    const sv = await seed();
+    const { ctx, page, errors } = await context(sv, [1440, 900]);
+    const tag = "offer upload A";
+    await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
+    await chooseUpload(page);
+    await page.locator("#doc-upload").setInputFiles(path.join(DOCS, "contract_standard.pdf"));
+    await page.getByRole("heading", { name: /Check what we read/ }).waitFor({ timeout: 30000 });
+    const t = await page.locator("section[aria-labelledby=verify-heading]").textContent();
+    for (const v of ["$375.14", "$22,508.29", "$3,008.29", "$19,500.00", "$20,000.00"]) check(`${tag}: review shows ${v}`, t.includes(v));
+    check(`${tag}: verbatim quote with page`, /“FINANCE CHARGE The dollar amount the credit will cost you\. \$3,008\.29”, page 1/.test(t));
+    check(`${tag}: checks shown`, /passed/.test(t) && /APR/i.test(t));
+    check(`${tag}: chips say "From your document", never "verified"`, /From your document, p\.1/.test(t) && !/\bverified\b/i.test(t));
+    await shootAll(page, "offer_review", "offer review");
+    await page.getByRole("button", { name: /Confirm all remaining/ }).click();
+    await page.getByRole("button", { name: /Save checked offer/ }).click();
+    await page.getByRole("heading", { level: 1, name: "Check your loan" }).waitFor({ timeout: 15000 });
+    const saved = await page.locator("[data-saved-offer]").innerText();
+    check(`${tag}: confirmation shows document payment $375.14`, saved.includes("$375.14") && /Read from your document/.test(saved));
+    await shoot(page, "offer_saved_doc");
+    await runToResults(page, tag);
+    check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
+    await ctx.close();
+  }
+
+  // ---- B. two-option worksheet: chooser
+  {
+    const sv = await seed();
+    const { ctx, page, errors } = await context(sv, [1440, 900]);
+    const tag = "offer upload B";
+    await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
+    await chooseUpload(page);
+    await page.locator("#doc-upload").setInputFiles(path.join(DOCS, "dealer_worksheet_two_options.pdf"));
+    await page.getByText(/This document has 2 offers/).waitFor({ timeout: 30000 });
+    check(`${tag}: chooser shown`, true);
+    await shootAll(page, "offer_chooser", "offer chooser");
+    await page.getByRole("radio", { name: /60 MONTHS/ }).check();
+    await page.getByRole("button", { name: /Use this offer/ }).click();
+    await page.getByRole("heading", { name: /Check what we read/ }).waitFor({ timeout: 20000 });
+    const t = await page.locator("section[aria-labelledby=verify-heading]").textContent();
+    check(`${tag}: chosen option values (375.14, 60 months)`, t.includes("$375.14") && /60 months/.test(t) && !t.includes("319.78"));
+    await page.getByRole("button", { name: /Confirm all remaining/ }).click();
+    await page.getByRole("button", { name: /Save checked offer/ }).click();
+    const f = await runToResults(page, tag);
+    check(`${tag}: report labelled with the chosen option`, /OPTION A - 60 MONTHS/.test(f.label ?? ""), f.label);
+    check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
+    await ctx.close();
+  }
+
+  // ---- C. variable rate: unsupported, one-click manual fallback
+  {
+    const sv = await seed();
+    const { ctx, page, errors } = await context(sv, [1440, 900]);
+    const tag = "offer upload C";
+    await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
+    await chooseUpload(page);
+    await page.locator("#doc-upload").setInputFiles(path.join(DOCS, "contract_variable_rate.pdf"));
+    const alert = page.getByRole("alert").filter({ hasText: /isn't supported/ });
+    await alert.waitFor({ timeout: 30000 });
+    const at = await alert.textContent();
+    check(`${tag}: unsupported message`, /variable rate/i.test(at) && /fixed-rate/i.test(at), at.slice(0, 200));
+    check(`${tag}: exactly one unsupported alert`, (await page.getByRole("alert").filter({ hasText: /support/i }).count()) === 1);
+    check(`${tag}: terms for reference only`, await page.getByRole("heading", { name: /for reference only/ }).isVisible());
+    check(`${tag}: no save or results path`, (await page.getByRole("button", { name: /See my results|Save checked offer|Confirm all/ }).count()) === 0);
+    await shootAll(page, "offer_unsupported", "offer unsupported");
+    await alert.getByRole("button", { name: /Enter the numbers instead/ }).click();
+    await page.waitForTimeout(400);
+    check(`${tag}: one click opens the manual form`, await page.getByLabel("Cash price of the car", { exact: true }).isVisible());
+    check(`${tag}: "Enter the numbers" now selected`, await page.getByRole("radio", { name: /Enter the numbers/ }).isChecked());
+    check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
+    await ctx.close();
+  }
+}
+
 try {
   if (ONLY === "all" || ONLY === "options") await optionsChecks();
+  if (ONLY === "all" || ONLY === "offer") await offerChecks();
 } catch (e) {
   check("script ran without exceptions", false, String(e?.stack ?? e).slice(0, 800));
 } finally {

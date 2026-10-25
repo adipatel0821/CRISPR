@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AlertTriangle, Check, CheckCircle2, CircleMinus, FileText, FileUp, Loader2, XCircle } from "lucide-react";
+import { AlertTriangle, Ban, Check, CheckCircle2, CircleMinus, FileText, FileUp, Loader2, XCircle } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import type { VerifyRequestBody } from "@/lib/api-types";
 import type { DocumentStatus, LoanOffer, VerifiedFinancialTerm } from "@/lib/contracts";
@@ -13,6 +13,7 @@ import { Chip } from "@/components/provenance-chip";
 import { OfferAlerts } from "@/components/offer-summary";
 import { ErrorState } from "@/components/states";
 import { Disclosure, FadeIn, PrimaryAction } from "@/components/system";
+import { plain } from "@/lib/copy";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label } from "@/components/ui/input";
 import { confirmRemaining, reviewState, reviewStatusText, type ReviewAction } from "@/components/offer/model";
@@ -80,8 +81,8 @@ function TermRow({
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <p className="text-[13px] text-ink-muted">{label}</p>
-          <p className="figure flex items-center gap-2 text-lg font-semibold tracking-tight text-ink">
+          <p className="text-[15px] font-semibold text-ink-2">{label}</p>
+          <p className="figure flex flex-wrap items-center gap-2 text-2xl font-extrabold tracking-tight text-ink">
             {action?.action === "correct"
               ? action.display
               : action?.action === "reject"
@@ -133,7 +134,7 @@ function TermRow({
 
       {!readOnly && t.alternatives_found.length > 0 && (
         <fieldset className="space-y-2">
-          <legend className="text-xs font-semibold text-deficit">Two readings disagree — choose the one on your document</legend>
+          <legend className="text-sm font-semibold text-deficit">Two readings disagree. Choose the one on your document.</legend>
           {t.alternatives_found.map((c, i) => (
             <label
               key={`${c.source}-${i}`}
@@ -152,7 +153,7 @@ function TermRow({
                   ({c.source === "independent_reader" ? "second reader" : c.source === "llm" ? "AI reading" : c.source}
                   {c.page ? `, page ${c.page}` : ""})
                 </span>
-                {c.quote && <span className="block text-xs text-ink-subtle">“{c.quote}”</span>}
+                {c.quote && <span className="block text-xs text-ink-subtle">“{plain(c.quote)}”</span>}
               </span>
             </label>
           ))}
@@ -201,7 +202,7 @@ function TermRow({
           <div className="space-y-3">
             {t.evidence?.quote && (
               <blockquote className="border-l-2 border-accent-line pl-3 text-xs text-ink-muted">
-                “{t.evidence.quote}”{t.evidence.page ? ` — page ${t.evidence.page}` : ""}
+                “{plain(t.evidence.quote)}”{t.evidence.page ? `, page ${t.evidence.page}` : ""}
               </blockquote>
             )}
             {checks.length > 0 && (
@@ -358,21 +359,22 @@ export function DocumentFlow({
             const f = e.dataTransfer.files?.[0];
             if (f) void upload(f);
           }}
+          data-drop-zone=""
           className={cn(
-            "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed px-6 py-14 text-center transition-colors duration-200",
-            drag ? "border-accent bg-accent-soft" : "border-line-strong bg-canvas",
+            "flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-dashed px-6 py-12 text-center transition-colors duration-200 sm:py-16",
+            drag ? "border-brand bg-brand-tint" : "border-brand-line bg-canvas",
           )}
         >
-          <span className="flex size-11 items-center justify-center rounded-full bg-surface shadow-soft">
+          <span className="flex size-16 items-center justify-center rounded-full bg-surface shadow-surface">
             {busy ? (
-              <Loader2 aria-hidden className="size-5 animate-spin text-accent motion-reduce:animate-none" />
+              <Loader2 aria-hidden className="size-7 animate-spin text-brand motion-reduce:animate-none" />
             ) : (
-              <FileUp aria-hidden className="size-5 text-ink-muted" />
+              <FileUp aria-hidden className="size-7 text-brand" />
             )}
           </span>
-          <div className="space-y-1">
-            <p className="text-[15px] font-medium text-ink">{busy ? "Reading the document…" : "Drop your loan contract here"}</p>
-            <p className="text-[13px] text-ink-muted">PDF up to 10 MB and 30 pages. In demo mode, use the bundled synthetic samples.</p>
+          <div className="space-y-1.5">
+            <p className="text-xl font-extrabold text-ink">{busy ? "Reading the document…" : "Drop your loan contract here"}</p>
+            <p className="text-[15px] text-ink-2">PDF up to 10 MB and 30 pages. In demo mode, use the bundled synthetic samples.</p>
           </div>
           <input
             ref={inputRef}
@@ -388,9 +390,9 @@ export function DocumentFlow({
               e.target.value = "";
             }}
           />
-          <Button variant="secondary" disabled={busy} onClick={() => inputRef.current?.click()} className="mt-1">
+          <PrimaryAction disabled={busy} onClick={() => inputRef.current?.click()} arrow={false} className="mt-1">
             Choose a file
-          </Button>
+          </PrimaryAction>
         </div>
       )}
 
@@ -398,23 +400,22 @@ export function DocumentFlow({
         <div className="space-y-2">
           <ErrorState error={error} />
           <Button variant="link" onClick={onUseManual}>
-            Type the terms instead
+            Enter the numbers instead
           </Button>
         </div>
       )}
 
       {doc && (doc.status === "failed" || doc.status === "unsupported") && (
-        <div role="alert" className="rounded-card bg-deficit-soft p-5 text-sm leading-relaxed">
-          <p className="font-semibold text-deficit">
+        <div role="alert" data-unsupported="" className="rounded-[24px] bg-shortfall-soft p-6 leading-relaxed sm:p-8">
+          <p className="flex items-center gap-3 text-xl font-extrabold text-shortfall-ink">
+            <Ban aria-hidden className="size-6 shrink-0" />
             {doc.status === "unsupported" ? "This document or loan type isn't supported" : "We couldn't read this document"}
           </p>
-          {doc.message && <p className="mt-1 text-ink">{doc.message}</p>}
-          <p className="mt-1 text-ink-muted">You can still type the terms of a fixed-rate offer yourself.</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button size="sm" onClick={onUseManual}>
-              Type the terms instead
-            </Button>
-            <Button size="sm" variant="secondary" onClick={reset}>
+          {doc.message && <p className="mt-2 max-w-[var(--measure)] text-[17px] text-ink">{plain(doc.message)}</p>}
+          <p className="mt-2 max-w-[var(--measure)] text-[15px] text-ink-2">You can still type the terms of a fixed-rate offer yourself.</p>
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <PrimaryAction onClick={onUseManual}>Enter the numbers instead</PrimaryAction>
+            <Button size="lg" variant="ghost" onClick={reset}>
               Try another file
             </Button>
           </div>
@@ -424,7 +425,7 @@ export function DocumentFlow({
       {doc && doc.status === "needs_choice" && (
         <FadeIn>
           <fieldset className="space-y-3">
-            <legend className="mb-1 text-lg font-semibold tracking-tight text-ink">
+            <legend className="mb-1 text-[length:var(--text-title)] font-extrabold leading-tight tracking-[-0.015em] text-ink">
               This document has {doc.offers_found} offers. Which one are you considering?
             </legend>
             <FileLine doc={doc} />
@@ -433,9 +434,9 @@ export function DocumentFlow({
                 <label
                   key={l}
                   className={cn(
-                    "flex min-h-13 cursor-pointer items-center gap-3 rounded-card border px-4 py-3 text-[15px] transition-colors duration-150",
-                    "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent",
-                    choice === i + 1 ? "border-ink bg-surface" : "border-line-strong bg-surface hover:bg-canvas",
+                    "flex min-h-16 cursor-pointer items-center gap-4 rounded-card border-2 px-5 py-4 text-[17px] font-semibold transition-colors duration-150",
+                    "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-strong",
+                    choice === i + 1 ? "border-brand bg-brand-tint" : "border-line bg-surface hover:border-brand-line",
                   )}
                 >
                   <input
@@ -461,7 +462,7 @@ export function DocumentFlow({
       {doc && draft && doc.status === "unsupported" && terms.length > 0 && (
         <section aria-labelledby="reference-heading" className="space-y-3">
           <h2 id="reference-heading" className="text-base font-semibold text-ink">
-            Terms we read — for reference only
+            Terms we read, for reference only
           </h2>
           <p className="text-sm text-ink-muted">
             {doc.filename}
@@ -480,10 +481,10 @@ export function DocumentFlow({
       {doc && draft && doc.status !== "needs_choice" && doc.status !== "unsupported" && doc.status !== "failed" && (
         <FadeIn as="section" aria-labelledby="verify-heading" className="space-y-5">
           <div className="space-y-1.5">
-            <h2 id="verify-heading" className="text-lg font-semibold tracking-tight text-ink">
+            <h2 id="verify-heading" className="text-[length:var(--text-title)] font-extrabold leading-tight tracking-[-0.015em] text-ink">
               Check what we read
             </h2>
-            <p className="text-sm text-ink-muted">Compare each value with your document, then confirm or correct it.</p>
+            <p className="text-[17px] text-ink-2">Compare each value with your document, then confirm or correct it.</p>
             <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-1">
               <FileLine doc={doc} />
               <span className="tabular text-[13px] text-ink-subtle">

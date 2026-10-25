@@ -5,6 +5,7 @@ import type { LoanOffer } from "@/lib/contracts";
 import { TERM_LABELS, termValueText } from "@/lib/labels";
 import { termChip } from "@/lib/provenance";
 import { Chip } from "@/components/provenance-chip";
+import { plain } from "@/lib/copy";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const TERM_ORDER = [
@@ -36,7 +37,7 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
           </p>
           <p className="mt-1 text-ink">
             DecisionTwin handles fixed-rate loans with equal monthly payments. This offer has:{" "}
-            {offer.unsupported_features.join(", ")}. We can still show the terms we read below, but we won&apos;t calculate
+            {plain(offer.unsupported_features.map((f) => f.replace(/_/g, " ")).join(", "))}. We can still show the terms we read below, but we won&apos;t calculate
             results that would be wrong for this product.
           </p>
         </div>
@@ -57,7 +58,7 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
           {others.map((w) => (
             <li key={w} className="flex items-start gap-2">
               <AlertTriangle aria-hidden className="mt-0.5 size-4 shrink-0 text-info" />
-              {w}
+              {plain(w)}
             </li>
           ))}
         </ul>
@@ -99,7 +100,7 @@ export function OfferSummary({ offer }: { offer: LoanOffer }) {
               <CheckCircle2 aria-hidden className="size-4" /> Ready to analyse
             </span>
           ) : (
-            <span className="text-sm font-normal text-info">Not ready yet — needs amount, rate and term</span>
+            <span className="text-sm font-normal text-info">Not ready yet: needs amount, rate and term</span>
           )}
         </CardTitle>
         <p className="text-sm text-ink-muted">
