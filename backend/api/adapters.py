@@ -28,10 +28,10 @@ def find_candidate(question_id: str, facts: Mapping, selected: list[str], offer,
                    skipped: set[str]):
     """Re-derive a QuestionCandidate from its deterministic id (q_<fact_key> / q_ack_<rule_id>).
 
-    Uses an intake helper when one exists (`candidate_for` / `candidate_by_id` / `get_candidate`), else searches the
+    Uses the intake helper when it exists (`candidate_from_id`, Agent 2), else searches the
     current next question and its refinements (also with an empty skipped set, so a re-asked skip is found)."""
     from intake import questions
-    for name in ("candidate_for", "candidate_by_id", "get_candidate"):
+    for name in ("candidate_from_id", "candidate_for", "candidate_by_id", "get_candidate"):
         helper = getattr(questions, name, None)
         if callable(helper):
             try:
