@@ -20,6 +20,6 @@ Reported as measured. States: Passed · Failed · Blocked · Not run · Not impl
 | 21:12 | live browser walkthrough re-run | **PASS 23/23** (welcome → 5 adaptive questions → manual offer → dashboard figures → stress → alternatives → report → 360 px, 0 console errors) |
 | — | Docker Compose | NOT RUN (Docker not installed) |
 | — | Gemini live extraction | NOT RUN (no API key; paid mode not authorized) |
-| 21:25 | CP3 `scripts/document_walkthrough.py` (TestClient, synthetic fixtures, no Gemini key) — synthetic_only | **PASS** 25/25 (reader extraction 6 TILA fields exact; quote+page+label anchor; APR 5.80% vs 5.796% pass; confirm → evidence_matched_user_confirmed; analysis 375.14/474.86; two-option → needs_choice; variable-rate unsupported; injection ignored; non-fixture → 403; non-PDF rejected) |
-| 21:26 | same, LLM_DATA_MODE=off (A-13) | **PASS** 25/25 (non-fixture PDF read locally, reader_only) |
-| 21:32 | `scripts/demo_cases.py` normal / edge / failure | **PASS** 25/25 (edge values independently recomputed: 17,700 → 318.96 / 22,965.58 / 5,265.58; 445.00 → 126.04; reserve 0.13; deficit −210.00 acknowledged once) |
+| ≈21:15 | CP3 `scripts/document_walkthrough.py` (TestClient, synthetic fixtures, no Gemini key) — synthetic_only | **PASS** 25/25 (reader extraction 6 TILA fields exact; quote+page+label anchor; APR 5.80% vs 5.796% pass; confirm → evidence_matched_user_confirmed; analysis 375.14/474.86; two-option → needs_choice; variable-rate unsupported; injection ignored; non-fixture → 403; non-PDF rejected) |
+| ≈21:15 | same, LLM_DATA_MODE=off (A-13) | **PASS** 25/25 (non-fixture PDF read locally, reader_only) |
+| 21:17 | `scripts/demo_cases.py` normal / edge / failure | **PASS** 25/25 (edge values independently recomputed: 17,700 → 318.96 / 22,965.58 / 5,265.58; 445.00 → 126.04; reserve 0.13; deficit −210.00 acknowledged once) |
