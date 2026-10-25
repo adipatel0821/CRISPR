@@ -24,10 +24,10 @@ import type { Alternative, ScenarioResult } from "@/lib/contracts";
 import { displayNumber, formatMoney, formatMoneyTick } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const ACCENT = "#0f766e";
-const CONTEXT = "#64748b";
-const GRID = "#e2e8f0";
-const AXIS = "#64748b";
+const ACCENT = "#2A64E3";
+const CONTEXT = "#7C8BA1";
+const GRID = "#E4E8EF";
+const AXIS = "#667085";
 
 /* ------------------------------------------------------------------ */
 /* Stacked breakdown bar: "Where does the total paid through the deal go?" */
