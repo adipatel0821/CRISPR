@@ -8,7 +8,7 @@ import { buttonVariants } from "./button";
 
 /* ---------------- Skeleton ---------------- */
 export function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div aria-hidden className={cn("animate-pulse rounded-md bg-line/70", className)} {...props} />;
+  return <div aria-hidden className={cn("animate-pulse rounded-control bg-subtle", className)} {...props} />;
 }
 
 /* ---------------- Checkbox ---------------- */
@@ -16,7 +16,7 @@ export function Checkbox({ className, ...props }: React.ComponentProps<typeof CB
   return (
     <CB.Root
       className={cn(
-        "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border border-line-strong bg-surface",
+        "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-line-strong bg-surface transition-colors duration-150",
         "data-[state=checked]:border-accent data-[state=checked]:bg-accent data-[state=checked]:text-white",
         className,
       )}
@@ -50,7 +50,7 @@ export const Tabs = T.Root;
 export function TabsList({ className, ...props }: React.ComponentProps<typeof T.List>) {
   return (
     <T.List
-      className={cn("inline-flex w-full gap-1 rounded-lg border border-line bg-canvas p-1 sm:w-auto", className)}
+      className={cn("inline-flex w-full gap-1 rounded-full bg-canvas p-1 sm:w-auto", className)}
       {...props}
     />
   );
@@ -59,8 +59,8 @@ export function TabsTrigger({ className, ...props }: React.ComponentProps<typeof
   return (
     <T.Trigger
       className={cn(
-        "flex-1 rounded-md px-3 py-1.5 text-sm font-medium text-ink-muted sm:flex-none",
-        "data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-sm",
+        "flex-1 rounded-full px-4 py-1.5 text-sm font-medium text-ink-muted transition-colors duration-150 hover:text-ink sm:flex-none",
+        "data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-soft",
         className,
       )}
       {...props}
@@ -89,8 +89,8 @@ export function ConfirmDialog({
     <AD.Root>
       <AD.Trigger asChild>{trigger}</AD.Trigger>
       <AD.Portal>
-        <AD.Overlay className="fixed inset-0 z-50 bg-ink/40" />
-        <AD.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-line bg-surface p-6 shadow-xl">
+        <AD.Overlay className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px]" />
+        <AD.Content className="fixed left-1/2 top-1/2 z-50 w-[min(28rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-card border border-line bg-surface p-6 shadow-soft data-[state=open]:animate-fade-in">
           <AD.Title className="text-base font-semibold text-ink">{title}</AD.Title>
           <AD.Description className="mt-2 text-sm text-ink-muted">{description}</AD.Description>
           <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
