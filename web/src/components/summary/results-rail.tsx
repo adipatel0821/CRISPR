@@ -52,7 +52,7 @@ export function resultsRail(report: DecisionReport, current: ResultsStep): Pick<
     progress: <RailProgress value={step} max={STEPS.length} label={`Step ${step} of ${STEPS.length}`} />,
     stage: (
       <span className="flex items-center gap-2.5">
-        <Car aria-hidden className="size-6 shrink-0 text-brand" />
+        <Car aria-hidden className="size-6 shrink-0 text-ink" />
         <span className="min-w-0">{label || "Your loan"}</span>
       </span>
     ),

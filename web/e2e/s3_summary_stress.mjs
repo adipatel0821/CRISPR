@@ -1,11 +1,16 @@
 // UX3 Decision summary + Stress test: live browser check through the real API (sessions seeded via the API, the
 // same reference case as ux_b_flow.mjs). Ports every value assertion of ux_b_flow.mjs for these two screens and adds
-// the UX3 checks: big figure, bars, savings line, running-costs note (and its absence with refinements), scenario
-// switching, the cost-rise limitation, one primary action, copy, axe, keyboard, no sideways scroll at 390/360 px.
+// the UX3 checks: the summary is ONE result card (result on top: big figure, bars, savings line, running-costs note
+// and its absence with refinements; everything else behind "Show all details", collapsed by default, aria-expanded,
+// keyboard, hash and print open it), scenario switching, the cost-rise limitation, one primary action, copy, axe,
+// no sideways scroll at 390/360 px, and a small loan ($5,000 over 24 months) whose four-digit figure stays on one line.
+// Review fixes: the toggle's keyboard focus ring sits inside the button (outline-offset -4px); "See all assumptions"
+// opens the card again after it was closed (closing clears the hash); opening brings the first details on screen
+// (not below the fold or behind the docked action, also with normal motion); the hint gives the flag count; source
+// counts match what is listed; no $0.00 breakdown rows and "Not known" taxes; the primary action docks below 1280 px.
 //
 // Usage (playwright-core + axe-core resolvable from this file's folder; system Chrome):
 //   WEB=http://localhost:3302 API=http://localhost:8302 node s3_summary_stress.mjs [screenshot-dir]
-import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -41,6 +46,22 @@ const OFFER = {
     term_months: 60, monthly_payment: "375.14",
   },
 };
+// The owner's household style: a $5,000 car over 24 months.
+const SMALL_HOUSEHOLD = [
+  { key: "income.take_home_monthly", value: "3100" },
+  { key: "expenses.essential.total", value: "840" },
+  { key: "debts.count", value: "0" },
+  { key: "savings.liquid", value: "5000" },
+  { key: "loan.down_payment_source", value: "savings" },
+];
+const SMALL_OFFER = {
+  label: "",
+  confirmed: true,
+  terms: {
+    cash_price: "5000.00", cash_down: "1000.00", principal: "4000.00", amount_financed: "4000.00",
+    prepaid_finance_charges: "0.00", contract_rate: "0.069", apr: "0.069", term_months: 24,
+  },
+};
 
 const results = [];
 function check(name, ok, detail = "") {
@@ -58,16 +79,17 @@ async function api(method, p, body, token) {
   return r.status === 204 ? null : r.json();
 }
 
-async function seed(facts) {
+async function seed(facts, offer = OFFER) {
   const s = await api("POST", "/sessions", {});
   await api("POST", `/sessions/${s.session_id}/facts`, { facts }, s.token);
-  const offerId = (await api("POST", `/sessions/${s.session_id}/offers`, OFFER, s.token)).offer_id;
-  const reportId = (await api("POST", `/sessions/${s.session_id}/analysis`, {}, s.token)).report_id;
-  return { sessionId: s.session_id, token: s.token, dataMode: s.data_mode, offerId, reportId };
+  const offerId = (await api("POST", `/sessions/${s.session_id}/offers`, offer, s.token)).offer_id;
+  const analysis = await api("POST", `/sessions/${s.session_id}/analysis`, {}, s.token);
+  return { sessionId: s.session_id, token: s.token, dataMode: s.data_mode, offerId, reportId: analysis.report_id, report: analysis };
 }
 
-async function context(browser, seedInfo, viewport) {
-  const ctx = await browser.newContext({ viewport, reducedMotion: "reduce" });
+async function context(browser, seedInfo, viewport, reducedMotion = "reduce") {
+  const ctx = await browser.newContext({ viewport, reducedMotion });
+  const { sessionId, token, dataMode, offerId, reportId } = seedInfo;
   await ctx.addInitScript((v) => {
     sessionStorage.setItem("dt.session_id", v.sessionId);
     sessionStorage.setItem("dt.token", v.token);
@@ -75,16 +97,30 @@ async function context(browser, seedInfo, viewport) {
     sessionStorage.setItem("dt.consent", "1");
     sessionStorage.setItem("dt.offer_id", v.offerId);
     sessionStorage.setItem("dt.report_id", v.reportId);
-  }, seedInfo);
+  }, { sessionId, token, dataMode, offerId, reportId });
   return ctx;
 }
+
+/** The result card's disclosure: toggle state, what it controls, whether the details region is shown. */
+const cardState = (page) =>
+  page.evaluate(() => {
+    const t = document.querySelector("[data-result-card] [data-card-toggle]");
+    const region = document.querySelector("[data-result-card] [data-card-details]");
+    return {
+      cards: document.querySelectorAll("[data-result-card]").length,
+      expanded: t?.getAttribute("aria-expanded") ?? null,
+      controlsRegion: !!t && !!region && t.getAttribute("aria-controls") === region.id,
+      toggleName: t?.textContent.replace(/\s+/g, " ").trim() ?? "",
+      detailsShown: !!region && region.checkVisibility({ checkVisibilityCSS: true }),
+      focusOnToggle: document.activeElement === t,
+    };
+  });
 
 async function axeSerious(page) {
   await page.emulateMedia({ reducedMotion: "reduce" });
   if (!(await page.evaluate(() => typeof window.axe !== "undefined"))) await page.addScriptTag({ path: AXE });
   const r = await page.evaluate(async () => {
-    // eslint-disable-next-line no-undef
-    const res = await axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] } });
+    const res = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice"] } });
     return res.violations.map((v) => ({ id: v.id, impact: v.impact, n: v.nodes.length, targets: v.nodes.slice(0, 3).map((n) => n.target.join(" ")) }));
   });
   for (const v of r) console.log(`     - [${v.impact}] ${v.id} x${v.n} :: ${v.targets.join(" | ")}`);
@@ -135,6 +171,29 @@ const primaries = (page) =>
     const shown = (e) => e.checkVisibility({ checkVisibilityCSS: true });
     return { total: els.length, visible: els.filter(shown).length, text: els.map((e) => e.textContent.trim()), hrefs: els.filter(shown).map((e) => e.getAttribute("href")) };
   });
+/** Where the visible primary action is: in the card's result area, or docked (sticky) at the bottom; and on screen. */
+const primaryPlace = (page) =>
+  page.evaluate(() => {
+    const el = [...document.querySelectorAll("[data-primary-action]")].find((e) => e.checkVisibility({ checkVisibilityCSS: true }));
+    if (!el) return null;
+    const row = el.closest("[data-action-row]");
+    const r = el.getBoundingClientRect();
+    return { inHero: !!el.closest("[data-summary-hero]"), docked: !!row && getComputedStyle(row).position === "sticky", top: Math.round(r.top), bottom: Math.round(r.bottom), vh: innerHeight };
+  });
+/**
+ * After "Show all details": where the details start, where the first details heading ends, and the top of the docked
+ * action (or the bottom of the screen). Something new must be on screen, not below the fold or behind the dock.
+ */
+const revealState = (page) =>
+  page.evaluate(() => {
+    const d = document.getElementById("card-details").getBoundingClientRect();
+    const h = document.getElementById("loan-cost-title").getBoundingClientRect();
+    const t = document.querySelector("[data-card-toggle]").getBoundingClientRect();
+    const dock = [...document.querySelectorAll("[data-action-row]")].find((e) => e.checkVisibility({ checkVisibilityCSS: true }));
+    const dockTop = dock ? dock.getBoundingClientRect().top : innerHeight;
+    return { detailsTop: Math.round(d.top), headingBottom: Math.round(h.bottom), toggleTop: Math.round(t.top), dockTop: Math.round(dockTop), vh: innerHeight };
+  });
+const revealed = (r) => r.detailsTop < r.vh * 0.7 && r.headingBottom <= r.dockTop && r.toggleTop >= -1;
 const sideways = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 const h1Count = (page) => page.locator("h1").count();
 
@@ -168,8 +227,16 @@ try {
     "no assumption chip on the loan-cost figures",
     (await page.getByRole("button", { name: /Includes an assumption for (Monthly payment|Finance charge|Total of payments)/ }).count()) === 0,
   );
+  // The card, closed: the result is visible; the secondary figures are in the DOM but not shown.
   const visible = await visibleText(page);
-  for (const v of ["375.14", "22,508.29", "3,008.29", "26,508.29", "2,000.00", "1,300.00", "924.86", "6,000.00"]) check(`summary VISIBLE ${v}`, visible.includes(v));
+  for (const v of ["2,000.00", "1,300.00", "924.86", "6,000.00", "375.14"]) check(`summary VISIBLE (card closed) ${v}`, visible.includes(v));
+  const c0 = await cardState(page);
+  check("one result card", c0.cards === 1, JSON.stringify(c0));
+  check('details collapsed by default (aria-expanded="false", region hidden)', c0.expanded === "false" && !c0.detailsShown, JSON.stringify(c0));
+  check("toggle controls the details region (aria-controls)", c0.controlsRegion, JSON.stringify(c0));
+  check('toggle reads "Show all details"', /^Show all details/.test(c0.toggleName) && (await page.getByRole("button", { name: "Show all details", exact: true }).count()) === 1, c0.toggleName);
+  for (const v of ["22,508.29", "3,008.29", "26,508.29", "2,508.29", "3,625.42"]) check(`secondary figure ${v} not shown until the card opens`, !visible.includes(v));
+  check("details headings not shown until the card opens", !/Things we flagged|Assumptions and limitations|Every source/.test(visible));
   check("running-costs limitation visible", /running costs/i.test(visible) && /aren.t included/i.test(visible));
   check('running-costs note has "Add them"', (await page.locator("[data-running-costs-note] a", { hasText: "Add them" }).count()) === 1);
   check("discretionary label visible", /discretionary/i.test(visible));
@@ -184,23 +251,27 @@ try {
   const bigSize = await big.locator("p.figure").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
   check("big figure above the fold at 1440x900", bigBox && bigBox.y + bigBox.height <= 900, JSON.stringify(bigBox));
   check("big figure at least 56px", bigSize >= 56, String(bigSize));
-  const bars = await page.locator("[data-value-bars] li").allInnerTexts();
+  check("big figure on one line", bigBox && bigBox.height < bigSize * 1.5, `${bigBox?.height} for ${bigSize}px`);
+  check("big figure is the top of the card", await page.evaluate(() => document.querySelector("[data-result-card] [data-summary-hero] [data-big-figure]") !== null));
+  const bars = await page.locator("[data-summary-hero] [data-value-bars] li").allInnerTexts();
   check("before/after bars: $1,300.00 then $924.86", bars.length === 2 && bars[0].includes("1,300.00") && bars[1].includes("924.86"), JSON.stringify(bars));
-  const widths = await page.locator("[data-value-bars] .dt-bar").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
+  const widths = await page.locator("[data-summary-hero] [data-value-bars] .dt-bar").evaluateAll((els) => els.map((e) => e.getBoundingClientRect().width));
   check("bars share one zero-based scale (924.86/1300 ratio)", widths.length === 2 && Math.abs(widths[1] / widths[0] - 924.86 / 1300) < 0.02, JSON.stringify(widths));
-  const savingsLine = (await page.locator("[data-savings-line]").innerText()).replace(/\s+/g, " ");
-  check("savings line: drop to $2,000.00, from $6,000.00", /drop to \$2,000\.00 after the down payment/.test(savingsLine) && /6,000\.00/.test(savingsLine), savingsLine);
+  const savingsLine = (await page.locator("[data-summary-hero] [data-savings-line]").innerText()).replace(/\s+/g, " ");
+  check("savings line: from $6,000.00 to $2,000.00 after the down payment", /from \$6,000\.00 to \$2,000\.00 after the down payment/.test(savingsLine), savingsLine);
   const p1 = await primaries(page);
   check("one primary action (visible), to /stress", p1.visible === 1 && p1.hrefs[0] === "/stress", JSON.stringify(p1));
   // Owner palette (2026-10-25 11:20): the primary pill is bright yellow (--color-cta #FFD43B) with black text.
   check("primary action is the yellow pill", (await page.locator("[data-primary-action]:visible").evaluate((el) => getComputedStyle(el).backgroundColor)) === "rgb(255, 212, 59)");
+  check("primary action sits in the card's result area", await page.evaluate(() => [...document.querySelectorAll("[data-primary-action]")].some((e) => e.checkVisibility() && e.closest("[data-summary-hero]"))));
+  const toggleBox = await page.locator("[data-card-toggle]").boundingBox();
+  check("Show all details is on the first screen at 1440x900", toggleBox && toggleBox.y + toggleBox.height <= 900, JSON.stringify(toggleBox));
+  const hint = (await page.locator("#card-toggle-hint").innerText()).replace(/\s+/g, " ");
+  check('toggle hint names the main concern and the flag count ("1 flag")', /the main concern/.test(hint) && /\b1 flag\b/.test(hint), hint);
   check("one h1", (await h1Count(page)) === 1);
   check('h1 is "Here\'s how this loan changes your month."', /Here.s how this loan changes your month\./.test(await page.locator("h1").innerText()));
   check("rail shows loan context", /Car price[\s\S]*22,000\.00[\s\S]*Monthly payment[\s\S]*375\.14/.test(await page.locator("aside[data-stage-rail]").innerText()));
   check("journey rows: Summary current, Stress test, Options, Report", (await page.locator("aside nav[data-journey] li").count()) === 4 && (await page.locator('aside [aria-current="step"]').innerText()).includes("Summary"));
-  check("main concern shown (What to look at next)", /What to look at next/.test(visible) && /month 2/.test(visible));
-  check("secondary column has sources", (await page.locator("[data-source-link]").count()) >= 4);
-  check("full breakdown collapsed by default", !(await page.locator("#breakdown").evaluate((d) => d.open)));
   await shoot(page, "summary_1440");
   let ax = await axeSerious(page);
   check("axe /dashboard: no serious/critical", ax.length === 0, ax.join(", "));
@@ -213,27 +284,118 @@ try {
   check("source popover opens in one click", (await page.locator("[data-radix-popper-content-wrapper]").count()) >= 1);
   await page.keyboard.press("Escape");
 
-  // Full breakdown: keyboard opens it; figures moved there are present.
-  const sum = page.locator("#breakdown > summary");
-  await sum.focus();
+  // Keyboard focus on "Show all details": the ring is drawn inside the button, so the card's clipped edges keep all of it.
+  await page.locator("[data-card-toggle]").focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  const ring = await page.evaluate(() => {
+    const t = document.querySelector("[data-card-toggle]");
+    const cs = getComputedStyle(t);
+    return { focused: document.activeElement === t, focusVisible: t.matches(":focus-visible"), offset: cs.outlineOffset, style: cs.outlineStyle, width: cs.outlineWidth, radius: cs.borderTopLeftRadius };
+  });
+  check('Tab to "Show all details": focus ring inside the button (outline-offset -4px, solid, rounded)', ring.focused && ring.focusVisible && ring.offset === "-4px" && ring.style === "solid" && ring.radius === "24px", JSON.stringify(ring));
+  await page.locator("[data-card-toggle]").screenshot({ path: path.join(OUT, "summary_1440_toggle_focus.png") });
+
+  // Show all details: the keyboard opens the same card in place; every secondary figure and source is there.
+  await page.locator("[data-card-toggle]").focus();
   await page.keyboard.press("Enter");
-  await page.waitForTimeout(300);
-  check("full breakdown opens with keyboard", await page.locator("#breakdown").evaluate((d) => d.open));
+  await page.waitForTimeout(400);
+  const c1 = await cardState(page);
+  check('keyboard (Enter) opens the details (aria-expanded="true", region shown)', c1.expanded === "true" && c1.detailsShown, JSON.stringify(c1));
+  check('toggle now reads "Hide details" and keeps focus', /^Hide details/.test(c1.toggleName) && c1.focusOnToggle, JSON.stringify(c1));
+  check("details open inside the same card", await page.evaluate(() => !!document.querySelector("[data-result-card] [data-card-details] #loan-cost")));
+  const r1440 = await revealState(page);
+  check("opening brings the first details onto the screen at 1440x900 (not just the label change)", revealed(r1440), JSON.stringify(r1440));
   const open = await visibleText(page);
-  check("breakdown: interest 2,508.29 + fees 500.00", open.includes("2,508.29") && open.includes("500.00"));
-  check("breakdown: APR check 5.796%", open.includes("5.796%"));
-  check("breakdown: reserve 2.07 -> 0.61 months", /2\.07/.test(open) && /0\.61/.test(open), open.match(/cover.{0,80}/)?.[0]);
-  check("breakdown: flags, assumptions, unknowns, sources", /Things we flagged/.test(open) && /Assumptions and limitations/.test(open) && /What we don.t know/.test(open) && /All sources/.test(open));
-  await page.locator("summary", { hasText: /^All sources/ }).click();
-  await page.waitForTimeout(300);
+  for (const v of ["375.14", "22,508.29", "3,008.29", "26,508.29"]) check(`details VISIBLE ${v}`, open.includes(v));
+  check("details: finance charge = interest 2,508.29 + fees 500.00", open.includes("2,508.29") && open.includes("500.00"));
+  check("details: APR check 5.796%", open.includes("5.796%") && /They agree/.test(open));
+  check("details: reserve 2.07 -> 0.61 months", /2\.07 months/.test(open) && /0\.61 months/.test(open), open.match(/cover.{0,80}/)?.[0]);
+  check("details: main concern (What to look at next): savings run out in month 2, shortfall 3,625.42", /What to look at next/.test(open) && /month 2/.test(open) && open.includes("3,625.42"));
+  check("details: an option worth exploring", /Worth exploring/.test(open));
+  check("details: flags with citations, assumptions, unknowns, every source", /Things we flagged/.test(open) && /CFPB Making Ends Meet/.test(open) && /Assumptions and limitations/.test(open) && /What we don.t know/.test(open) && /Every source \(\d+\)/.test(open));
+  const shownSources = await page.locator("[data-result-card] [data-source-link]").evaluateAll((els) => els.filter((e) => e.checkVisibility()).length);
+  check("details: How we got this on every figure (8+ sources shown)", shownSources >= 8, String(shownSources));
+  const src = await page.evaluate(() => {
+    const block = document.getElementById("sources");
+    const n = (el) => Number(el?.textContent.match(/\((\d+)\)/)?.[1] ?? NaN);
+    const heads = [...block.querySelectorAll("h3")];
+    const calcHead = heads.find((h) => /^Calculations/.test(h.textContent.trim()));
+    const names = block.querySelector("[data-calc-sources]")?.textContent.split(" · ").filter((s) => s.trim()).length ?? 0;
+    return { total: n(block.querySelector("h2")), calc: calcHead ? n(calcHead) : 0, names, items: block.querySelectorAll("li").length, groupSum: heads.reduce((s, h) => s + n(h), 0) };
+  });
+  check("Every source: the Calculations count is the number of names listed", src.calc > 0 && src.calc === src.names, JSON.stringify(src));
+  check("Every source: the total is what is listed (groups add up)", src.total === src.items + src.names && src.total === src.groupSum, JSON.stringify(src));
+  const parts = await page.locator("#money-breakdown [data-value-bars] li").allInnerTexts();
+  check(
+    "Where the money goes: car price, taxes and finance charge; no $0.00 rows (no add-ons, nothing rolled in)",
+    parts.length === 3 && parts.every((t) => !/\$0\.00/.test(t)) && ["22,000.00", "1,500.00", "3,008.29"].every((v, i) => parts[i].includes(v)),
+    JSON.stringify(parts),
+  );
+  // The details quote the backend's "the rate the lender approved" (the buy rate); a verdict about the person is what's banned.
+  const badOpen = open.match(/you can afford|\bsafe\b|recommended|\bbest\b|\bshould\b|\bverified\b|\byou(?:'re|’re| are| would be| will be)? (?:be )?approved\b/i);
+  check("no approval / verdict language (details open)", !badOpen, badOpen ? badOpen[0] : "");
+  check("one primary action with the details open", (await primaries(page)).visible === 1);
   await page.screenshot({ path: path.join(OUT, "summary_1440_open.png"), fullPage: true });
   ax = await axeSerious(page);
-  check("axe /dashboard (breakdown open): no serious/critical", ax.length === 0, ax.join(", "));
+  check("axe /dashboard (details open): no serious/critical", ax.length === 0, ax.join(", "));
   cp = await copyProblems(page);
-  check("copy (breakdown open) clean", cp.length === 0, cp.slice(0, 3).join(" | "));
+  check("copy (details open) clean", cp.length === 0, cp.slice(0, 3).join(" | "));
 
-  // Other widths.
-  for (const [w, h] of [[1920, 1080], [768, 1024], [390, 844]]) {
+  // Toggle back with a click; then open again and close from the bottom "Hide details" (focus returns to the toggle).
+  await page.locator("[data-card-toggle]").click();
+  await page.waitForTimeout(400);
+  const c2 = await cardState(page);
+  check('click closes the details (aria-expanded="false", "Show all details")', c2.expanded === "false" && !c2.detailsShown && /^Show all details/.test(c2.toggleName), JSON.stringify(c2));
+  check("closed again: secondary figures hidden", !(await visibleText(page)).includes("22,508.29"));
+  await page.keyboard.press("Space");
+  await page.waitForTimeout(400);
+  check("Space opens it again", (await cardState(page)).expanded === "true");
+  await page.locator("[data-card-hide]").click();
+  await page.waitForTimeout(500);
+  const c3 = await cardState(page);
+  check("bottom Hide details closes and returns focus to the toggle", c3.expanded === "false" && !c3.detailsShown && c3.focusOnToggle, JSON.stringify(c3));
+
+  // Printing shows everything; a link to #assumptions opens the card at that section.
+  await page.emulateMedia({ media: "print" });
+  check("print: details printed even when closed", await page.evaluate(() => document.querySelector("[data-card-details]").checkVisibility({ checkVisibilityCSS: true })));
+  check("print: no toggle, no primary pill", await page.evaluate(() => !document.querySelector("[data-card-toggle]").checkVisibility() && ![...document.querySelectorAll("[data-primary-action]")].some((e) => e.checkVisibility())));
+  await page.emulateMedia({ media: "screen" });
+  await page.goto(WEB + "/dashboard#assumptions", { waitUntil: "networkidle" });
+  await page.locator("[data-summary-hero]").waitFor();
+  await page.waitForTimeout(600);
+  const c4 = await cardState(page);
+  check("#assumptions opens the details and shows that section", c4.expanded === "true" && (await page.locator("#assumptions").isVisible()), JSON.stringify(c4));
+
+  // "See all assumptions" (in the card top's assumption popovers) keeps working after the card is closed: closing
+  // clears the hash, so the same link changes it again. Closed once with the toggle, once with the bottom button.
+  const addressState = () => page.evaluate(() => ({ hash: location.hash, expanded: document.querySelector("[data-card-toggle]").getAttribute("aria-expanded") }));
+  const assumptionsOnScreen = () => page.evaluate(() => { const r = document.getElementById("assumptions").getBoundingClientRect(); return r.top >= -1 && r.top < innerHeight; });
+  const followAssumptionsLink = async () => {
+    await page.locator("[data-summary-hero] [data-caveat=assumption]").first().click();
+    const link = page.locator("[data-radix-popper-content-wrapper] a[href='#assumptions']");
+    await link.waitFor({ timeout: 5000 });
+    await link.click();
+    await page.waitForTimeout(600);
+  };
+  await page.locator("[data-card-toggle]").click();
+  await page.waitForTimeout(400);
+  let addr = await addressState();
+  check("closing with the toggle clears #assumptions from the address", addr.expanded === "false" && addr.hash === "", JSON.stringify(addr));
+  await followAssumptionsLink();
+  let c5 = await cardState(page);
+  check("See all assumptions opens the card again after it was closed, at that section", c5.expanded === "true" && c5.detailsShown && (await assumptionsOnScreen()), JSON.stringify(c5));
+  await page.locator("[data-card-hide]").click();
+  await page.waitForTimeout(500);
+  addr = await addressState();
+  check("closing with the bottom Hide details clears the hash too", addr.expanded === "false" && addr.hash === "", JSON.stringify(addr));
+  await followAssumptionsLink();
+  c5 = await cardState(page);
+  check("See all assumptions opens the card a third time", c5.expanded === "true" && c5.detailsShown && (await assumptionsOnScreen()), JSON.stringify(c5));
+
+  // Other widths, closed and open. Below 1280 px the primary action docks at the bottom of the screen (at 1024 px the
+  // stacked result would push the card's own pill below the first screen); from 1280 px it sits in the card.
+  for (const [w, h] of [[1920, 1080], [1024, 768], [768, 1024], [390, 844]]) {
     await page.setViewportSize({ width: w, height: h });
     await page.goto(WEB + "/dashboard", { waitUntil: "networkidle" });
     await page.locator("[data-summary-hero]").waitFor();
@@ -242,15 +404,57 @@ try {
     check(`/dashboard no horizontal scroll at ${w}`, ov <= 0, `${ov}px`);
     const pa = await primaries(page);
     check(`/dashboard one visible primary at ${w}`, pa.visible === 1, JSON.stringify(pa));
+    const place = await primaryPlace(page);
+    check(
+      w < 1280 ? `/dashboard ${w}: the primary action is docked and on the first screen` : `/dashboard ${w}: the primary action sits in the card`,
+      place && (w < 1280 ? place.docked && !place.inHero && place.top >= 0 && place.bottom <= place.vh : place.inHero && !place.docked),
+      JSON.stringify(place),
+    );
+    check(`/dashboard details collapsed at ${w}`, (await cardState(page)).expanded === "false");
     await shoot(page, `summary_${w}`);
+    await page.locator("[data-card-toggle]").click();
+    await page.waitForTimeout(400);
+    check(`/dashboard details open at ${w}`, (await cardState(page)).detailsShown && (await visibleText(page)).includes("26,508.29"));
+    const rw = await revealState(page);
+    check(`/dashboard ${w}: opening shows the first details on screen, above the docked action`, revealed(rw), JSON.stringify(rw));
+    const ov2 = await sideways(page);
+    check(`/dashboard no horizontal scroll at ${w} (details open)`, ov2 <= 0, `${ov2}px`);
+    await page.screenshot({ path: path.join(OUT, `summary_${w}_open.png`), fullPage: true });
   }
+  // Still at 390 (the loop's last width), details open.
+  const bars390 = await page.locator("[data-summary-hero] [data-value-bars]").boundingBox();
+  const fig390 = await page.locator("[data-summary-hero] [data-big-figure]").boundingBox();
+  check("390: bars stack under the figure", bars390 && fig390 && bars390.y >= fig390.y + fig390.height - 1, JSON.stringify({ bars390, fig390 }));
+  const dock = await page.evaluate(() => {
+    const el = [...document.querySelectorAll("[data-primary-action]")].find((e) => e.checkVisibility());
+    return el ? { inRow: !!el.closest("[data-action-row]"), pos: getComputedStyle(el.closest("[data-action-row]") ?? el).position } : null;
+  });
+  check("390: the primary action docks at the bottom", dock?.inRow && dock.pos === "sticky", JSON.stringify(dock));
+  ax = await axeSerious(page);
+  check("axe /dashboard at 390 (details open): no serious/critical", ax.length === 0, ax.join(", "));
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto(WEB + "/dashboard", { waitUntil: "networkidle" });
   await page.waitForTimeout(300);
   check("/dashboard no horizontal scroll at 360", (await sideways(page)) <= 0);
+  await page.locator("[data-card-toggle]").click();
+  await page.waitForTimeout(400);
+  check("/dashboard no horizontal scroll at 360 (details open)", (await sideways(page)) <= 0);
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(WEB + "/dashboard", { waitUntil: "networkidle" });
+  await page.locator("[data-summary-hero]").waitFor();
+  await page.waitForTimeout(300);
   ax = await axeSerious(page);
   check("axe /dashboard at 390: no serious/critical", ax.length === 0, ax.join(", "));
+  // Keyboard focus ring at 390 too (the card's edges are closer to the button there).
+  await page.locator("[data-card-toggle]").focus();
+  await page.keyboard.press("Shift+Tab");
+  await page.keyboard.press("Tab");
+  const ring390 = await page.evaluate(() => {
+    const t = document.querySelector("[data-card-toggle]");
+    return { focused: document.activeElement === t, focusVisible: t.matches(":focus-visible"), offset: getComputedStyle(t).outlineOffset };
+  });
+  check("390: Tab focus ring on Show all details is inside the button", ring390.focused && ring390.focusVisible && ring390.offset === "-4px", JSON.stringify(ring390));
+  await page.locator("[data-card-toggle]").screenshot({ path: path.join(OUT, "summary_390_toggle_focus.png") });
 
   /* ----------------------------------------------- Stress, 1440 ----------------------------------------------- */
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -342,6 +546,8 @@ try {
   check("refined: big figure $474.86", /474\.86/.test(await p.locator("[data-big-figure]").first().innerText()));
   check("refined: bars $900.00 -> $474.86", rv.includes("900.00") && rv.includes("474.86"));
   check("refined: running-costs note absent", (await p.locator("[data-running-costs-note]").count()) === 0 && !/aren.t included/i.test(rv));
+  const refinedHint = (await p.locator("#card-toggle-hint").innerText()).replace(/\s+/g, " ");
+  check("refined: toggle hint still lists what opens", /^What the loan costs, .*assumptions and every source\.$/.test(refinedHint), refinedHint);
   await shoot(p, "summary_1440_refined");
   await p.goto(WEB + "/stress", { waitUntil: "networkidle" });
   await p.locator("[data-stress-finding]").waitFor();
@@ -354,6 +560,67 @@ try {
   }
   check("refined: cost-rise scenario shows a result (running costs known)", costRiseResult);
   await ctx2.close();
+
+  /* ---------------------------- The owner's household style: a $5,000 car over 24 months ---------------------------- */
+  const small = await seed(SMALL_HOUSEHOLD, SMALL_OFFER);
+  const m = (k) => small.report.with_offer?.metrics?.[k]?.value ?? small.report.baseline?.metrics?.[k]?.value ?? null;
+  // test-side formatting of backend strings (no arithmetic): "2081.09" -> "$2,081.09"
+  const money = (s) => (s === null ? "Not known" : `${s.startsWith("-") ? "−" : ""}$${Number(s.replace("-", "")).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
+  const sm = { after: money(m("monthly_left_after")), before: money(m("monthly_left_before")), pay: money(m("monthly_payment")), top: money(m("total_of_payments")), fc: money(m("finance_charge")), deal: money(m("total_paid_through_deal")), sav: money(m("savings_after_purchase")) };
+  const ctx3 = await context(browser, small, { width: 1440, height: 900 });
+  const q = await ctx3.newPage();
+  q.on("pageerror", (e) => consoleErrors.push(String(e)));
+  for (const [w, h] of [[1440, 900], [390, 844], [360, 800]]) {
+    await q.setViewportSize({ width: w, height: h });
+    await q.goto(WEB + "/dashboard", { waitUntil: "networkidle" });
+    await q.locator("[data-summary-hero]").waitFor({ timeout: 20000 });
+    await q.waitForTimeout(300);
+    const fig = q.locator("[data-summary-hero] [data-big-figure] p.figure");
+    const figText = (await fig.innerText()).replace(/\s+/g, "");
+    const figBox = await fig.boundingBox();
+    const figSize = await fig.evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+    check(`small loan ${w}: big figure is ${sm.after}`, figText === sm.after, figText);
+    check(`small loan ${w}: four-digit figure stays on one line`, figBox && figBox.height < figSize * 1.5, `${figBox?.height}px for ${figSize}px`);
+    if (w === 1440) check("small loan 1440: figure still large (>= 56px)", figSize >= 56, String(figSize));
+    const sb = await q.locator("[data-summary-hero] [data-value-bars] li").allInnerTexts();
+    check(`small loan ${w}: bars ${sm.before} then ${sm.after}`, sb.length === 2 && sb[0].includes(sm.before) && sb[1].includes(sm.after), JSON.stringify(sb));
+    const sl = (await q.locator("[data-summary-hero] [data-savings-line]").innerText()).replace(/\s+/g, " ");
+    check(`small loan ${w}: savings line ends at ${sm.sav}`, sl.includes(`to ${sm.sav} after the down payment`), sl);
+    check(`small loan ${w}: no horizontal scroll`, (await sideways(q)) <= 0);
+    if (w !== 360) await q.screenshot({ path: path.join(OUT, `summary_small_${w}.png`), fullPage: false });
+    await q.locator("[data-card-toggle]").click();
+    await q.waitForTimeout(400);
+    const sv = await visibleText(q);
+    check(`small loan ${w}: details show payment, total of payments, finance charge, total through the deal`, [sm.pay, sm.top, sm.fc, sm.deal].every((v) => sv.includes(v)), JSON.stringify(sm));
+    if (w === 1440) {
+      // No taxes on this offer: the breakdown says so instead of dropping the row; $0.00 parts are left out.
+      const unknownParts = await q.locator("#money-breakdown [data-breakdown-unknown]").innerText().catch(() => "");
+      check("small loan: taxes, title and fees read Not known in Where the money goes", /Taxes, title and fees\s*Not known/.test(unknownParts), unknownParts);
+      const smallParts = await q.locator("#money-breakdown [data-value-bars] li").allInnerTexts();
+      check("small loan: no $0.00 rows in Where the money goes", smallParts.length > 0 && smallParts.every((t) => !/\$0\.00/.test(t)), JSON.stringify(smallParts));
+    }
+    check(`small loan ${w}: no horizontal scroll (details open)`, (await sideways(q)) <= 0);
+    if (w !== 360) await q.screenshot({ path: path.join(OUT, `summary_small_${w}_open.png`), fullPage: true });
+  }
+  ax = await axeSerious(q);
+  check("axe small loan (details open, 360): no serious/critical", ax.length === 0, ax.join(", "));
+  await ctx3.close();
+
+  /* ------------------- Normal motion: after the 240 ms expand, the first details are on screen ------------------- */
+  for (const [w, h] of [[390, 844], [1440, 900]]) {
+    const ctx4 = await context(browser, ref, { width: w, height: h }, "no-preference");
+    const mp = await ctx4.newPage();
+    mp.on("pageerror", (e) => consoleErrors.push(String(e)));
+    await mp.goto(WEB + "/dashboard", { waitUntil: "networkidle" });
+    await mp.locator("[data-summary-hero]").waitFor({ timeout: 20000 });
+    await mp.waitForTimeout(800);
+    await mp.locator("[data-card-toggle]").click();
+    await mp.waitForTimeout(1500);
+    const mr = await revealState(mp);
+    check(`normal motion ${w}: after opening, the first details are on screen above the docked action`, revealed(mr), JSON.stringify(mr));
+    if (w === 390) await mp.screenshot({ path: path.join(OUT, "summary_390_after_open_motion.png"), fullPage: false });
+    await ctx4.close();
+  }
 } catch (e) {
   check("walkthrough completed without exception", false, String(e).slice(0, 400));
 }

@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { decisionSummary, type SummaryPiece } from "../../lib/insights.ts";
 import type { DecisionReport } from "../../lib/contracts.ts";
-import { alternativeFigure, pieceAlternative, pieceFigure, pieceLink, resolvePiece, withLoanScenarioClaim } from "./select.ts";
+import { alternativeFigure, figureEm, figureFit, pieceAlternative, pieceFigure, pieceLink, resolvePiece, withLoanScenarioClaim } from "./select.ts";
 
 const FIXTURE: DecisionReport = JSON.parse(readFileSync(new URL("../../fixtures/report.json", import.meta.url), "utf8"));
 const clone = (): DecisionReport => JSON.parse(JSON.stringify(FIXTURE));
@@ -102,4 +102,16 @@ test("scenario pieces use the claim for the run WITH the loan when the backend e
   const s = decisionSummary(FIXTURE);
   assert.equal(resolvePiece(FIXTURE, s.concern), s.concern);
   assert.equal(resolvePiece(FIXTURE, null), null);
+});
+
+test("figure width model: never narrower than measured, wider figures get a smaller fit", () => {
+  // measured in Chrome at weight 800 and -0.03em tracking, Plus Jakarta Sans: 3.845 / 4.771 / 5.419 em
+  assert.ok(figureEm("$924.86") >= 3.845);
+  assert.ok(figureEm("$2,081.09") >= 4.771);
+  assert.ok(figureEm("−$1,234.56") >= 5.419);
+  const n = (s: string) => Number(figureFit(s).replace("cqi", ""));
+  assert.match(figureFit("$924.86"), /^\d+(\.\d+)?cqi$/);
+  assert.ok(n("$924.86") > n("$2,081.09") && n("$2,081.09") > n("$12,345.67"));
+  // at its fit, a four-digit amount takes no more than 96% of its column
+  assert.ok((n("$2,081.09") / 100) * figureEm("$2,081.09") <= 0.96 + 1e-9);
 });
