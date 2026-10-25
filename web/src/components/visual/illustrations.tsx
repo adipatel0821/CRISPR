@@ -42,7 +42,7 @@ export function WelcomeTwin({ className, title }: IllustrationProps) {
         <rect x="206" y="262" width="42" height="12" rx="5" fill="var(--color-savings)" />
         <circle cx="219" cy="312" r="7" fill="var(--color-cta)" />
         <circle cx="236" cy="300" r="7" fill="var(--color-cta)" />
-        <circle cx="236" cy="318" r="7" fill="#f5bf2e" />
+        <circle cx="236" cy="318" r="7" fill="#737373" />
       </g>
 
       {/* Right card: the same month with the loan */}
@@ -99,7 +99,7 @@ export function SpotSavings({ className, title }: IllustrationProps) {
       <rect x="60" y="24" width="40" height="14" rx="6" fill="var(--color-savings)" />
       <rect x="58" y="70" width="44" height="24" rx="8" fill="var(--color-savings)" opacity="0.18" />
       <circle cx="72" cy="80" r="8" fill="var(--color-cta)" />
-      <circle cx="88" cy="74" r="8" fill="#f5bf2e" />
+      <circle cx="88" cy="74" r="8" fill="#737373" />
       <circle cx="90" cy="88" r="8" fill="var(--color-cta)" />
     </svg>
   );
