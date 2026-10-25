@@ -1,0 +1,27 @@
+== reference
+  [PASS] change figure == metrics F08/F09 {'before': '1300.00', 'after': '924.86'}
+  [PASS] change text is the backend claim text verbatim 
+  [PASS] concern = with_offer scenario with largest gap sc_job_loss gaps=[('3625.42', 'sc_job_loss')]
+  [PASS] concern claim is the WITH-loan claim and its gap matches the with_offer run cl_scn_sc_job_loss_with_offer 3625.42
+     preserveSavings: skipped
+     lowerPayment: alt_003 72 months (same rate assumed) | monthly_payment=319.78 delta=-55.36 savings_delta=0.00
+     lowerTotalCost: alt_001 36 months (same rate assumed) | finance_charge=1998.32 delta=-1009.97 savings_delta=0.00
+  [PASS] highlightAlternatives == independent selection (slots skipped when nothing improves) expected {'alt_003': ['lowerPayment'], 'alt_001': ['lowerTotalCost']} got {'alt_003': ['lowerPayment'], 'alt_001': ['lowerTotalCost']}
+  [PASS] every highlighted term alternative discloses same rate 
+  [PASS] a_no_running_costs disclosed in limitations 
+  [PASS] with_offer derived_status is 'assumed' (running costs) 
+== edge
+  [PASS] change figure == metrics F08/F09 {'before': '445.00', 'after': '126.04'}
+  [PASS] change text is the backend claim text verbatim 
+  [PASS] concern = with_offer scenario with largest gap sc_job_loss gaps=[('1697.92', 'sc_expense_spike'), ('1420.84', 'sc_income_cut'), ('5421.88', 'sc_job_loss')]
+  [PASS] concern claim is the WITH-loan claim and its gap matches the with_offer run cl_scn_sc_job_loss_with_offer 5421.88
+     preserveSavings: skipped
+     lowerPayment: skipped
+     lowerTotalCost: alt_001 36 months (same rate assumed) | finance_charge=2559.84 delta=-2705.74 savings_delta=0.00
+  [PASS] highlightAlternatives == independent selection (slots skipped when nothing improves) expected {'alt_001': ['lowerTotalCost']} got {'alt_001': ['lowerTotalCost']}
+  [PASS] every highlighted term alternative discloses same rate 
+  [PASS] a_no_running_costs disclosed in limitations 
+  [PASS] with_offer derived_status is 'assumed' (running costs) 
+ALL PASS
+base payment 318.96 | alternatives with lower payment: [('alt_007', '+$500 down', False, '309.95', ['The extra down payment ($500.00) is more than your savings after the purchase ($400.00).']), ('alt_011', '+$1,000 down', False, '300.94', ['The extra down payment ($1,000.00) is more than your savings after the purchase ($400.00).']), ('alt_015', '+$2,000 down', False, '282.92', ['The extra down payment ($2,000.00) is more than your savings after the purchase ($400.00).'])]
+feasible count 4 of 16

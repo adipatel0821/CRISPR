@@ -151,7 +151,11 @@ function abs(s: string): string {
 export function tradeOffSentence(alt: Alternative): string {
   const gains: string[] = [];
   const costs: string[] = [];
+  const unknown: string[] = [];   // a missing delta is unknown — never described as "no change"
   const d = alt.deltas_vs_base ?? {};
+  if (comparable(d.monthly_payment) === null) unknown.push("the monthly payment");
+  if (comparable(d.finance_charge) === null) unknown.push("the finance charge");
+  if (comparable(d.savings_after_purchase) === null) unknown.push("your savings");
 
   const pay = comparable(d.monthly_payment);
   if (pay !== null && pay !== 0) {
@@ -169,10 +173,13 @@ export function tradeOffSentence(alt: Alternative): string {
 
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
-  if (gains.length && costs.length) return `${cap(list(gains))}, but ${list(costs)}.`;
-  if (gains.length) return `${cap(list(gains))}, with no change to the other figures shown.`;
-  if (costs.length) return `${cap(list(costs))}.`;
-  return "The payment, finance charge and savings stay the same.";
+  const unknownNote = unknown.length ? ` We can't say how it changes ${list(unknown)} — that figure isn't known.` : "";
+  if (gains.length && costs.length) return `${cap(list(gains))}, but ${list(costs)}.${unknownNote}`;
+  if (gains.length) return unknown.length
+    ? `${cap(list(gains))}.${unknownNote}`
+    : `${cap(list(gains))}, with no change to the other figures shown.`;
+  if (costs.length) return `${cap(list(costs))}.${unknownNote}`;
+  return unknown.length ? `No known change.${unknownNote}` : "The payment, finance charge and savings stay the same.";
 }
 
 /** Plain-language text for each assumption flag (backend flags, plus lever-implied ones if unflagged). */

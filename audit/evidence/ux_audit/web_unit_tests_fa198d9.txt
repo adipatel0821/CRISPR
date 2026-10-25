@@ -1,0 +1,11 @@
+✔ fact status chips (0.1944ms)
+✔ honestLabel scrubs upstream 'verified' wording (0.9414ms)
+ℹ tests 78
+ℹ suites 0
+ℹ pass 78
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 646.4932
+EXIT=0

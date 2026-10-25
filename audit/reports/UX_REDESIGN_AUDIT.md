@@ -100,3 +100,16 @@ None. No evidence-backed defect warrants a directive; the two LOW items above ar
 - Nothing committed. Only `audit/evidence/ux_audit/` and this report were written.
 
 GO — NO CRITICAL REGRESSION
+
+---
+
+## Addendum: re-verification at fa198d9 (constraint-aware alternative highlights), 2026-10-25 ~00:35 EDT
+- **Diff (`git show fa198d9 -- web/src/lib`):** compare-only. `keepsSavings` reads the backend `deltas_vs_base.savings_after_purchase` through `comparable()` (≥ 0 or null counts as savings-neutral). `pickBest` is the previous loop, unchanged. Payment and cost slots try the savings-neutral pool first and fall back to all feasible candidates only when that pool has nothing that improves on the base. `preserveSavings` is unchanged. There is no money arithmetic and no new numeric parsing.
+- **Changed test expectation: legitimate.** In the "dedupes…" test, alternative `b` improves payment and cost without drawing down savings, while `a` takes $1,000 from savings. Under the new policy `b` correctly wins all three slots. The test still asserts the deduplication: one entry carrying three slots and three labels, so the assertion is not weakened. Two new tests cover the preference (t72/t36 chosen over the −$2,000 variants; preserveSavings skipped) and the fallback (the only improving option draws down savings, so it is chosen).
+- **Selector check under the new policy** (`insights/check_selectors_fa198d9.py`, shipped selectors re-run on the saved API JSON): **ALL PASS, 16/16.**
+  - **Reference:** lower payment = alt_003 "72 months" (319.78; −$55.36; savings delta 0.00). Lower total cost = alt_001 "36 months" (FC 1998.32; −$1,009.97; savings delta 0.00). This now agrees with the summary's "explore next" (alt_001), which **resolves polish item 1**. Keeps-more-savings is skipped honestly.
+  - **EDGE:** lower total cost = alt_001 "36 months" (−$2,705.74, savings delta 0.00). Lower payment is **skipped honestly**: the only options with a lower payment (+$500/+$1,000/+$2,000 down) are all *infeasible* ("extra down payment … is more than your savings after the purchase ($400.00)"), so neither the savings-neutral pool nor the fallback can pick them. Nothing is invented.
+- **Web unit tests 78/78, `tsc --noEmit` exit 0** (`web_unit_tests_fa198d9.txt`, `tsc_fa198d9.txt`).
+- **New LOW observation** (pre-existing, not introduced by fa198d9): when `savings_after_purchase` is unknown (savings declined), its delta is null. `tradeOffSentence` may then end with "with no change to the other figures shown", although the savings effect is unknown rather than unchanged. Wording only; no number is affected.
+
+**Verdict at fa198d9: GO — NO CRITICAL REGRESSION (confirmed).**

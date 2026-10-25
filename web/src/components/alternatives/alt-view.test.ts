@@ -104,3 +104,12 @@ test("assumptionBadges: backend flags in plain words, plus lever-implied ones", 
     ["Optional add-ons removed"],
   );
 });
+
+// Agent 5 UX note: when a delta is unknown (e.g. savings declined), never say "no change" — say it isn't known.
+test("tradeOffSentence discloses unknown deltas instead of implying no change", () => {
+  const a = { ...byId("alt_t72"), deltas_vs_base: { monthly_payment: "-55.36", finance_charge: null, savings_after_purchase: null } } as Alternative;
+  const s = tradeOffSentence(a);
+  assert.match(s, /payment drops by \$55\.36/);
+  assert.doesNotMatch(s, /no change/);
+  assert.match(s, /can't say how it changes the finance charge and your savings/);
+});
