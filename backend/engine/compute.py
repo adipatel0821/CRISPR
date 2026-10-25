@@ -171,6 +171,9 @@ def compute_from_inputs(inputs: EngineInputs, cfg: EngineConfig, *, profile_vers
             assumptions.extend(f14.assumptions)
         mla = put("monthly_left_after", monthly_left_after(inputs, labels), formula_id="F09")
         f13 = put("savings_after_purchase", savings_after_purchase(inputs), formula_id="F13")
+        if f13.known and f13.value < 0:
+            warnings.append("The cash paid at signing is larger than the savings you reported; savings after "
+                            "the purchase are negative.")
         rma = put("reserve_months_after", reserve_months_after(inputs), "months", formula_id="F10")
     else:
         for name, fid in [("incremental_vehicle_costs", "F14"), ("monthly_left_after", "F09"),

@@ -29,8 +29,13 @@ class RunOutcome:
 def simulate(inputs: EngineInputs, run: str, transforms: dict | None, start: Decimal, horizon: int) -> RunOutcome:
     out = RunOutcome()
     with engine_context():
-        savings = start
-        gap = ZERO
+        # A negative start (down payment larger than savings) is an unfunded gap from day one, never a
+        # negative balance.
+        savings = max(start, ZERO)
+        gap = max(-start, ZERO)
+        if gap > 0:
+            out.first_shortfall_month = 1
+            out.max_unfunded_gap = gap
         for t in range(1, horizon + 1):
             c = month_components(t, inputs, run, transforms)      # the engine is the only arithmetic source
             net = c["net"]

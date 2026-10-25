@@ -37,6 +37,8 @@ def break_even(inputs: EngineInputs, months: int, start: Decimal | None, horizon
         return BreakEven(None)
     with engine_context():
         comps = [month_components(t, inputs, run, None) for t in range(1, horizon + 1)]
+        if start < 0:                        # already short at purchase: no income drop is sustainable
+            return BreakEven(ZERO)
         if comps[0]["net"] < 0:
             return BreakEven(ZERO, deficit_at_baseline=True)
         best: Decimal | None = None

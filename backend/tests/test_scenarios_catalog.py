@@ -197,3 +197,15 @@ def test_flexible_unknown_adds_illustrative_note():
     results, _ = run_catalog(household(**{"expenses.flexible.total": None}), reference_offer())
     a_ids = {a.assumption_id for a in results[0].assumptions}
     assert "a_scenario_before_discretionary" in a_ids
+
+
+def test_negative_savings_after_purchase_starts_as_unfunded_gap():
+    hh = household(**{"savings.liquid": "3000.00"})               # cash down 4,000 from savings -> F13 = -1,000
+    results, summary = run_catalog(hh, reference_offer())
+    w = by(results, "sc_expense_spike", "with_offer")
+    assert w.start_balance == "-1000.00"
+    # month 1: net 474.86 repays the gap -> gap 525.14, savings 0.00 (never negative)
+    assert (w.monthly_paths[0].savings_balance, w.monthly_paths[0].unfunded_gap) == ("0.00", "525.14")
+    assert all(Decimal(p.savings_balance) >= 0 for r in results for p in r.monthly_paths)
+    assert w.first_shortfall_month == 1 and w.months_of_runway == 0
+    assert summary.break_even_m3 == "0.00" and summary.deficit_at_baseline is False

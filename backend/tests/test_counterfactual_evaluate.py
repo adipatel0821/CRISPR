@@ -69,7 +69,6 @@ def test_cash_down_lever_bounded_by_savings_after_purchase():
     too_much = alt(cf, cash_down_delta="2000", term_months=60, remove_optional_add_ons=False)
     assert ok.feasible and ok.metrics["savings_after_purchase"] == "0.00"
     assert not too_much.feasible and "savings after the purchase" in too_much.infeasible_reasons[0]
-    assert "alt" not in cf.pareto_set or too_much.alt_id not in cf.pareto_set
     assert too_much.alt_id not in cf.pareto_set
 
 
