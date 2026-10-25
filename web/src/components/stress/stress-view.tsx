@@ -78,7 +78,7 @@ function Finding({ report, pair }: { report: DecisionReport; pair: ScenarioPair 
         <p className="text-lg font-bold text-ink sm:text-xl">With this loan</p>
         <p
           className={cn(
-            "mt-2 flex items-start gap-3 text-[length:clamp(2rem,3.3vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.025em]",
+            "mt-2 flex items-start gap-3 text-[length:clamp(1.875rem,2.9vw,3rem)] font-extrabold leading-[1.02] tracking-[-0.025em]",
             short ? "text-shortfall-ink" : w.state === "holds" ? "text-savings-ink" : "text-ink",
           )}
         >
@@ -87,7 +87,8 @@ function Finding({ report, pair }: { report: DecisionReport; pair: ScenarioPair 
           ) : w.state === "holds" ? (
             <ShieldCheck aria-hidden className="mt-[0.12em] size-[0.8em] shrink-0" />
           ) : null}
-          <span className="min-w-0">{w.headline}</span>
+          {/* keep "month 2" / "12 months" together so the number never sits alone on a line */}
+          <span className="min-w-0 text-balance">{w.headline.replace(/ (\d+)( months)?$/, (_m, n: string, s?: string) => ` ${n}${s ? ` ${s.trim()}` : ""}`)}</span>
         </p>
       </div>
       {gap ? (
@@ -113,10 +114,7 @@ function Finding({ report, pair }: { report: DecisionReport; pair: ScenarioPair 
       ) : null}
       <div className="max-w-[var(--measure)] space-y-1 border-l-4 border-chart-slate-strong pl-4 text-[17px] leading-relaxed text-ink-2">
         <p className="font-bold text-ink">Without the loan</p>
-        <p>
-          {wo.headline}
-          {wo.detail ? `. ${wo.detail}.` : "."}
-        </p>
+        <p>{`${wo.headline}${wo.detail ? `. ${wo.detail}.` : "."}`.replace(/month (\d+)/g, "month $1")}</p>
       </div>
       <SourceLink evidence={evidence} label={titleOf(pair)} />
     </div>
@@ -265,7 +263,7 @@ export function StressView({ report }: { report: DecisionReport }) {
         <h1 className="max-w-[24ch] text-balance text-hero font-extrabold leading-[1.06] tracking-[-0.025em] text-ink">
           {questionOf(pair)}
         </h1>
-        <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] xl:gap-14">
+        <div className="grid items-start gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] xl:gap-14">
           {isLimited ? <Limitation /> : <Finding report={report} pair={pair} />}
           <div className="min-w-0 rounded-[1.75rem] bg-canvas p-5 sm:p-8">
             {isLimited ? (

@@ -16,9 +16,9 @@ import { ReportMeta } from "@/components/report-parts";
 import { BreakdownBar } from "@/components/charts";
 import { FromTo } from "@/components/visual";
 
-function Block({ title, children, id }: { title: string; children: React.ReactNode; id?: string }) {
+function Block({ title, children, id, wide }: { title: string; children: React.ReactNode; id?: string; wide?: boolean }) {
   return (
-    <section id={id} aria-label={title} className="min-w-0 scroll-mt-28 space-y-3">
+    <section id={id} aria-label={title} className={`min-w-0 scroll-mt-28 space-y-3${wide ? " lg:col-span-2" : ""}`}>
       <h3 className="text-[17px] font-bold text-ink">{title}</h3>
       <div className="space-y-3 text-[15px] leading-relaxed text-ink-2">{children}</div>
     </section>
@@ -60,7 +60,7 @@ function CostBreakdown({ report }: { report: DecisionReport }) {
   return (
     <>
       {total?.breakdown && (
-        <Block title={`Where the ${formatMoney(total.value)} goes`}>
+        <Block title={`Where the ${formatMoney(total.value)} goes`} wide>
           <BreakdownBar breakdown={total.breakdown} total={total.value} />
         </Block>
       )}
