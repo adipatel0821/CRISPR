@@ -11,8 +11,9 @@ import { evidenceForClaim, evidenceForMetric, FLAG_TEXT, metric, scenarioPairs, 
 import { AssumptionNote } from "@/components/assumption-chip";
 import { EvidenceFootnote } from "@/components/provenance-chip";
 import { PathTable } from "@/components/charts";
-import { AltTable } from "@/components/alternatives/alt-table";
 import { cn } from "@/lib/utils";
+import { plain } from "@/lib/copy";
+import type { Alternative } from "@/lib/contracts";
 import { scenarioClaimFor } from "./report-view";
 
 const ROWS: { key: string; label: string; fmt: (s: string | null | undefined) => string }[] = [
@@ -23,12 +24,12 @@ const ROWS: { key: string; label: string; fmt: (s: string | null | undefined) =>
   { key: "interest", label: "Interest", fmt: formatMoney },
   { key: "total_paid_through_deal", label: "Total paid through this deal", fmt: formatMoney },
   { key: "apr_recomputed", label: "APR recomputed", fmt: formatRate },
-  { key: "monthly_left_before", label: "Left each month — now", fmt: formatMoney },
-  { key: "monthly_left_after", label: "Left each month — with this loan", fmt: formatMoney },
+  { key: "monthly_left_before", label: "Left each month (now)", fmt: formatMoney },
+  { key: "monthly_left_after", label: "Left each month (with this loan)", fmt: formatMoney },
   { key: "incremental_vehicle_costs", label: "Change in car running costs", fmt: formatMoney },
   { key: "savings_after_purchase", label: "Savings after purchase", fmt: formatMoney },
-  { key: "reserve_months_before", label: "Months covered by savings — now", fmt: formatMonths },
-  { key: "reserve_months_after", label: "Months covered by savings — with this loan", fmt: formatMonths },
+  { key: "reserve_months_before", label: "Months covered by savings (now)", fmt: formatMonths },
+  { key: "reserve_months_after", label: "Months covered by savings (with this loan)", fmt: formatMonths },
 ];
 
 const TERM_ORDER = [
@@ -168,11 +169,11 @@ function Scenarios({ report }: { report: DecisionReport }) {
         return (
           <div key={p.scenarioId} className="space-y-2 print:break-inside-avoid" data-scenario={p.scenarioId}>
             <h4 className="text-sm font-semibold text-ink">
-              {p.name} <span className="font-normal text-ink-subtle">— illustrative, not a forecast</span>
+              {plain(p.name)} <span className="font-normal text-ink-subtle">(illustrative, not a forecast)</span>
             </h4>
             {claims.map((claim) => (
               <p key={claim.claim_id} className="text-[13px] leading-relaxed text-ink-muted">
-                {claim.text} <EvidenceFootnote evidence={evidenceForClaim(report, claim)} />
+                {plain(claim.text)} <EvidenceFootnote evidence={evidenceForClaim(report, claim)} />
               </p>
             ))}
             <PathTable without={p.without} withOffer={p.with} caption={`${p.name}: savings and unfunded gap by month (illustrative)`} />
@@ -188,7 +189,7 @@ function ClaimsTable({ report }: { report: DecisionReport }) {
     <ol className="divide-y divide-line text-[13px]">
       {report.claims.map((c: Claim) => (
         <li key={c.claim_id} className="py-2.5 print:break-inside-avoid">
-          <p className="text-ink">{c.text ?? c.template_id}</p>
+          <p className="text-ink">{plain(c.text ?? c.template_id)}</p>
           <p className="mt-0.5 text-ink-subtle">
             <EvidenceFootnote evidence={evidenceForClaim(report, c)} />{" "}
             <span className="text-[11px]">· {c.claim_id}</span>
@@ -207,7 +208,7 @@ function AssumptionsAndUnknowns({ report }: { report: DecisionReport }) {
         {report.assumptions.length === 0 && <li className="text-ink-muted">No assumptions were needed.</li>}
         {report.assumptions.map((a) => (
           <li key={a.assumption_id}>
-            <p className="text-ink">{a.text}</p>
+            <p className="text-ink">{plain(a.text)}</p>
             <p className="text-[11px] text-ink-subtle">
               {a.assumption_id}
               {a.citation ? ` · ${a.citation}` : ""}
@@ -223,9 +224,9 @@ function AssumptionsAndUnknowns({ report }: { report: DecisionReport }) {
               <li key={m.fact_key}>
                 <p className="text-ink">
                   {factLabel(m.fact_key)}
-                  {m.ask_the_lender ? " — ask the lender" : ""}
+                  {m.ask_the_lender ? " (ask the lender)" : ""}
                 </p>
-                <p className="text-ink-muted">{m.why_it_matters}</p>
+                <p className="text-ink-muted">{plain(m.why_it_matters)}</p>
                 {m.citation && <p className="text-[11px] text-ink-subtle">Source: {m.citation}</p>}
               </li>
             ))}
@@ -242,7 +243,7 @@ function AssumptionsAndUnknowns({ report }: { report: DecisionReport }) {
                   {f.informational ? "For your information: " : "Warning: "}
                   {FLAG_TEXT[f.flag_id]?.title ?? f.flag_id}
                 </p>
-                <p className="text-ink-muted">{f.detail ?? FLAG_TEXT[f.flag_id]?.body}</p>
+                <p className="text-ink-muted">{plain(f.detail ?? FLAG_TEXT[f.flag_id]?.body)}</p>
                 <p className="text-[11px] text-ink-subtle">
                   {f.flag_id}
                   {f.citation ? ` · ${f.citation}` : ""}
@@ -281,48 +282,105 @@ function TechnicalIds({ report }: { report: DecisionReport }) {
   );
 }
 
+const ALT_COLS: { key: string; label: string }[] = [
+  { key: "monthly_payment", label: "Monthly payment" },
+  { key: "finance_charge", label: "Finance charge" },
+  { key: "total_of_payments", label: "Total of payments" },
+  { key: "savings_after_purchase", label: "Savings after purchase" },
+];
+
+/** Every engine-computed alternative with its own backend figures (no arithmetic; "Not possible" when infeasible). */
+function AltSummaryTable({ alts }: { alts: Alternative[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[34rem] text-[13px] print:min-w-0 print:text-[8pt]">
+        <caption className="sr-only">Every alternative with its monthly payment, finance charge, total of payments and savings after purchase</caption>
+        <thead>
+          <tr className="border-b border-line">
+            <th scope="col" className={TH}>Option</th>
+            {ALT_COLS.map((c) => (
+              <th key={c.key} scope="col" className={cn(TH, "text-right")}>
+                {c.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {alts.map((a) => (
+            <tr key={a.alt_id} className="border-b border-line last:border-0 print:break-inside-avoid" data-apx-alt={a.alt_id}>
+              <th scope="row" className={cn(TD, "text-left font-normal text-ink")}>
+                {plain(a.label)}
+                {a.is_base && <span className="text-ink-subtle"> (your offer)</span>}
+                {!a.feasible && a.infeasible_reasons.length > 0 && (
+                  <span className="mt-0.5 block max-w-xs text-xs leading-relaxed text-ink-muted">{plain(a.infeasible_reasons.join(" "))}</span>
+                )}
+              </th>
+              {ALT_COLS.map((c) => (
+                <td key={c.key} className={cn(TD, "figure text-right", a.feasible ? "text-ink" : "text-ink-subtle")}>
+                  {a.feasible ? formatMoney(a.metrics[c.key] ?? null) : "Not possible"}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 /**
- * Appendix: collapsed on screen (button with aria-expanded), ALWAYS expanded in print (`print:block`).
+ * Appendix: collapsed on screen (button with aria-expanded). In print it is included only when the person
+ * chooses it (`includeInPrint`), starting on a new page.
  */
-export function ReportAppendix({ report }: { report: DecisionReport }) {
+export function ReportAppendix({ report, includeInPrint }: { report: DecisionReport; includeInPrint: boolean }) {
   const [open, setOpen] = React.useState(false);
   const cf = report.counterfactual;
   return (
-    <section aria-labelledby="appendix-heading" className="print-break-before space-y-4 border-t border-line pt-8 print:border-0 print:pt-0" id="appendix">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="space-y-1">
-          <h2 id="appendix-heading" className="text-lg font-semibold tracking-tight text-ink">
+    <section
+      aria-labelledby="appendix-heading"
+      id="appendix"
+      data-print-appendix={includeInPrint ? "included" : "excluded"}
+      className={cn("scroll-mt-28 rounded-[1.25rem] bg-canvas p-6 sm:p-8 print:rounded-none print:p-0", includeInPrint ? "print-break-before" : "print:hidden")}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="min-w-0 space-y-1">
+          <h2 id="appendix-heading" className="text-[length:var(--text-title)] font-extrabold leading-tight tracking-[-0.015em] text-ink print:text-[13pt]">
             Appendix
           </h2>
-          <p className="text-sm text-ink-muted">Detailed tables, every statement with its sources, and technical identifiers.</p>
+          <p className="max-w-[var(--measure)] text-[15px] text-ink-2 print:text-[9pt]">
+            Calculations, loan terms, the payment schedule, scenario tables, every statement with its sources, and technical ids.
+          </p>
         </div>
         <button
           type="button"
           aria-expanded={open}
           aria-controls="appendix-body"
           onClick={() => setOpen((o) => !o)}
-          className="no-print inline-flex min-h-10 items-center gap-1.5 rounded-full bg-canvas px-4 text-sm font-medium text-ink transition-colors duration-150 hover:bg-subtle"
+          className="no-print inline-flex min-h-11 items-center gap-2 rounded-full border border-line-strong bg-surface px-5 text-[15px] font-semibold text-ink transition-colors duration-150 hover:border-brand hover:text-brand-strong"
         >
           {open ? "Hide appendix" : "Show appendix"}
           <ChevronDown aria-hidden className={cn("size-4 transition-transform duration-200 motion-reduce:transition-none", open && "rotate-180")} />
         </button>
       </div>
-      <div id="appendix-body" className={cn("space-y-10 pt-2", open ? "block animate-fade-in motion-reduce:animate-none" : "hidden print:block")}>
+      <div
+        id="appendix-body"
+        className={cn("space-y-10 pt-8 print:space-y-5 print:pt-3", open ? "block animate-fade-in motion-reduce:animate-none" : "hidden", includeInPrint && "print:block")}
+      >
         <Sub letter="A" id="apx-calc" title="Calculation details" note="Every figure in this report, with where it comes from.">
           <CalcTable report={report} />
         </Sub>
-        <Sub letter="B" id="apx-terms" title="Loan terms" note={report.offer?.label}>
+        <Sub letter="B" id="apx-terms" title="Loan terms" note={report.offer?.label ? plain(report.offer.label) : undefined}>
           <TermsTable report={report} />
         </Sub>
         <Sub letter="C" id="apx-amort" title="Payment schedule summary" note="The first payment, every 12th payment and the final payment, as calculated.">
           <AmortizationSummary report={report} />
         </Sub>
-        <Sub letter="D" id="apx-stress" title="Stress scenarios" note="Illustrative — not a forecast. Each shows savings month by month, without and with this loan.">
+        <Sub letter="D" id="apx-stress" title="Stress scenarios" note="Illustrative, not a forecast. Each shows savings month by month, without and with this loan.">
           <Scenarios report={report} />
         </Sub>
         {cf && cf.alternatives.length > 0 && (
-          <Sub letter="E" id="apx-alts" title="All alternatives" note="What-if calculations under stated assumptions — not offers or recommendations. The smaller line under a value is its change against your offer.">
-            <AltTable alts={cf.alternatives} pareto={cf.pareto_set} />
+          <Sub letter="E" id="apx-alts" title="All alternatives" note="What-if calculations under stated assumptions. They are not offers or recommendations.">
+            <AltSummaryTable alts={cf.alternatives} />
           </Sub>
         )}
         <Sub letter="F" id="apx-assumptions" title="Assumptions, unknowns and flags">
