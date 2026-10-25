@@ -1,0 +1,4 @@
+✖ 2 problems (0 errors, 2 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+
+EXIT=0

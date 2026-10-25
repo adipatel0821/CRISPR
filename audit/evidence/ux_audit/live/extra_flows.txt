@@ -1,0 +1,19 @@
+   [deficit] asked: ["About how much take-home pay (after taxes) do you get in a typical month?","About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?","How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none","What is the monthly payment on this debt?","This leaves about −$210 each month before this loan. Is that right?","About how much savings could you use in an emergency (checking, savings, cash)?","Where will your down payment come from?"]
+   [deficit] acknowledgements: ["This leaves about −$210 each month before this loan. Is that right?"]
+  [PASS] deficit: H01 deficit acknowledgement asked exactly once — ["This leaves about −$210 each month before this loan. Is that right?"]
+  [FAIL] deficit: results reachable
+   [declined] asked: ["About how much take-home pay (after taxes) do you get in a typical month?","About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?","How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none","About how much savings could you use in an emergency (checking, savings, cash)?","Where will your down payment come from?"]
+  [PASS] declined: savings question was offered and declined without re-asking — ["About how much take-home pay (after taxes) do you get in a typical month?","About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?","How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none","About how much savings could you use in an emergency (checking, savings, cash)?","Where will your down payment come from?"]
+  [PASS] declined: results still reachable (other analyses run)
+  [PASS] declined: loan cost still shown (375.14)
+  [PASS] declined: savings-dependent figures not invented as $0 (no '$0.00 in savings')
+  [PASS] declined: the choice is acknowledged (chose not to share / not shared / unavailable) — rt charged on the balance over time. CalculatedPayment as a share of take-homeThe monthly payment is 8.9%
+  [PASS] declined: /stress renders without error
+  [PASS] declined: /alternatives renders without error
+  [PASS] declined: /report renders without error
+  [PASS] delete: returns to the welcome page — http://localhost:3000/
+  [PASS] delete: server session is gone (token now rejected 401/404) — HTTP 401 sid=s_251ec8d2bfd34bfcbd164f9d2344f2a6
+  [PASS] delete: dashboard no longer shows the old results
+  [PASS] no uncaught page errors
+
+RESULT: FAIL (13/14)

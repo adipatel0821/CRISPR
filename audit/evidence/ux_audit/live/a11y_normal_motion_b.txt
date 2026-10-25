@@ -1,0 +1,41 @@
+   / (welcome): 0 violation types, serious/critical: 0
+  [PASS] axe / (welcome): no serious/critical violations
+  [PASS] kbd: consent checkbox reachable by Tab
+  [PASS] kbd: focus indicator visible on checkbox
+  [PASS] kbd: Start button reachable
+   /intake: 1 violation types, serious/critical: 1
+     - [serious] color-contrast x1: Elements must meet minimum color contrast ratio thresholds :: .space-y-2\.5 > .text-\[13px\].font-medium
+  [FAIL] axe /intake: no serious/critical violations — color-contrast
+  [PASS] kbd: 4 household questions answered by keyboard
+   /offer (manual tab): 0 violation types, serious/critical: 0
+  [PASS] axe /offer (manual tab): no serious/critical violations
+  [PASS] kbd: offer tabs reachable
+  [PASS] kbd: ArrowRight selects the Upload tab
+   /offer (upload tab): 1 violation types, serious/critical: 1
+     - [serious] color-contrast x6: Elements must meet minimum color contrast ratio thresholds :: .text-\[15px\].text-ink.font-medium | .space-y-1 > .text-\[13px\].text-ink-muted | .hover\:bg-canvas
+  [FAIL] axe /offer (upload tab): no serious/critical violations — color-contrast
+  [PASS] kbd: Choose a file reachable
+  [PASS] kbd: focus indicator visible on Choose a file
+   /offer (verification table): 1 violation types, serious/critical: 1
+     - [serious] color-contrast x105: Elements must meet minimum color contrast ratio thresholds :: .space-y-1\.5 > .text-sm | .min-w-0 > .truncate | .tabular.text-ink-subtle.text-\[13px\]
+  [FAIL] axe /offer (verification table): no serious/critical violations — color-contrast
+  [PASS] kbd: Confirm all remaining reachable
+  [PASS] kbd: Save checked offer reachable
+  [PASS] kbd: down-payment radio reachable
+  [PASS] kbd: savings radio selected
+  [PASS] kbd: Continue reachable
+  [PASS] kbd: See my results reachable
+  [PASS] kbd: keyboard-only journey reaches the dashboard with 375.14 and savings after 2,000.00
+   /dashboard: 0 violation types, serious/critical: 0
+  [PASS] axe /dashboard: no serious/critical violations
+  [PASS] kbd: a source chip opens with Enter
+  [PASS] kbd: popover visible
+   /stress: 0 violation types, serious/critical: 0
+  [PASS] axe /stress: no serious/critical violations
+   /alternatives: 0 violation types, serious/critical: 0
+  [PASS] axe /alternatives: no serious/critical violations
+   /report: 0 violation types, serious/critical: 0
+  [PASS] axe /report: no serious/critical violations
+
+TOTAL serious/critical violation types across pages: 3
+RESULT: FAIL (23/26)

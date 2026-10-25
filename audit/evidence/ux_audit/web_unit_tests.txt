@@ -1,0 +1,13 @@
+✔ no source/verification combination produces the word 'verified' (1.8519ms)
+✔ user confirmation is labelled as such, never as independent evidence (0.2721ms)
+✔ fact status chips (0.14ms)
+✔ honestLabel scrubs upstream 'verified' wording (0.2866ms)
+ℹ tests 76
+ℹ suites 0
+ℹ pass 76
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 638.0765
+EXIT=0

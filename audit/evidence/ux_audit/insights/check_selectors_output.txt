@@ -1,0 +1,19 @@
+== reference
+  [PASS] change figure == metrics F08/F09 {'before': '1300.00', 'after': '924.86'}
+  [PASS] change text is the backend claim text verbatim 
+  [PASS] concern = with_offer scenario with largest gap sc_job_loss gaps=[('3625.42', 'sc_job_loss')]
+  [PASS] concern claim is the WITH-loan claim and its gap matches the with_offer run cl_scn_sc_job_loss_with_offer 3625.42
+  [PASS] highlightAlternatives == independent selection (slots skipped when nothing improves) expected {'alt_015': ['lowerPayment'], 'alt_012': ['lowerTotalCost']} got {'alt_015': ['lowerPayment'], 'alt_012': ['lowerTotalCost']}
+  [PASS] every highlighted term alternative discloses same rate 
+  [PASS] a_no_running_costs disclosed in limitations 
+  [PASS] with_offer derived_status is 'assumed' (running costs) 
+== edge
+  [PASS] change figure == metrics F08/F09 {'before': '445.00', 'after': '126.04'}
+  [PASS] change text is the backend claim text verbatim 
+  [PASS] concern = with_offer scenario with largest gap sc_job_loss gaps=[('1697.92', 'sc_expense_spike'), ('1420.84', 'sc_income_cut'), ('5421.88', 'sc_job_loss')]
+  [PASS] concern claim is the WITH-loan claim and its gap matches the with_offer run cl_scn_sc_job_loss_with_offer 5421.88
+  [PASS] highlightAlternatives == independent selection (slots skipped when nothing improves) expected {'alt_001': ['lowerTotalCost']} got {'alt_001': ['lowerTotalCost']}
+  [PASS] every highlighted term alternative discloses same rate 
+  [PASS] a_no_running_costs disclosed in limitations 
+  [PASS] with_offer derived_status is 'assumed' (running costs) 
+ALL PASS

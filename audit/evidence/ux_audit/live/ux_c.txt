@@ -1,0 +1,50 @@
+   questions: [
+  'About how much take-home pay (after taxes) do you get in a typical month?',
+  'About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?',
+  'How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none',
+  'About how much savings could you use in an emergency (checking, savings, cash)?',
+  'Where will your down payment come from?'
+]
+  [PASS] setup reached dashboard
+  [PASS] /alternatives no horizontal scroll at 360px — overflow 0px
+  [PASS] alt framing line
+  [PASS] alt h1
+   highlighted: [ 'alt_015', 'alt_012' ]
+  [PASS] 1-3 highlighted cards — 2
+  [PASS] same rate assumed badge
+  [PASS] rate sensitivity line
+  [PASS] no banned words on /alternatives
+  [PASS] Compare all N options disclosure
+  [PASS] disclosure opens via keyboard
+   info: infeasible reason shown = false
+  [PASS] axe /alternatives (open): 0 serious/critical — []
+  [PASS] primary action -> /report
+  [PASS] /report no horizontal scroll at 360px — overflow 0px
+  [PASS] report shows 375.14
+  [PASS] report shows 22,508.29
+  [PASS] report shows 3,008.29
+  [PASS] report shows 26,508.29
+  [PASS] report shows 6,000.00
+  [PASS] report shows 2,000.00
+  [PASS] report: running costs disclosed
+  [PASS] report: no banned words
+  [PASS] report section "Executive summary"
+  [PASS] report section "Financial impact"
+  [PASS] report section "Principal concerns"
+  [PASS] report section "Relevant alternatives"
+  [PASS] report section "Next actions"
+  [PASS] report section "About this report"
+  [PASS] report section "Appendix"
+  [PASS] appendix collapsed on screen
+  [PASS] axe /report (collapsed): 0 serious/critical — []
+  [PASS] print: appendix body visible
+  [PASS] print: toolbar hidden
+  [PASS] print: site header hidden
+   pdf pages: 16
+  [PASS] appendix opens via keyboard (aria-expanded=true)
+  [PASS] appendix has amortization + ids
+  [PASS] axe /report (appendix open): 0 serious/critical — []
+  [PASS] delete asks for confirmation
+  [PASS] no browser console errors
+
+RESULT: PASS (38/38)

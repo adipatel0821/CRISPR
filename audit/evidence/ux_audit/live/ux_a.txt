@@ -1,0 +1,68 @@
+MANUAL
+     - axe /intake q1 [moderate] page-has-heading-one x1 :: html
+  [PASS] axe /intake q1: 0 serious/critical
+  [PASS] manual: 4 household questions asked
+  [PASS] manual: answers disclosure has status chips
+  [PASS] axe /intake done: 0 serious/critical
+  [PASS] manual: edit saved (status updated)
+  [PASS] axe /offer form: 0 serious/critical
+  [PASS] manual: down payment asked
+  [PASS] axe /offer ready: 0 serious/critical
+  [PASS] manual: See my results enabled
+  [PASS] manual: dashboard shows 375.14
+  [PASS] manual: dashboard shows 22,508.29
+  [PASS] manual: dashboard shows 3,008.29
+  [PASS] manual: dashboard shows 26,508.29
+  [PASS] manual: savings 6,000 -> 2,000 present
+  [PASS] intake done with offer: primary is See my results
+  [PASS] intake: running-costs not-included note
+PENDING: offer added before intake is finished
+  [PASS] pending: confirmation required message
+  [PASS] pending: open question shown inline on the offer step
+  [PASS] pending: See my results disabled while pending
+  [PASS] axe /offer pending: 0 serious/critical
+   asked: ["About how much take-home pay (after taxes) do you get in a typical month?","About how much do you spend on essentials each month (housing, food, utilities, insurance, transportation)?","How many monthly debt payments do you have (loans, credit cards, buy-now-pay-later)? 0 if none","About how much savings could you use in an emergency (checking, savings, cash)?","Where will the $4,000 down payment come from?"]
+  [PASS] pending: See my results enabled
+  [PASS] pending: dashboard shows 375.14
+  [PASS] pending: dashboard shows 22,508.29
+  [PASS] pending: dashboard shows 3,008.29
+  [PASS] pending: dashboard shows 26,508.29
+  [PASS] pending: savings 6,000 -> 2,000 present
+MOBILE 390 / 360
+  [PASS] 390 /intake: no horizontal scroll
+  [PASS] 360 /offer verify: no horizontal scroll
+  [PASS] 360 /: no horizontal scroll
+  [PASS] 360 /intake: no horizontal scroll
+DOC A contract_standard.pdf
+  [PASS] A: verification shows $375.14
+  [PASS] A: verification shows $22,508.29
+  [PASS] A: verification shows $3,008.29
+  [PASS] A: verification shows $19,500.00
+  [PASS] A: verification shows $20,000.00
+  [PASS] A: verbatim quote with page (behind Show evidence)
+  [PASS] A: 'From your document, p.1' and never 'verified'
+  [PASS] axe /offer verify: 0 serious/critical
+  [PASS] A: See my results enabled
+  [PASS] A: dashboard shows 375.14
+  [PASS] A: dashboard shows 22,508.29
+  [PASS] A: dashboard shows 3,008.29
+  [PASS] A: dashboard shows 26,508.29
+  [PASS] A: savings 6,000 -> 2,000 present
+DOC B dealer_worksheet_two_options.pdf
+  [PASS] axe /offer chooser: 0 serious/critical
+  [PASS] B: chosen option values shown
+  [PASS] B: See my results enabled
+  [PASS] B: dashboard shows 375.14
+  [PASS] B: dashboard shows 22,508.29
+  [PASS] B: dashboard shows 3,008.29
+  [PASS] B: dashboard shows 26,508.29
+  [PASS] B: savings 6,000 -> 2,000 present
+DOC C contract_variable_rate.pdf
+  [PASS] C: unsupported message names variable rate + fixed-rate
+  [PASS] C: exactly one unsupported alert
+  [PASS] C: no save path
+  [PASS] axe /offer unsupported: 0 serious/critical
+  [PASS] C: manual fallback
+  [PASS] no browser console errors
+
+RESULT: PASS (58/58)

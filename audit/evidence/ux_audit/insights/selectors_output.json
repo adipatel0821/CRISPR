@@ -1,0 +1,119 @@
+{
+ "reference": {
+  "summary": {
+   "change": {
+    "kind": "cashflow_change",
+    "text": "Your monthly leftover goes from $1,300 to $925 after the payment.",
+    "figure": {
+     "before": "1300.00",
+     "after": "924.86"
+    },
+    "claimIds": [
+     "cl_kp_cashflow"
+    ],
+    "altId": null,
+    "scenarioId": null
+   },
+   "concern": {
+    "kind": "unfunded_gap",
+    "text": "In this illustrative scenario (no income for two months), with this loan your savings would run out in month 2, leaving a gap of up to about $3,625.",
+    "figure": {
+     "value": "3625.42"
+    },
+    "claimIds": [
+     "cl_scn_sc_job_loss_with_offer"
+    ],
+    "altId": null,
+    "scenarioId": "sc_job_loss"
+   },
+   "next": {
+    "kind": "alternative",
+    "text": "36 months (same rate assumed): monthly payment about $597, finance charge about $1,998, savings after purchase about $2,000.",
+    "figure": null,
+    "claimIds": [
+     "cl_alt_alt_001"
+    ],
+    "altId": "alt_001",
+    "scenarioId": null
+   }
+  },
+  "worstGap": "sc_job_loss",
+  "highlights": [
+   {
+    "altId": "alt_015",
+    "label": "72 months (same rate assumed), +$2,000 down",
+    "slots": [
+     "lowerPayment"
+    ],
+    "same": true
+   },
+   {
+    "altId": "alt_012",
+    "label": "36 months (same rate assumed), +$2,000 down",
+    "slots": [
+     "lowerTotalCost"
+    ],
+    "same": true
+   }
+  ],
+  "limitations": [
+   "a_no_running_costs",
+   "missing:loan.buy_rate"
+  ]
+ },
+ "edge": {
+  "summary": {
+   "change": {
+    "kind": "cashflow_change",
+    "text": "Your monthly leftover goes from $445 to $126 after the payment.",
+    "figure": {
+     "before": "445.00",
+     "after": "126.04"
+    },
+    "claimIds": [
+     "cl_kp_cashflow"
+    ],
+    "altId": null,
+    "scenarioId": null
+   },
+   "concern": {
+    "kind": "unfunded_gap",
+    "text": "In this illustrative scenario (no income for two months), with this loan your savings would run out in month 2, leaving a gap of up to about $5,422.",
+    "figure": {
+     "value": "5421.88"
+    },
+    "claimIds": [
+     "cl_scn_sc_job_loss_with_offer"
+    ],
+    "altId": null,
+    "scenarioId": "sc_job_loss"
+   },
+   "next": {
+    "kind": "alternative",
+    "text": "36 months (same rate assumed): monthly payment about $563, finance charge about $2,560, savings after purchase about $400.",
+    "figure": null,
+    "claimIds": [
+     "cl_alt_alt_001"
+    ],
+    "altId": "alt_001",
+    "scenarioId": null
+   }
+  },
+  "worstGap": "sc_job_loss",
+  "highlights": [
+   {
+    "altId": "alt_001",
+    "label": "36 months (same rate assumed)",
+    "slots": [
+     "lowerTotalCost"
+    ],
+    "same": true
+   }
+  ],
+  "limitations": [
+   "a_pfc_zero",
+   "a_no_running_costs",
+   "missing:loan.buy_rate"
+  ]
+ }
+}
