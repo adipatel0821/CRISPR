@@ -2,113 +2,55 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
 import { useApp } from "@/lib/app-context";
 import { Badge } from "@/components/ui/badge";
+import { JourneyIndicator, SetupProgress, isResultsPath } from "@/components/system/journey";
 
-const STEPS = [
-  { href: "/", label: "Start", match: (p: string) => p === "/" },
-  { href: "/intake", label: "Your finances", match: (p: string) => p.startsWith("/intake") },
-  { href: "/offer", label: "Loan offer", match: (p: string) => p.startsWith("/offer") },
-  {
-    href: "/dashboard",
-    label: "Results",
-    match: (p: string) => ["/dashboard", "/stress", "/alternatives"].some((x) => p.startsWith(x)),
-  },
-  { href: "/report", label: "Report", match: (p: string) => p.startsWith("/report") },
-];
+/** Quiet wordmark: two overlapping rings (the "twin") + name. */
+function Wordmark() {
+  return (
+    <Link href="/" className="flex items-center gap-2 rounded-md text-[15px] font-semibold tracking-tight text-ink">
+      <svg aria-hidden viewBox="0 0 24 24" className="size-5" fill="none" strokeWidth="2">
+        <circle cx="9" cy="12" r="6" className="stroke-ink" />
+        <circle cx="15" cy="12" r="6" className="stroke-accent" />
+      </svg>
+      DecisionTwin
+    </Link>
+  );
+}
 
 export function SiteHeader() {
   const pathname = usePathname() ?? "/";
   const { fixtures } = useApp();
-  const activeIndex = STEPS.findIndex((s) => s.match(pathname));
+  const results = isResultsPath(pathname);
 
   return (
-    <header data-site-header className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:px-6 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight text-ink">
-            <span aria-hidden className="flex size-7 items-center justify-center rounded-md bg-accent text-xs font-bold text-white">
-              DT
-            </span>
-            DecisionTwin
-          </Link>
-          {fixtures && (
-            <Badge tone="info" title="Showing bundled example data, not a live analysis">
-              Fixture data
-            </Badge>
-          )}
+    <header
+      data-site-header
+      className="sticky top-0 z-40 border-b border-line bg-page/90 backdrop-blur supports-[backdrop-filter]:bg-page/75"
+    >
+      <div className="mx-auto w-full max-w-[60rem] px-4 sm:px-6">
+        <div className="flex h-14 items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Wordmark />
+            {fixtures && (
+              <Badge tone="info" title="Showing bundled example data, not a live analysis">
+                Example data
+              </Badge>
+            )}
+          </div>
+          {!results && <SetupProgress />}
         </div>
-        <nav aria-label="Progress" className="-mx-1 overflow-x-auto">
-          <ol className="flex min-w-max items-center gap-1 px-1 text-sm">
-            {STEPS.map((s, i) => {
-              const active = i === activeIndex;
-              const done = activeIndex > i;
-              return (
-                <li key={s.href} className="flex items-center gap-1">
-                  {i > 0 && <span aria-hidden className="h-px w-3 bg-line-strong sm:w-5" />}
-                  <Link
-                    href={s.href}
-                    aria-current={active ? "step" : undefined}
-                    className={cn(
-                      "flex items-center gap-1.5 rounded-md px-2 py-1",
-                      active ? "bg-accent-soft font-medium text-accent-strong" : "text-ink-muted hover:text-ink",
-                    )}
-                  >
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "flex size-5 items-center justify-center rounded-full border text-[11px] tabular",
-                        active
-                          ? "border-accent bg-accent text-white"
-                          : done
-                            ? "border-accent text-accent"
-                            : "border-line-strong text-ink-subtle",
-                      )}
-                    >
-                      {i + 1}
-                    </span>
-                    {s.label}
-                    {done && <span className="sr-only">(completed)</span>}
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
+        {results && <JourneyIndicator className="-mt-1 pb-2" />}
       </div>
     </header>
   );
 }
 
+/**
+ * Former results tabs. The journey indicator in the header now carries this navigation, so this renders
+ * nothing; it is kept so existing imports keep compiling.
+ */
 export function ResultsTabs() {
-  const pathname = usePathname() ?? "";
-  const tabs = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/stress", label: "Stress tests" },
-    { href: "/alternatives", label: "Alternatives" },
-  ];
-  return (
-    <nav aria-label="Results sections" className="no-print">
-      <ul className="flex gap-1 rounded-lg border border-line bg-surface p-1 text-sm">
-        {tabs.map((t) => {
-          const active = pathname.startsWith(t.href);
-          return (
-            <li key={t.href} className="flex-1 sm:flex-none">
-              <Link
-                href={t.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "block rounded-md px-3 py-1.5 text-center font-medium",
-                  active ? "bg-accent-soft text-accent-strong" : "text-ink-muted hover:bg-canvas hover:text-ink",
-                )}
-              >
-                {t.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
+  return null;
 }

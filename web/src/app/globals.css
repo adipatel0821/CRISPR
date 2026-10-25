@@ -1,50 +1,117 @@
 @import "tailwindcss";
 
 /*
- * DecisionTwin design tokens. Neutral slate base, ONE accent (deep teal). Amber = informational flag,
- * rose = deficit / warning flag. Nothing else carries colour.
+ * DecisionTwin design tokens — calm, neutral, conversational.
+ *
+ * Page is white; surfaces are soft gray; borders are hairlines used sparingly.
+ * Ink is near-black; primary actions are near-black (one per screen).
+ * ONE restrained accent (deep teal) for links, focus and progress.
+ * Amber (info / attention) and rose (deficit / gap) are reserved for findings — nothing else carries colour.
+ * Token names used before the redesign (canvas, surface, ink, line, accent, info, deficit …) are kept so every
+ * existing call site keeps working.
  */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --color-canvas: #f8fafc;        /* slate-50 */
-  --color-surface: #ffffff;
-  --color-ink: #0f172a;           /* slate-900 */
-  --color-ink-muted: #475569;     /* slate-600 */
-  --color-ink-subtle: #64748b;    /* slate-500 */
-  --color-line: #e2e8f0;          /* slate-200 */
-  --color-line-strong: #cbd5e1;   /* slate-300 */
+  /* Surfaces */
+  --color-page: #ffffff;           /* page background */
+  --color-surface: #ffffff;        /* cards on the page */
+  --color-canvas: #f7f7f8;         /* soft-gray inset / hover surface */
+  --color-subtle: #f3f4f6;         /* slightly deeper gray (tracks, skeletons) */
 
-  --color-accent: #0f766e;        /* teal-700 */
-  --color-accent-strong: #115e59; /* teal-800 */
-  --color-accent-soft: #f0fdfa;   /* teal-50 */
-  --color-accent-line: #99f6e4;   /* teal-200 */
+  /* Ink */
+  --color-ink: #0d0d0d;
+  --color-ink-muted: #4b4b55;      /* 8.6:1 on white */
+  --color-ink-subtle: #6b6b78;     /* 5.3:1 on white, 4.9:1 on canvas */
 
-  --color-info: #92400e;          /* amber-800 text */
-  --color-info-soft: #fffbeb;     /* amber-50 */
-  --color-info-line: #fcd34d;     /* amber-300 */
+  /* Hairlines */
+  --color-line: #ececf1;
+  --color-line-strong: #d9d9e0;
 
-  --color-deficit: #9f1239;       /* rose-800 text */
-  --color-deficit-soft: #fff1f2;  /* rose-50 */
-  --color-deficit-line: #fda4af;  /* rose-300 */
+  /* Primary action (ChatGPT-like near-black) */
+  --color-primary: #0d0d0d;
+  --color-primary-hover: #2b2b31;
+  --color-primary-ink: #ffffff;
+
+  /* The one accent: deep teal */
+  --color-accent: #0f6e64;
+  --color-accent-strong: #0b564e;
+  --color-accent-soft: #eff6f5;
+  --color-accent-line: #cfe4e0;
+
+  /* Findings only: amber = attention */
+  --color-info: #8a4a0b;
+  --color-info-soft: #fdf7ee;
+  --color-info-line: #f1dcb6;
+
+  /* Findings only: rose = deficit / unfunded gap */
+  --color-deficit: #a1203d;
+  --color-deficit-soft: #fdf2f4;
+  --color-deficit-line: #f2c9d2;
+
+  /* Type scale additions (Tailwind's text-xs … text-4xl remain) */
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-display--letter-spacing: -0.022em;
+  --text-figure: 2.25rem;
+  --text-figure--line-height: 1.1;
+  --text-figure--letter-spacing: -0.02em;
+  --text-lede: 1.0625rem;
+  --text-lede--line-height: 1.6;
+
+  /* Radius: 12–16 px */
+  --radius-card: 1rem;
+  --radius-control: 0.75rem;
+
+  /* One subtle shadow level */
+  --shadow-soft: 0 1px 2px rgb(13 13 13 / 0.04), 0 4px 16px rgb(13 13 13 / 0.04);
+
+  /* Motion */
+  --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --animate-fade-in: dt-fade-in 220ms var(--ease-calm) both;
+  @keyframes dt-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }
 
 :root {
   color-scheme: light;
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 220ms;
+  /* Content widths: conversational / reading vs results */
+  --width-reading: 44rem; /* 704 px */
+  --width-results: 60rem; /* 960 px */
 }
 
 html {
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+  interpolate-size: allow-keywords; /* lets <details> animate to height:auto where supported */
 }
 
 body {
   position: relative; /* contain absolutely-positioned sr-only text so it can't widen the page */
   overflow-x: clip;
-  background: var(--color-canvas);
+  background: var(--color-page);
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-feature-settings: "cv11", "ss01";
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-accent-line);
+  color: var(--color-ink);
 }
 
 /* All figures align. */
@@ -57,7 +124,36 @@ table,
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 6px;
+}
+
+/* ---------- Disclosure (<details>) ---------- */
+.dt-disclosure > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.dt-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+.dt-disclosure > summary .dt-chevron {
+  transition: rotate var(--motion-base) var(--ease-calm);
+}
+.dt-disclosure[open] > summary .dt-chevron {
+  rotate: 180deg;
+}
+/* Smooth height + opacity where the browser supports ::details-content; instant elsewhere. */
+.dt-disclosure::details-content {
+  block-size: 0;
+  opacity: 0;
+  overflow-y: clip;
+  transition:
+    block-size var(--motion-base) var(--ease-calm),
+    opacity var(--motion-base) var(--ease-calm),
+    content-visibility var(--motion-base) allow-discrete;
+}
+.dt-disclosure[open]::details-content {
+  block-size: auto;
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -71,7 +167,7 @@ table,
   }
 }
 
-/* Print: black on white, no chrome, sensible page breaks. */
+/* Print: black on white, no chrome, no shadows, sensible page breaks. */
 @media print {
   @page {
     margin: 16mm 14mm;
@@ -84,6 +180,7 @@ table,
   .no-print,
   header[data-site-header],
   footer[data-site-footer],
+  nav[data-journey],
   [data-banner] {
     display: none !important;
   }
@@ -106,6 +203,11 @@ table,
   * {
     color: #000 !important;
     background: transparent !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+  .dt-disclosure > summary .dt-chevron {
+    display: none;
   }
 }
 

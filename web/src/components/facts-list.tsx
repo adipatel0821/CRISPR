@@ -45,11 +45,19 @@ function EditRow({
   }
 
   return (
-    <form onSubmit={save} className="space-y-3 rounded-md bg-canvas p-3" noValidate>
+    <form onSubmit={save} className="space-y-3 rounded-control bg-canvas p-4" noValidate>
       <Label htmlFor={id}>{factLabel(fact.key)}</Label>
-      <Input id={id} value={value} onChange={(e) => setValue(e.target.value)} inputMode={isCurrencyFact(fact) ? "decimal" : undefined} aria-invalid={!!error} />
-      <FieldError>{error}</FieldError>
-      <div className="flex items-center gap-3">
+      <Input
+        id={id}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        inputMode={isCurrencyFact(fact) ? "decimal" : undefined}
+        aria-invalid={!!error}
+        aria-describedby={error ? `${id}-err` : undefined}
+        autoFocus
+      />
+      <FieldError id={`${id}-err`}>{error}</FieldError>
+      <div className="flex items-center gap-2.5">
         <Switch id={`${id}-est`} checked={estimate} onCheckedChange={setEstimate} />
         <Label htmlFor={`${id}-est`} className="font-normal text-ink-muted">
           It&apos;s an estimate
@@ -81,12 +89,12 @@ export function FactsList({
   const [editing, setEditing] = React.useState<string | null>(null);
   const list = Object.values(facts).filter((f) => f.status !== "superseded");
   if (list.length === 0) {
-    return <p className="text-sm text-ink-muted">Your answers will appear here.</p>;
+    return <p className="py-2 text-sm text-ink-muted">Your answers will appear here as you go.</p>;
   }
   return (
-    <ul className="divide-y divide-line">
+    <ul className="divide-y divide-line" aria-label="Your answers">
       {list.map((f) => (
-        <li key={f.key} className="py-3">
+        <li key={f.key} className="py-3 first:pt-1 last:pb-1">
           {editing === f.key ? (
             <EditRow
               fact={f}
@@ -98,21 +106,16 @@ export function FactsList({
               }}
             />
           ) : (
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm text-ink-muted">{factLabel(f.key)}</p>
-                <p className="figure text-sm font-medium text-ink">
+                <p className="text-[13px] text-ink-muted">{factLabel(f.key)}</p>
+                <p className="figure text-[15px] font-medium text-ink">
                   {f.status === "declined" ? "—" : factValueText(f.value, f.value_type, f.key)}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-1">
                 <Chip spec={factStatusChip(f.status)} />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Edit ${factLabel(f.key)}`}
-                  onClick={() => setEditing(f.key)}
-                >
+                <Button variant="ghost" size="icon" aria-label={`Edit ${factLabel(f.key)}`} onClick={() => setEditing(f.key)}>
                   <Pencil aria-hidden />
                 </Button>
               </div>

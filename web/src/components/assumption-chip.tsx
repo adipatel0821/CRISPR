@@ -28,14 +28,14 @@ export function AssumptionChip({
   return (
     <Popover>
       <PopoverTrigger
-        className={cn("rounded-full focus-visible:outline-2 focus-visible:outline-accent no-print", className)}
+        className={cn("rounded-full align-middle focus-visible:outline-2 focus-visible:outline-accent no-print", className)}
         aria-label={`${c.label} for ${what}. Show details`}
         data-caveat={c.kind}
       >
         <Chip spec={{ label: c.label, tone: "info" }} kind="assumption" />
       </PopoverTrigger>
       <PopoverContent>
-        <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-ink-subtle">
+        <p className="mb-2 flex items-center gap-1.5 text-xs font-medium text-ink-subtle">
           <Lightbulb aria-hidden className="size-3.5" /> Why “{what}” is not exact
         </p>
         <ul className="space-y-2">

@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import type { FactInputBody, QuestionResponseBody } from "@/lib/api-types";
 import type { NextQuestionResponse, QuestionCandidate, SessionView } from "@/lib/contracts";
@@ -10,25 +9,32 @@ import { useApp, useMounted } from "@/lib/app-context";
 import { factLabel } from "@/lib/labels";
 import { FactsList } from "@/components/facts-list";
 import { QuestionCard } from "@/components/question-card";
-import { ReadinessPanel } from "@/components/readiness-panel";
+import { ReadinessDetails } from "@/components/readiness-panel";
 import { EmptyState, ErrorState, PageSkeleton } from "@/components/states";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Container, Disclosure, FadeIn, PrimaryAction, SecondaryLink } from "@/components/system";
+import { IntakeDone, IntakeProgressLine, SavedNote } from "@/components/intake/intake-parts";
+import { activeFacts, answerStatus, intakeProgress, splitRefinements } from "@/components/intake/model";
 
 interface Loaded {
   nq: NextQuestionResponse;
   session: SessionView;
 }
 
+const toError = (e: unknown) => (e instanceof ApiError ? e : new ApiError("INTERNAL", String(e), 0));
+
 export default function IntakePage() {
+  const router = useRouter();
   const mounted = useMounted();
-  const { hasSession } = useApp();
+  const { hasSession, setReport } = useApp();
   const [data, setData] = React.useState<Loaded | null>(null);
   const [error, setError] = React.useState<ApiError | null>(null);
   const [busy, setBusy] = React.useState(false);
   const [status, setStatus] = React.useState("");
   const [refinement, setRefinement] = React.useState<QuestionCandidate | null>(null);
   const [reloadKey, setReloadKey] = React.useState(0);
+  const [running, setRunning] = React.useState(false);
+  const [runError, setRunError] = React.useState<ApiError | null>(null);
+  const questionRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!hasSession) return;
@@ -41,7 +47,7 @@ export default function IntakePage() {
         }
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(e instanceof ApiError ? e : new ApiError("INTERNAL", String(e), 0));
+        if (!cancelled) setError(toError(e));
       });
     return () => {
       cancelled = true;
@@ -55,17 +61,11 @@ export default function IntakePage() {
     setError(null);
     try {
       await api.postAnswer({ question_id: q.question_id, fact_key: q.fact_key, ...a });
-      setStatus(
-        a.skipped
-          ? `Skipped: ${factLabel(q.fact_key)}.`
-          : a.declined
-            ? `Noted that you'd rather not share ${factLabel(q.fact_key).toLowerCase()}.`
-            : `Saved: ${factLabel(q.fact_key)}.`,
-      );
+      setStatus(answerStatus(factLabel(q.fact_key), a.skipped ? "skipped" : a.declined ? "declined" : "saved"));
       setRefinement(null);
       reload();
     } catch (e) {
-      setError(e instanceof ApiError ? e : new ApiError("INTERNAL", String(e), 0));
+      setError(toError(e));
     } finally {
       setBusy(false);
     }
@@ -76,117 +76,124 @@ export default function IntakePage() {
     setError(null);
     try {
       await api.postFacts({ facts: [input] });
-      setStatus(`Updated: ${factLabel(input.key)}.`);
+      setStatus(answerStatus(factLabel(input.key), "updated"));
       reload();
     } catch (e) {
-      setError(e instanceof ApiError ? e : new ApiError("INTERNAL", String(e), 0));
+      setError(toError(e));
     } finally {
       setBusy(false);
     }
   }
 
+  function openRefinement(r: QuestionCandidate) {
+    setRefinement(r);
+    requestAnimationFrame(() => questionRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  }
+
   if (!mounted) return <PageSkeleton label="Loading your questions" />;
   if (!hasSession) {
     return (
-      <EmptyState title="Start a session first" action={{ href: "/", label: "Go to the start" }}>
-        Your answers are stored in a session. Start one on the welcome page — it takes a second.
-      </EmptyState>
+      <Container width="reading">
+        <EmptyState title="Start a session first" action={{ href: "/", label: "Go to the start" }}>
+          Your answers are stored in a session. Start one on the welcome page — it takes a second.
+        </EmptyState>
+      </Container>
     );
   }
   if (!data) {
-    return error ? <ErrorState error={error} onRetry={reload} /> : <PageSkeleton label="Loading your questions" />;
+    return (
+      <Container width="reading">
+        {error ? <ErrorState error={error} onRetry={reload} /> : <PageSkeleton label="Loading your questions" />}
+      </Container>
+    );
   }
 
   const { nq, session } = data;
   const question = refinement ?? nq.question;
-  const hasOffer = session.offers.length > 0;
+  const offer = session.offers[session.offers.length - 1] ?? null;
+  const offerReady = !!offer && offer.ready_for_calculation && offer.unsupported_features.length === 0;
+  const progress = intakeProgress(session.profile.facts, nq.readiness);
+  const answers = activeFacts(session.profile.facts);
+  const { runningCosts, rest } = splitRefinements(nq.refinements, session.profile.facts);
+
+  async function run() {
+    if (!offer) return;
+    setRunning(true);
+    setRunError(null);
+    try {
+      const report = await api.runAnalysis({ offer_id: offer.offer_id });
+      setReport(report);
+      router.push("/dashboard");
+    } catch (e) {
+      setRunError(toError(e));
+      setRunning(false);
+    }
+  }
+
+  const primary = offerReady ? (
+    <PrimaryAction onClick={run} disabled={running}>
+      {running ? "Calculating…" : "See my results"}
+    </PrimaryAction>
+  ) : (
+    <PrimaryAction href="/offer">{offer ? "Review the loan offer" : "Continue to the loan offer"}</PrimaryAction>
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-ink">Your finances</h1>
-          <p className="text-sm text-ink-muted">One question at a time. Skip, estimate, or decline anything.</p>
-        </div>
-        <Button asChild variant={nq.question === null ? "primary" : "secondary"}>
-          <Link href="/offer">
-            {hasOffer ? "Review the loan offer" : "Continue to the loan offer"} <ArrowRight aria-hidden />
-          </Link>
-        </Button>
+    <Container width="reading" className="max-w-[42.5rem] space-y-10">
+      <div className="space-y-3">
+        <h1 className="text-[13px] font-medium text-ink-subtle">Your finances</h1>
+        <IntakeProgressLine progress={progress} />
       </div>
 
       <p role="status" aria-live="polite" className="sr-only">
         {status}
       </p>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div className="min-w-0 space-y-6">
-          {error && <ErrorState error={error} onRetry={reload} />}
-
-          {question ? (
+      <div ref={questionRef} className="scroll-mt-28 space-y-4">
+        <SavedNote text={status} />
+        {error && <ErrorState error={error} onRetry={reload} />}
+        {question ? (
+          <FadeIn key={question.question_id}>
             <QuestionCard
-              key={question.question_id}
               question={question}
               busy={busy}
               onAnswer={(a) => answer(question, a)}
               onCancel={refinement ? () => setRefinement(null) : undefined}
             />
-          ) : (
-            <Card>
-              <CardContent className="space-y-3 p-5 sm:p-6">
-                <p className="flex items-center gap-2 text-lg font-semibold text-ink">
-                  <CheckCircle2 aria-hidden className="size-5 text-accent" /> That&apos;s everything we need from you
-                </p>
-                <p className="text-sm text-ink-muted">
-                  {hasOffer
-                    ? "Your loan offer is in. Head to the offer step to run the analysis."
-                    : "Next, add the loan offer you're considering."}
-                </p>
-                <Button asChild>
-                  <Link href="/offer">
-                    {hasOffer ? "Go to the offer" : "Add the loan offer"} <ArrowRight aria-hidden />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {nq.question === null && !refinement && nq.refinements.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Optional: sharpen your results</CardTitle>
-                <p className="text-sm text-ink-muted">These never block your results. Each one makes a figure more precise.</p>
-              </CardHeader>
-              <CardContent>
-                <ul className="divide-y divide-line">
-                  {nq.refinements.map((r) => (
-                    <li key={r.question_id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-ink">{r.text}</p>
-                        <p className="text-xs text-ink-muted">{r.why_we_ask}</p>
-                      </div>
-                      <Button variant="secondary" size="sm" onClick={() => setRefinement(r)}>
-                        Answer
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Your answers</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FactsList facts={session.profile.facts} busy={busy} onEdit={editFact} />
-            </CardContent>
-          </Card>
-        </div>
-
-        <ReadinessPanel readiness={nq.readiness} />
+          </FadeIn>
+        ) : (
+          <FadeIn>
+            <IntakeDone
+              hasOffer={!!offer}
+              primary={primary}
+              runningCosts={runningCosts}
+              refinements={rest}
+              onRefine={openRefinement}
+            />
+            {runError && (
+              <div className="mt-4 space-y-2">
+                <ErrorState error={runError} title="We couldn't run the analysis" onRetry={run} />
+                <SecondaryLink href="/offer">Go to the loan offer</SecondaryLink>
+              </div>
+            )}
+          </FadeIn>
+        )}
       </div>
-    </div>
+
+      <div className="space-y-3 border-t border-line pt-8">
+        <Disclosure variant="card" summary={`Your answers (${answers.length})`} meta="Edit anytime">
+          <FactsList facts={session.profile.facts} busy={busy} onEdit={editFact} />
+        </Disclosure>
+        <ReadinessDetails readiness={nq.readiness} />
+        {question && !refinement && (
+          <p className="px-1 pt-2 text-[13px] text-ink-subtle">
+            Already have the loan offer?{" "}
+            <SecondaryLink href="/offer" className="text-[13px]">
+              Add it now
+            </SecondaryLink>
+          </p>
+        )}
+      </div>
+    </Container>
   );
 }

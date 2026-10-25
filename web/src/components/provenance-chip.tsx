@@ -9,15 +9,15 @@ import { factLabel, factValueText } from "@/lib/labels";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const TONE: Record<ChipSpec["tone"], string> = {
-  neutral: "border-line bg-canvas text-ink-muted",
-  accent: "border-accent-line bg-accent-soft text-accent-strong",
-  info: "border-info-line bg-info-soft text-info",
-  deficit: "border-deficit-line bg-deficit-soft text-deficit",
-  outline: "border-line-strong bg-surface text-ink",
+  neutral: "border-transparent bg-canvas text-ink-muted",
+  accent: "border-transparent bg-accent-soft text-accent-strong",
+  info: "border-transparent bg-info-soft text-info",
+  deficit: "border-transparent bg-deficit-soft text-deficit",
+  outline: "border-line bg-surface text-ink-muted",
 };
 
 function KindIcon({ kind }: { kind: string }) {
-  const cls = "size-3.5 shrink-0";
+  const cls = "size-3 shrink-0 opacity-80";
   if (kind === "document") return <FileText aria-hidden className={cls} />;
   if (kind === "calculation") return <Calculator aria-hidden className={cls} />;
   if (kind === "assumption") return <Lightbulb aria-hidden className={cls} />;
@@ -29,7 +29,7 @@ export function Chip({ spec, kind, className, wrap = false }: { spec: ChipSpec; 
   return (
     <span
       className={cn(
-        "inline-flex max-w-full items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium leading-5",
+        "inline-flex max-w-full items-center gap-1 rounded-full border px-1.5 py-px text-[11px] font-medium leading-[18px] transition-colors duration-150",
         TONE[spec.tone],
         className,
       )}
@@ -52,7 +52,7 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
   const factKey = str(ref.fact_key);
   const assumption = str(ref.assumption_id);
   return (
-    <li className="space-y-1 border-t border-line pt-3 first:border-t-0 first:pt-0">
+    <li className="space-y-1.5 border-t border-line pt-3 first:border-t-0 first:pt-0">
       <Chip spec={evidenceChip(e)} kind={e.kind} wrap />
       <p className="text-ink">{honestLabel(e.display_label)}</p>
       {formula && (
@@ -98,13 +98,13 @@ export function ProvenanceChip({
   return (
     <Popover>
       <PopoverTrigger
-        className={cn("rounded-full focus-visible:outline-2 focus-visible:outline-accent no-print", className)}
+        className={cn("group rounded-full align-middle focus-visible:outline-2 focus-visible:outline-accent no-print [&:hover>span]:bg-subtle", className)}
         aria-label={`Source for ${label ?? "this number"}: ${spec.label}. Show details`}
       >
         <Chip spec={evidence.length > 1 ? { ...spec, label: `${spec.label} · ${evidence.length} sources` } : spec} kind={primary.kind} />
       </PopoverTrigger>
       <PopoverContent>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-ink-subtle">
+        <p className="mb-3 text-xs font-medium text-ink-subtle">
           Where {label ? `“${label}”` : "this number"} comes from
         </p>
         <ul className="space-y-3">

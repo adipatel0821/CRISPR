@@ -16,7 +16,7 @@ export function ErrorState({
   title?: string;
 }) {
   return (
-    <div role="alert" className="rounded-lg border border-deficit-line bg-deficit-soft p-5 text-sm">
+    <div role="alert" className="rounded-card bg-deficit-soft p-5 text-sm leading-relaxed">
       <p className="flex items-center gap-2 font-semibold text-deficit">
         <AlertTriangle aria-hidden className="size-4" />
         {title}
@@ -43,10 +43,10 @@ export function EmptyState({
   action?: { href: string; label: string };
 }) {
   return (
-    <div className="rounded-lg border border-dashed border-line-strong bg-surface p-8 text-center">
+    <div className="rounded-card bg-canvas px-6 py-10 text-center">
       <Inbox aria-hidden className="mx-auto size-6 text-ink-subtle" />
-      <h2 className="mt-3 text-base font-semibold text-ink">{title}</h2>
-      {children && <div className="mx-auto mt-1 max-w-md text-sm text-ink-muted">{children}</div>}
+      <h2 className="mt-3 text-base font-semibold tracking-tight text-ink">{title}</h2>
+      {children && <div className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-ink-muted">{children}</div>}
       {action && (
         <Button asChild className="mt-4">
           <Link href={action.href}>{action.label}</Link>
@@ -62,13 +62,14 @@ export function PageSkeleton({ label = "Loading" }: { label?: string }) {
       <p role="status" aria-live="polite" className="sr-only">
         {label}…
       </p>
+      <Skeleton className="h-4 w-24" />
       <Skeleton className="h-8 w-2/3" />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Skeleton className="h-28" />
-        <Skeleton className="h-28" />
-        <Skeleton className="h-28" />
+        <Skeleton className="h-28 rounded-card" />
+        <Skeleton className="h-28 rounded-card" />
+        <Skeleton className="h-28 rounded-card" />
       </div>
-      <Skeleton className="h-64" />
+      <Skeleton className="h-64 rounded-card" />
     </div>
   );
 }
