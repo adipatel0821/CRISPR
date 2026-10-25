@@ -67,19 +67,44 @@ export function OfferAlerts({ offer }: { offer: LoanOffer }) {
   );
 }
 
-/** Every term of the offer with its source chip (value + "Typed by you" / "From your document, p.N" …). */
+/** Worst automatic check result for a term (selection and counting only). */
+function checkLine(checks: object): { v: "pass" | "warn" | "fail"; text: string } | null {
+  const vals = Object.values(checks as Record<string, unknown>).filter((v) => typeof v === "string" && v !== "not_applicable");
+  if (vals.length === 0) return null;
+  const fails = vals.filter((v) => v === "fail").length;
+  const warns = vals.filter((v) => v === "warn").length;
+  if (fails) return { v: "fail", text: fails === 1 ? "1 check failed" : `${fails} checks failed` };
+  if (warns) return { v: "warn", text: warns === 1 ? "1 check to look at" : `${warns} checks to look at` };
+  if (vals.every((v) => v === "pass")) return { v: "pass", text: "Checks passed" };
+  return null;
+}
+
+/** Every term of the offer with its automatic checks and source chip (value + "Typed by you" / "From your document, p.N" …). */
 export function OfferTermsList({ offer }: { offer: LoanOffer }) {
   const keys = TERM_ORDER.filter((k) => offer.terms[k]);
   return (
     <dl className="grid gap-x-8 sm:grid-cols-2">
       {keys.map((k) => {
         const t = offer.terms[k];
+        const c = checkLine(t.checks ?? {});
         return (
           <div key={k} className="flex items-center justify-between gap-3 border-b border-line py-2.5">
-            <dt className="min-w-0 text-[13px] text-ink-muted">{TERM_LABELS[k] ?? k}</dt>
+            <dt className="min-w-0 text-[15px] text-ink-2">{TERM_LABELS[k] ?? k}</dt>
             <dd className="flex shrink-0 flex-col items-end gap-0.5 text-right">
-              <span className="figure text-sm font-medium text-ink">{termValueText(t.value ?? null, t.value_type)}</span>
-              <Chip spec={termChip(t)} kind={t.source_kind} />
+              <span className="figure text-[15px] font-semibold text-ink">{termValueText(t.value ?? null, t.value_type)}</span>
+              <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-0.5">
+                {c && (
+                  <span className="inline-flex items-center gap-1 text-xs text-ink-2">
+                    {c.v === "pass" ? (
+                      <CheckCircle2 aria-hidden className="size-3.5 text-savings-ink" />
+                    ) : (
+                      <AlertTriangle aria-hidden className={c.v === "fail" ? "size-3.5 text-shortfall-ink" : "size-3.5 text-caution"} />
+                    )}
+                    {c.text}
+                  </span>
+                )}
+                <Chip spec={termChip(t)} kind={t.source_kind} />
+              </span>
             </dd>
           </div>
         );
