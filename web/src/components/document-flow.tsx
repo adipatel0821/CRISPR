@@ -429,7 +429,7 @@ export function DocumentFlow({
               This document has {doc.offers_found} offers. Which one are you considering?
             </legend>
             <FileLine doc={doc} />
-            <div className="grid gap-2 pt-1">
+            <div className="grid gap-3 pt-1 lg:grid-cols-2">
               {doc.offer_labels.map((l, i) => (
                 <label
                   key={l}

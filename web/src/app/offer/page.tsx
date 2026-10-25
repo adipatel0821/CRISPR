@@ -266,7 +266,9 @@ export default function OfferPage() {
               value={tab}
               onChange={setTab}
               columns={2}
-              className="[&_[data-option-tile]]:min-h-28 [&_[data-option-tile]]:p-6"
+              // The native radio covers its whole tile (transparent), so a click anywhere on the tile, by a person or
+              // by a test driver, lands on the radio itself. Keyboard and screen reader behaviour are unchanged.
+              className="[&_[data-option-tile]]:min-h-28 [&_[data-option-tile]]:p-6 [&_input]:inset-0 [&_input]:z-10 [&_input]:m-0 [&_input]:size-full [&_input]:cursor-pointer [&_input]:opacity-0 [&_input]:[clip:auto] [&_input]:[clip-path:none]"
             />
             {tab === "manual" ? (
               <FadeIn key="manual">

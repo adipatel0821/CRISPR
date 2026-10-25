@@ -202,7 +202,13 @@ async function reportFigures(page) {
     const res = await fetch(`${api}/reports/${r}`, { headers: { Authorization: `Bearer ${t}` } });
     const j = await res.json();
     const m = j.with_offer?.metrics ?? {};
-    return { pay: m.monthly_payment?.value, tot: m.total_of_payments?.value, fc: m.finance_charge?.value, label: j.offer?.label };
+    return {
+      pay: m.monthly_payment?.value,
+      tot: m.total_of_payments?.value,
+      fc: m.finance_charge?.value,
+      deal: m.total_paid_through_deal?.value,
+      label: j.offer?.label,
+    };
   }, API);
 }
 
@@ -216,13 +222,45 @@ async function runToResults(page, tag) {
   const body = await page.textContent("body");
   for (const v of ["375.14", "22,508.29", "3,008.29"]) check(`${tag}: results show ${v}`, body.includes(v));
   const f = await reportFigures(page);
-  check(`${tag}: report figures 375.14 / 22508.29 / 3008.29`, f.pay === "375.14" && f.tot === "22508.29" && f.fc === "3008.29", JSON.stringify(f));
+  check(
+    `${tag}: report figures 375.14 / 22508.29 / 3008.29 / 26508.29`,
+    f.pay === "375.14" && f.tot === "22508.29" && f.fc === "3008.29" && f.deal === "26508.29",
+    JSON.stringify(f),
+  );
   return f;
 }
 
+/** An offer saved before the down-payment question was answered: the open question shows inline on the offer step. */
+async function pendingChecks() {
+  const s = await api("POST", "/sessions", {});
+  await api("POST", `/sessions/${s.session_id}/facts`, { facts: HOUSEHOLD.filter((f) => f.key !== "loan.down_payment_source") }, s.token);
+  const offerId = (await api("POST", `/sessions/${s.session_id}/offers`, OFFER, s.token)).offer_id;
+  const sv = { sessionId: s.session_id, token: s.token, dataMode: s.data_mode, offerId, reportId: null };
+  const { ctx, page, errors } = await context(sv, [1440, 900]);
+  const tag = "offer pending question";
+  await page.goto(WEB + "/offer", { waitUntil: "networkidle" });
+  await page.getByRole("heading", { level: 1, name: "Check your loan" }).waitFor({ timeout: 20000 });
+  const sec = page.locator("section[aria-label='Before your results']");
+  check(`${tag}: open question shown inline`, (await sec.count()) === 1);
+  check(`${tag}: See my results waits for the answer`, (await page.getByRole("button", { name: /See my results/ }).count()) === 0);
+  const pa = await primaryActions(page);
+  check(`${tag}: one primary action (the question's Continue)`, pa.visible === 1, JSON.stringify(pa.labels));
+  await shoot(page, "offer_pending");
+  const radio = sec.getByRole("radio", { name: /savings/i }).first();
+  if (await radio.count()) {
+    await radio.check({ force: true });
+    await sec.getByRole("button", { name: /^Continue$/ }).click();
+    await page.getByRole("button", { name: /See my results/ }).waitFor({ timeout: 15000 });
+    check(`${tag}: answering brings back See my results`, await page.getByRole("button", { name: /See my results/ }).isEnabled());
+    await stateChecks(page, `${tag} answered`);
+  } else check(`${tag}: savings option present`, false);
+  check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
+  await ctx.close();
+}
+
 async function chooseUpload(page) {
-  // click the tile, as a person would (the native radio inside it is visually hidden)
-  await page.locator("[data-option-tile]", { hasText: "Upload the contract" }).click();
+  // the transparent native radio covers its tile, so a plain click on the radio works (as in screens.mjs)
+  await page.getByRole("radio", { name: /Upload the contract/ }).click();
   await page.locator("[data-drop-zone]").waitFor({ timeout: 5000 });
   check("upload tile selected by click", await page.getByRole("radio", { name: /Upload the contract/ }).isChecked());
 }
@@ -319,6 +357,10 @@ async function offerChecks() {
     await page.getByRole("heading", { level: 1, name: "Check your loan" }).waitFor({ timeout: 15000 });
     const saved = await page.locator("[data-saved-offer]").innerText();
     check(`${tag}: confirmation shows document payment $375.14`, saved.includes("$375.14") && /Read from your document/.test(saved));
+    await page.locator("summary", { hasText: "Review all terms" }).click();
+    await page.waitForTimeout(300);
+    const review = await page.locator("[data-saved-offer] details").innerText();
+    check(`${tag}: Review all terms shows checks and document sources`, /Checks passed/.test(review) && /From your document, p\.1/.test(review), review.slice(0, 200));
     await shoot(page, "offer_saved_doc");
     await runToResults(page, tag);
     check(`${tag}: no page errors`, errors.length === 0, errors.join(" | ").slice(0, 300));
@@ -377,6 +419,7 @@ async function offerChecks() {
 try {
   if (ONLY === "all" || ONLY === "options") await optionsChecks();
   if (ONLY === "all" || ONLY === "offer") await offerChecks();
+  if (ONLY === "all" || ONLY === "offer" || ONLY === "pending") await pendingChecks();
 } catch (e) {
   check("script ran without exceptions", false, String(e?.stack ?? e).slice(0, 800));
 } finally {

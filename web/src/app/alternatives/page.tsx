@@ -171,7 +171,8 @@ function Options({ report }: { report: DecisionReport }) {
               )}
               <div className="space-y-1 text-sm text-ink-2">
                 {cf.notes.map((n) => (
-                  <p key={n}>{plain(n)}</p>
+                  // drop internal flag names such as "(same_rate_assumed)" from the backend note
+                  <p key={n}>{plain(n.replace(/\s*\([a-z0-9]+(?:_[a-z0-9]+)+\)/g, ""))}</p>
                 ))}
                 {cf.deferred_levers.length > 0 && (
                   <p>Not explored in this version: {cf.deferred_levers.map((l) => l.replace(/_/g, " ")).join(", ")}.</p>
