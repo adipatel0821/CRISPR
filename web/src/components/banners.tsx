@@ -24,7 +24,7 @@ export function DataModeBanner({ className }: { className?: string }) {
   const { health, healthError, fixtures } = useApp();
   if (fixtures) {
     return (
-      <div data-banner role="note" className={cn("rounded-lg border border-info-line bg-info-soft px-4 py-3 text-sm text-info", className)}>
+      <div data-banner role="note" className={cn("rounded-card bg-info-soft px-4 py-3 text-sm leading-relaxed text-info", className)}>
         <p className="flex items-start gap-2">
           <FlaskConical aria-hidden className="mt-0.5 size-4 shrink-0" />
           <span>
@@ -37,7 +37,7 @@ export function DataModeBanner({ className }: { className?: string }) {
   }
   if (healthError) {
     return (
-      <div data-banner role="status" className={cn("rounded-lg border border-deficit-line bg-deficit-soft px-4 py-3 text-sm text-deficit", className)}>
+      <div data-banner role="status" className={cn("rounded-card bg-deficit-soft px-4 py-3 text-sm leading-relaxed text-deficit", className)}>
         <p className="flex items-start gap-2">
           <WifiOff aria-hidden className="mt-0.5 size-4 shrink-0" />
           <span>
@@ -50,7 +50,7 @@ export function DataModeBanner({ className }: { className?: string }) {
   if (!health) return null;
   const t = DATA_MODE_TEXT[health.data_mode] ?? DATA_MODE_TEXT.synthetic_only;
   return (
-    <div data-banner role="note" className={cn("rounded-lg border border-line bg-surface px-4 py-3 text-sm text-ink-muted", className)}>
+    <div data-banner role="note" className={cn("rounded-card bg-canvas px-4 py-3 text-[13px] leading-relaxed text-ink-muted", className)}>
       <p className="flex items-start gap-2">
         {health.data_mode === "synthetic_only" ? (
           <Database aria-hidden className="mt-0.5 size-4 shrink-0 text-accent" />
@@ -70,7 +70,7 @@ export function FixtureNotice() {
   const { fixtures } = useApp();
   if (!fixtures) return null;
   return (
-    <p data-banner className="rounded-md border border-info-line bg-info-soft px-3 py-2 text-xs text-info">
+    <p data-banner className="rounded-xl bg-info-soft px-3 py-2 text-xs leading-relaxed text-info">
       Fixture data: these results are the bundled synthetic reference example, not a live calculation.
     </p>
   );
