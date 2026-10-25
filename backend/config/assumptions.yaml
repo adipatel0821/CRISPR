@@ -89,6 +89,9 @@ assumptions:
   a_no_job_benefits:
     text: "Illustrative: no unemployment benefits, severance or spending cuts are assumed during the months without income."
     citation: null
+  a_scenario_before_discretionary:
+    text: "Illustrative: flexible spending was not provided, so these monthly paths are before discretionary spending."
+    citation: null
   a_extra_down_from_savings:
     text: "Illustrative: any extra down payment in an alternative is assumed to come out of your savings."
     citation: null
