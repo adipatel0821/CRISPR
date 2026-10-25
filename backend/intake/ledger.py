@@ -8,6 +8,8 @@
 * Contracts §5 (D0-004 / CP1 audit LOW-1): the friendly typed-answer parser below never rounds and never accepts
   exponent notation or binary floats; every canonical value is then passed through
   schemas.validation.normalize_fact_value so /answers and /facts store values under the same rules.
+* Lowering debts.count retires the extra debt items (highest ids first) with a `superseded` tombstone so
+  current_facts and engine.requirements.debt_requirements stop requiring them.
 """
 from __future__ import annotations
 
@@ -22,6 +24,7 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
 from typing import Any
 
+from engine.requirements import debt_item_ids
 from intake.errors import FactValidationError
 from intake.ontology import FactSpec, load_ontology
 from schemas import validation as contract
@@ -342,8 +345,28 @@ def apply_inputs(session_id: str, existing: list[Any], inputs: list[FactInput | 
         update.new_facts.append(fact)
         current[key] = fact
         if key == "debts.count" and value is not None:
+            _retire_extra_debt_items(session_id, current, int(value), update)
             update.new_facts += _debt_placeholders(session_id, current, int(value))
     return update
+
+
+def _retire_extra_debt_items(session_id: str, current: dict[str, Any], count: int, update: LedgerUpdate) -> None:
+    """debts.count lowered below the number of existing items: keep the first `count` items (engine order
+    d1, d2, ...) and supersede every fact of the extra items, highest ids first. Append-only: each retired fact
+    gets a `superseded` tombstone that points at it, so current_facts drops it whether or not storage has
+    marked the old row yet, and engine.requirements.debt_requirements no longer requires the item."""
+    ids = debt_item_ids(current)
+    for item in reversed(ids[count:]):
+        prefix = f"debts[{item}]."
+        for key in sorted(k for k in current if k.startswith(prefix)):
+            old = current.pop(key)
+            old_id = _get(old, "fact_id")
+            tomb = make_fact(session_id, key, None, "superseded", supersedes=old_id,
+                             uncertainty=Uncertainty(kind="unknown"),
+                             display_label="Removed: you said you have fewer debts")
+            update.new_facts.append(tomb)
+            if old_id:
+                update.superseded_ids.append(old_id)
 
 
 def _debt_placeholders(session_id: str, current: dict[str, Any], count: int) -> list[FinancialFact]:
