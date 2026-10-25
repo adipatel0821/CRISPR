@@ -48,7 +48,10 @@ export function BigFigure({
       <p
         className={cn(
           "figure mt-2 flex flex-wrap items-baseline gap-x-3 font-extrabold",
-          size === "xl" ? "text-result" : "text-[clamp(2.25rem,4.2vw,3.75rem)] leading-none tracking-[-0.025em]",
+          // Arbitrary length syntax so tailwind-merge does not mistake the size for a colour and drop it.
+          size === "xl"
+            ? "text-[length:var(--text-result)] leading-none tracking-[-0.03em]"
+            : "text-[length:clamp(2.25rem,4.2vw,3.75rem)] leading-none tracking-[-0.025em]",
           TONE[tone],
         )}
       >

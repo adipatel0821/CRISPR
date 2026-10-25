@@ -63,7 +63,7 @@ function EvidenceDetail({ e }: { e: ExplanationEvidence }) {
       )}
       {quote && (
         <blockquote className="border-l-2 border-accent-line pl-2 text-xs text-ink-muted">
-          “{quote}”{page ? ` — page ${page}` : ""}
+          “{quote}”{page ? ` (page ${page})` : ""}
         </blockquote>
       )}
       {factKey && (

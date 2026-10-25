@@ -255,7 +255,7 @@ export function runningCostsMissing(report: DecisionReport): boolean {
 }
 
 export const RUNNING_COSTS_TEXT =
-  "New-car running costs (insurance, fuel, maintenance) aren't included — add them for a fuller picture.";
+  "New-car running costs (insurance, fuel, maintenance) aren't included. Add them for a fuller picture.";
 export const RUNNING_COSTS_HREF = "/intake";
 
 function runningCostsPiece(report: DecisionReport): SummaryPiece | null {
@@ -303,7 +303,7 @@ export function alternativeSentence(alt: Alternative): string {
     );
   }
   const body = parts.length ? parts.join(", ") : "keeps the payment and finance charge the same";
-  const same = alt.assumption_flags?.includes("same_rate_assumed") ? " (same rate assumed — ask the lender)" : "";
+  const same = alt.assumption_flags?.includes("same_rate_assumed") ? " (same rate assumed, so ask the lender)" : "";
   return `“${alt.label}” ${body}${same}.`;
 }
 
@@ -403,7 +403,7 @@ export interface HighlightedAlternative {
   /** Backend deltas vs your offer (strings, unchanged). */
   deltas: DeltasVsBase;
   assumptionFlags: string[];
-  /** Plain-language text for each assumption flag (e.g. "Same rate assumed — ask the lender"). */
+  /** Plain-language text for each assumption flag (e.g. "Same rate assumed, ask the lender"). */
   assumptionNotes: string[];
   sameRateAssumed: boolean;
   alternative: Alternative;

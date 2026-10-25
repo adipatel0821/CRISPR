@@ -149,7 +149,7 @@ test("next without a comparison claim uses highlights (template only from backen
   assert.equal(n.kind, "alternative");
   // concern is a gap (cash flow) -> prefer keep-savings (none improve) then lower payment = 72 months
   assert.equal(n.altId, "alt_t72");
-  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36, raises the finance charge by $516.25 (same rate assumed — ask the lender).");
+  assert.equal(n.text, "“72 months” lowers the monthly payment by $55.36, raises the finance charge by $516.25 (same rate assumed, so ask the lender).");
   onlyBackendNumbers(n.text, r);
 });
 
